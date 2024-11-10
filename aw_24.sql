@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 10, 2024 at 09:56 PM
+-- Generation Time: Nov 10, 2024 at 10:02 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -72,7 +72,7 @@ CREATE TABLE `facultades` (
 --
 
 CREATE TABLE `inscripciones` (
-  `id_organizador` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
   `id_evento` int(11) NOT NULL,
   `esta_lista_espera` tinyint(1) DEFAULT NULL,
   `fecha_inscripcion` datetime DEFAULT NULL
@@ -122,7 +122,7 @@ ALTER TABLE `facultades`
 -- Indexes for table `inscripciones`
 --
 ALTER TABLE `inscripciones`
-  ADD PRIMARY KEY (`id_organizador`,`id_evento`),
+  ADD PRIMARY KEY (`id_usuario`,`id_evento`),
   ADD KEY `FK_idEvento` (`id_evento`);
 
 --
@@ -182,7 +182,7 @@ ALTER TABLE `eventos`
 --
 ALTER TABLE `inscripciones`
   ADD CONSTRAINT `FK_idEvento` FOREIGN KEY (`id_evento`) REFERENCES `eventos` (`id`),
-  ADD CONSTRAINT `FK_idOrganizador` FOREIGN KEY (`id_organizador`) REFERENCES `usuarios` (`id`);
+  ADD CONSTRAINT `FK_idOrganizador` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
 
 --
 -- Constraints for table `usuarios`
