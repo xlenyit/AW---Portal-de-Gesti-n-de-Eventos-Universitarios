@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+  <%-include('partes/head') %>
+  <body>
+    <div class="container">
+      <div class="d-flex align-items-center">
+        <div class="  mx-auto   ">
+          <h1>Registro</h1>
+          <form id="regUserForm" method="post" enctype="multipart/form-data">
+
+            <!--NOMBRE-->
+            <div class="row">
+              <div class="col" id="nameContainer">
+                <h4 class="my-3">Nombre</h4>
+                <input  class="w-100 form-control" id="name" type="text" name="nombre" placeholder="Nombre" required>
+              </div>
+            </div>
+
+            <!--CORREO Y TELEFONO-->
+            <div class="row">
+              <div class="col" id="emailContainer">
+                <h4 class="my-3">Correo</h4>
+                <input id="email" class="w-100 form-control" type="email" name="email" placeholder="example@ucm.es" required>
+              </div>
+              <div class="col" id="telContainer">
+                <h4 class="my-3">Teléfono</h4>
+                <input id="telefono" class=" w-100 form-control" name="telefono"  type="tel">
+              </div>
+            </div>
+
+            <!--CONTRASEÑA Y CONFIRMAR-->
+            <div class="row">
+              <div class="col" id="passContainer">
+                <h4 class="my-3">Contraseña</h4>
+                  <input class="w-100 form-control" type="password" name="contrasena" id="password" placeholder="Contraseña" required>
+              </div>
+              <div id="confirmContainer" class="col">
+                <h4 class="my-3">Confirmación</h4>
+                  <input class="w-100 form-control" type="password" name="contrasenaConf" id="confirmPassword" placeholder="Contraseña" required>
+              </div>
+            </div>
+              
+            <!--FACULTAD-->
+            <div class="row">
+              <div class="col">
+                <h4 class="my-3">Facultad</h4>
+                <select id="facultad" name="Curso" class="w-100" required>
+                  <option hidden selected>Selecciona una opción</option>
+                  <% facultades.forEach( ele=> { %>
+                    <option value="<%=ele.id%>#<%=ele.nombre%>"><%=ele.nombre%></option>
+                    <%})%>
+                  </select>
+                </div>
+            </div>
+
+            <!--BOTON-->
+            <div class="row d-flex my-4">
+              <input id="register" class=" w-50  btn btn-primary  mx-auto " type="button" value="Registrarme">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

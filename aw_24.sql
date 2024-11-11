@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Nov 10, 2024 at 10:02 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- Servidor: 127.0.0.1
+-- Tiempo de generación: 11-11-2024 a las 15:58:15
+-- Versión del servidor: 10.4.28-MariaDB
+-- Versión de PHP: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,15 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `aw_24`
+-- Base de datos: `aw_24`
 --
-CREATE DATABASE IF NOT EXISTS `aw_24` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `aw_24`;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `configuraciones_accesibilidad`
+-- Estructura de tabla para la tabla `configuraciones_accesibilidad`
 --
 
 CREATE TABLE `configuraciones_accesibilidad` (
@@ -40,7 +38,7 @@ CREATE TABLE `configuraciones_accesibilidad` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `eventos`
+-- Estructura de tabla para la tabla `eventos`
 --
 
 CREATE TABLE `eventos` (
@@ -57,7 +55,7 @@ CREATE TABLE `eventos` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `facultades`
+-- Estructura de tabla para la tabla `facultades`
 --
 
 CREATE TABLE `facultades` (
@@ -65,10 +63,19 @@ CREATE TABLE `facultades` (
   `nombre` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `facultades`
+--
+
+INSERT INTO `facultades` (`id`, `nombre`) VALUES
+(1, 'Facultad de Informática'),
+(2, 'Facultad de Derecho'),
+(3, 'Facultad de Ciencias de la Información');
+
 -- --------------------------------------------------------
 
 --
--- Table structure for table `inscripciones`
+-- Estructura de tabla para la tabla `inscripciones`
 --
 
 CREATE TABLE `inscripciones` (
@@ -81,7 +88,7 @@ CREATE TABLE `inscripciones` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `usuarios`
+-- Estructura de tabla para la tabla `usuarios`
 --
 
 CREATE TABLE `usuarios` (
@@ -95,38 +102,38 @@ CREATE TABLE `usuarios` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Indexes for dumped tables
+-- Índices para tablas volcadas
 --
 
 --
--- Indexes for table `configuraciones_accesibilidad`
+-- Indices de la tabla `configuraciones_accesibilidad`
 --
 ALTER TABLE `configuraciones_accesibilidad`
   ADD PRIMARY KEY (`id`),
   ADD KEY `FK_idUsuario` (`id_usuario`);
 
 --
--- Indexes for table `eventos`
+-- Indices de la tabla `eventos`
 --
 ALTER TABLE `eventos`
   ADD PRIMARY KEY (`id`),
   ADD KEY `FK_idOrganizadorEvento` (`id_organizador`);
 
 --
--- Indexes for table `facultades`
+-- Indices de la tabla `facultades`
 --
 ALTER TABLE `facultades`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `inscripciones`
+-- Indices de la tabla `inscripciones`
 --
 ALTER TABLE `inscripciones`
   ADD PRIMARY KEY (`id_usuario`,`id_evento`),
   ADD KEY `FK_idEvento` (`id_evento`);
 
 --
--- Indexes for table `usuarios`
+-- Indices de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id`),
@@ -134,58 +141,58 @@ ALTER TABLE `usuarios`
   ADD KEY `FK_idAccesibilidad` (`id_accesibilidad`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT de las tablas volcadas
 --
 
 --
--- AUTO_INCREMENT for table `configuraciones_accesibilidad`
+-- AUTO_INCREMENT de la tabla `configuraciones_accesibilidad`
 --
 ALTER TABLE `configuraciones_accesibilidad`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `eventos`
+-- AUTO_INCREMENT de la tabla `eventos`
 --
 ALTER TABLE `eventos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `facultades`
+-- AUTO_INCREMENT de la tabla `facultades`
 --
 ALTER TABLE `facultades`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT for table `usuarios`
+-- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- Constraints for dumped tables
+-- Restricciones para tablas volcadas
 --
 
 --
--- Constraints for table `configuraciones_accesibilidad`
+-- Filtros para la tabla `configuraciones_accesibilidad`
 --
 ALTER TABLE `configuraciones_accesibilidad`
   ADD CONSTRAINT `FK_idUsuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
 
 --
--- Constraints for table `eventos`
+-- Filtros para la tabla `eventos`
 --
 ALTER TABLE `eventos`
   ADD CONSTRAINT `FK_idOrganizadorEvento` FOREIGN KEY (`id_organizador`) REFERENCES `usuarios` (`id`);
 
 --
--- Constraints for table `inscripciones`
+-- Filtros para la tabla `inscripciones`
 --
 ALTER TABLE `inscripciones`
   ADD CONSTRAINT `FK_idEvento` FOREIGN KEY (`id_evento`) REFERENCES `eventos` (`id`),
   ADD CONSTRAINT `FK_idOrganizador` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
 
 --
--- Constraints for table `usuarios`
+-- Filtros para la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
   ADD CONSTRAINT `FK_idAccesibilidad` FOREIGN KEY (`id_accesibilidad`) REFERENCES `configuraciones_accesibilidad` (`id`),
