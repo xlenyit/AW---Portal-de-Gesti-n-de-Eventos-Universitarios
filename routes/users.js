@@ -21,7 +21,7 @@ router.get("/register", alreadyLoggedIn ,(request, response) => {//Renderiza pag
     if(err) console.log("Error: ", err)
     else response.render('register', {facultades:resultado});
   })
-})
+});
 
 router.post("/register",(request, response) => { //Crea el nuevo usuario tras submit en vista de register
   //TODO
@@ -36,4 +36,32 @@ router.get("/login", alreadyLoggedIn, (request, response) => {//Renderiza pagina
 router.post("/login", function (request, response) {//Inicia sesion
   //TODO
 });
+
+// EVENTO
+router.get("/event",(request, response) => {//Renderiza pagina de register
+  // Esto es temporal, la idea es tomar toda la info de una bd en función de cual sea el id tomado
+  // Hay que acceder a Inscripciones, Evento y Usuario
+  response.status(200)
+  midao.getEvento((err,resultado)=> {
+    if(err) console.log("Error: ", err)
+    else{
+      // tomar los datos
+    };
+  })
+  response.render("event", {
+    nombre: "name",
+    fecha: "fecha",
+    precio: "price",
+    hora: "h",
+    ubicacion: "u",
+    capacidad_maxima: 2,
+    ocupacion: 2,
+    descripcion: "Lorem ipsum Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum",
+    usuario: { esta_inscrito: false, esta_lista_espera: false },
+    image_path: "/img/placeholderEvento.jpg",
+    image_alt: "Imagen"
+  });
+});
+
 module.exports = router;
+
