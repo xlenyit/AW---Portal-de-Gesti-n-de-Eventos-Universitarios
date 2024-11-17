@@ -29,4 +29,12 @@ router.get("/event",(request, response) => {//Renderiza pagina de register
     })
 });
 
+router.get('/eventViewer', (request, response) => {
+    response.status(200);
+    response.render('eventViewer', {
+        precio_maximo:1000,
+
+    });
+})
+
 module.exports = router;

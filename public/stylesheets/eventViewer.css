@@ -1,0 +1,20 @@
+
+.slider {
+    cursor:pointer;
+}
+
+.sliderTicks {
+    position: relative;
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.sliderTicks span{
+    display: block;
+    width: 4px;
+    height: 4px;
+    background-color: black;
+    border-radius: 50%;
+}
+
