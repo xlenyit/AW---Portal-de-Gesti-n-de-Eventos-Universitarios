@@ -42,25 +42,25 @@ router.get("/event",(request, response) => {//Renderiza pagina de register
   // Esto es temporal, la idea es tomar toda la info de una bd en función de cual sea el id tomado
   // Hay que acceder a Inscripciones, Evento y Usuario
   response.status(200)
-  midao.getEvento((err,resultado)=> {
+  midao.getEvento(1, (err,resultado)=> {
     if(err) console.log("Error: ", err)
     else{
-      // tomar los datos
+      resultado = resultado[0];
+      response.render("event", {
+        nombre: resultado.titulo,
+        fecha: resultado.fecha,
+        precio: resultado.precio,
+        hora: resultado.hora,
+        ubicacion: resultado.ubicacion,
+        capacidad_maxima: resultado.capacidad_maxima,
+        ocupacion: 100,
+        descripcion: resultado.descripcion,
+        usuario: { esta_inscrito: true, esta_lista_espera: true},
+        image_path: "/img/placeholderEvento.jpg",
+        image_alt: "Imagen"
+      });
     };
   })
-  response.render("event", {
-    nombre: "name",
-    fecha: "fecha",
-    precio: "price",
-    hora: "h",
-    ubicacion: "u",
-    capacidad_maxima: 2,
-    ocupacion: 2,
-    descripcion: "Lorem ipsum Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum",
-    usuario: { esta_inscrito: false, esta_lista_espera: false },
-    image_path: "/img/placeholderEvento.jpg",
-    image_alt: "Imagen"
-  });
 });
 
 module.exports = router;

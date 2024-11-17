@@ -9,31 +9,34 @@
                     <div class="container vw-100 m-0 p-0">
                         <div class="row">
                             <div class="col" id="eventImageContainer">
-                                <img src="<%=image_path%>" alt="<%=image_alt%>" class="w-100">
+                                <img src="<%=image_path%>" alt="<%=image_alt%>" class="w-75">
                             </div>
                             <div class="col" id="eventSpecificationsContainer">
                                 <p>Fecha: <%= fecha %></p>
                                 <p>Hora: <%= hora %></p>
                                 <p>Ubicación: <%= ubicacion %></p>
-                                <p>Nombre: <%= precio%></p>
+                                <p>Precio: <%= precio%></p>
                                 <p>Capacidad: <%= capacidad_maxima%></p>
                             </div>
                         </div>
-                        <div class="container vw-100 m-0 p-0">
+                        <div class="container vw-100 m-0 p-0 mt-4">
 
                             <div class="row" id="joinContainer">
                                 <div id="ocupacionContainer" class="col">
-                                    <span>Ocupación: <%= ocupacion%> / <%= capacidad_maxima%></span>
+                                    <span>Ocupación: <%= ocupacion%> / <%= capacidad_maxima%> -
+                                        <%=ocupacion*100/capacidad_maxima%> %</span>
                                 </div>
-                                <div id="botonIncribirseContainer" class="col">
+                                <div id="botonIncribirseContainer" class="col d-flex justify-content-center">
                                     <!--- La idea de esto es luego poder cambiarle el color a cada botón -->
+                                    <button id="changeStateButton"
                                     <% if (!usuario.esta_inscrito) {%>
-                                        <button class="w-50">Inscribirse</button>
+                                         class="w-50 bg-info">Inscribirse
                                     <% } else if (usuario.esta_lista_espera) {%>
-                                        <button class="w-50">Quitarse de lista de espera</button>
+                                         class="w-50 bg-warning">Quitarse de lista de espera
                                     <% } else{%>
-                                        <button class="w-50">Desapuntarse</button>
+                                        class="w-50 bg-danger color-white">Desapuntarse
                                     <%}; %>
+                                    </button>
                                 </div>
                             </div>
                         </div>

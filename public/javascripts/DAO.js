@@ -33,7 +33,15 @@ class DAO {
                 connection.query(stringQuery, function (err, resultado) {
                     connection.release();
                     if (err) callback(err, null)
-                    else callback(null,resultado.map(ele => ({ id: ele.id, titulo: ele.titulo, descripcion: ele.descripcion, fecha: ele.fecha, hora: ele.hora, ubicacion: ele.ubicacion, id_organizador: ele.id_organizador})))
+                    else callback(null,resultado.map(ele => ({id:ele.id,
+                                                                titulo: ele.titulo,
+                                                                descripcion: ele.descripcion,
+                                                                fecha: ele.fecha,
+                                                                precio: ele.precio,
+                                                                hora: ele.hora,
+                                                                ubicacion: ele.ubicacion,
+                                                                capacidad_maxima: ele.capacidad_maxima,
+                                                                id_organizador: ele.id_organizador})));
                 })
             }
         })

@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: 127.0.0.1
--- Tiempo de generación: 11-11-2024 a las 15:58:15
--- Versión del servidor: 10.4.28-MariaDB
--- Versión de PHP: 8.2.4
+-- Host: 127.0.0.1
+-- Generation Time: Nov 17, 2024 at 06:22 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,33 +18,42 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `aw_24`
+-- Database: `aw_24`
 --
+CREATE DATABASE IF NOT EXISTS `aw_24` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `aw_24`;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `configuraciones_accesibilidad`
+-- Table structure for table `configuraciones_accesibilidad`
 --
 
 CREATE TABLE `configuraciones_accesibilidad` (
   `id` int(11) NOT NULL,
-  `id_usuario` int(11) NOT NULL,
   `paleta` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`paleta`)),
   `tamanyo_texto` int(11) NOT NULL,
   `configuracion_navegacion` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`configuracion_navegacion`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `configuraciones_accesibilidad`
+--
+
+INSERT INTO `configuraciones_accesibilidad` (`id`, `paleta`, `tamanyo_texto`, `configuracion_navegacion`) VALUES
+(1, '123', 12, '123');
+
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `eventos`
+-- Table structure for table `eventos`
 --
 
 CREATE TABLE `eventos` (
   `id` int(11) NOT NULL,
   `titulo` varchar(100) NOT NULL,
   `descripcion` varchar(1000) NOT NULL,
+  `precio` int(11) NOT NULL,
   `fecha` date NOT NULL,
   `hora` time NOT NULL,
   `ubicacion` varchar(200) NOT NULL,
@@ -52,10 +61,17 @@ CREATE TABLE `eventos` (
   `id_organizador` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `eventos`
+--
+
+INSERT INTO `eventos` (`id`, `titulo`, `descripcion`, `precio`, `fecha`, `hora`, `ubicacion`, `capacidad_maxima`, `id_organizador`) VALUES
+(1, 'Evento', 'Eventual Eventoso Evento', 200, '2022-08-22', '17:51:55', 'Los Madriles', 1000, 1);
+
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `facultades`
+-- Table structure for table `facultades`
 --
 
 CREATE TABLE `facultades` (
@@ -64,7 +80,7 @@ CREATE TABLE `facultades` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `facultades`
+-- Dumping data for table `facultades`
 --
 
 INSERT INTO `facultades` (`id`, `nombre`) VALUES
@@ -75,7 +91,7 @@ INSERT INTO `facultades` (`id`, `nombre`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `inscripciones`
+-- Table structure for table `inscripciones`
 --
 
 CREATE TABLE `inscripciones` (
@@ -88,7 +104,7 @@ CREATE TABLE `inscripciones` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuarios`
+-- Table structure for table `usuarios`
 --
 
 CREATE TABLE `usuarios` (
@@ -102,38 +118,44 @@ CREATE TABLE `usuarios` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Índices para tablas volcadas
+-- Dumping data for table `usuarios`
+--
+
+INSERT INTO `usuarios` (`id`, `nombre`, `correo`, `telefono`, `es_organizador`, `id_facultad`, `id_accesibilidad`) VALUES
+(1, 'Joaquin', 'joaco@gmail.com', 666666777, 1, 1, 1);
+
+--
+-- Indexes for dumped tables
 --
 
 --
--- Indices de la tabla `configuraciones_accesibilidad`
+-- Indexes for table `configuraciones_accesibilidad`
 --
 ALTER TABLE `configuraciones_accesibilidad`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `FK_idUsuario` (`id_usuario`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `eventos`
+-- Indexes for table `eventos`
 --
 ALTER TABLE `eventos`
   ADD PRIMARY KEY (`id`),
   ADD KEY `FK_idOrganizadorEvento` (`id_organizador`);
 
 --
--- Indices de la tabla `facultades`
+-- Indexes for table `facultades`
 --
 ALTER TABLE `facultades`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `inscripciones`
+-- Indexes for table `inscripciones`
 --
 ALTER TABLE `inscripciones`
   ADD PRIMARY KEY (`id_usuario`,`id_evento`),
   ADD KEY `FK_idEvento` (`id_evento`);
 
 --
--- Indices de la tabla `usuarios`
+-- Indexes for table `usuarios`
 --
 ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id`),
@@ -141,58 +163,52 @@ ALTER TABLE `usuarios`
   ADD KEY `FK_idAccesibilidad` (`id_accesibilidad`);
 
 --
--- AUTO_INCREMENT de las tablas volcadas
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT de la tabla `configuraciones_accesibilidad`
+-- AUTO_INCREMENT for table `configuraciones_accesibilidad`
 --
 ALTER TABLE `configuraciones_accesibilidad`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT de la tabla `eventos`
+-- AUTO_INCREMENT for table `eventos`
 --
 ALTER TABLE `eventos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT de la tabla `facultades`
+-- AUTO_INCREMENT for table `facultades`
 --
 ALTER TABLE `facultades`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT de la tabla `usuarios`
+-- AUTO_INCREMENT for table `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- Restricciones para tablas volcadas
+-- Constraints for dumped tables
 --
 
 --
--- Filtros para la tabla `configuraciones_accesibilidad`
---
-ALTER TABLE `configuraciones_accesibilidad`
-  ADD CONSTRAINT `FK_idUsuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
-
---
--- Filtros para la tabla `eventos`
+-- Constraints for table `eventos`
 --
 ALTER TABLE `eventos`
   ADD CONSTRAINT `FK_idOrganizadorEvento` FOREIGN KEY (`id_organizador`) REFERENCES `usuarios` (`id`);
 
 --
--- Filtros para la tabla `inscripciones`
+-- Constraints for table `inscripciones`
 --
 ALTER TABLE `inscripciones`
   ADD CONSTRAINT `FK_idEvento` FOREIGN KEY (`id_evento`) REFERENCES `eventos` (`id`),
   ADD CONSTRAINT `FK_idOrganizador` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
 
 --
--- Filtros para la tabla `usuarios`
+-- Constraints for table `usuarios`
 --
 ALTER TABLE `usuarios`
   ADD CONSTRAINT `FK_idAccesibilidad` FOREIGN KEY (`id_accesibilidad`) REFERENCES `configuraciones_accesibilidad` (`id`),
