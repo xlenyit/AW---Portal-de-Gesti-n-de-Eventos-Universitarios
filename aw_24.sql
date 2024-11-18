@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 17, 2024 at 06:22 PM
+-- Generation Time: Nov 18, 2024 at 02:24 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -22,6 +22,24 @@ SET time_zone = "+00:00";
 --
 CREATE DATABASE IF NOT EXISTS `aw_24` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE `aw_24`;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `categorias`
+--
+
+CREATE TABLE `categorias` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `categorias`
+--
+
+INSERT INTO `categorias` (`id`, `nombre`) VALUES
+(1, 'Musical');
 
 -- --------------------------------------------------------
 
@@ -58,15 +76,16 @@ CREATE TABLE `eventos` (
   `hora` time NOT NULL,
   `ubicacion` varchar(200) NOT NULL,
   `capacidad_maxima` int(11) NOT NULL,
-  `id_organizador` int(11) NOT NULL
+  `id_organizador` int(11) NOT NULL,
+  `id_categoria` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `eventos`
 --
 
-INSERT INTO `eventos` (`id`, `titulo`, `descripcion`, `precio`, `fecha`, `hora`, `ubicacion`, `capacidad_maxima`, `id_organizador`) VALUES
-(1, 'Evento', 'Eventual Eventoso Evento', 200, '2022-08-22', '17:51:55', 'Los Madriles', 1000, 1);
+INSERT INTO `eventos` (`id`, `titulo`, `descripcion`, `precio`, `fecha`, `hora`, `ubicacion`, `capacidad_maxima`, `id_organizador`, `id_categoria`) VALUES
+(1, 'Evento', 'Eventual Eventoso Evento', 200, '2022-08-22', '17:51:55', 'Los Madriles', 1000, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -129,6 +148,12 @@ INSERT INTO `usuarios` (`id`, `nombre`, `correo`, `telefono`, `es_organizador`, 
 --
 
 --
+-- Indexes for table `categorias`
+--
+ALTER TABLE `categorias`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `configuraciones_accesibilidad`
 --
 ALTER TABLE `configuraciones_accesibilidad`
@@ -139,7 +164,8 @@ ALTER TABLE `configuraciones_accesibilidad`
 --
 ALTER TABLE `eventos`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `FK_idOrganizadorEvento` (`id_organizador`);
+  ADD KEY `FK_idOrganizadorEvento` (`id_organizador`),
+  ADD KEY `FK_categoria` (`id_categoria`);
 
 --
 -- Indexes for table `facultades`
@@ -165,6 +191,12 @@ ALTER TABLE `usuarios`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `categorias`
+--
+ALTER TABLE `categorias`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `configuraciones_accesibilidad`
@@ -198,6 +230,7 @@ ALTER TABLE `usuarios`
 -- Constraints for table `eventos`
 --
 ALTER TABLE `eventos`
+  ADD CONSTRAINT `FK_categoria` FOREIGN KEY (`id_categoria`) REFERENCES `categorias` (`id`),
   ADD CONSTRAINT `FK_idOrganizadorEvento` FOREIGN KEY (`id_organizador`) REFERENCES `usuarios` (`id`);
 
 --

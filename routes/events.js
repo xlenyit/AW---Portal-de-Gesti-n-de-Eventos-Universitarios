@@ -31,10 +31,22 @@ router.get("/event",(request, response) => {//Renderiza pagina de register
 
 router.get('/eventViewer', (request, response) => {
     response.status(200);
-    response.render('eventViewer', {
+    midao.getOrganizators((err,organizadores)=> {
+        if (err) console.log("Error: ", err)
+        else{
+            midao.getCategories((err,categorias)=> {
+                if (err) console.log("Error: ", err)
+                else response.render('eventViewer', getOptions(organizadores, categorias));
+            })
+        }
+    });
+})
+
+function getOptions(organizadores, categorias) {
+    return {
         precio_maximo:1000,
-        organizators:['Ana', 'Juan'],
-        categories:['Musical', 'Científico'],
+        organizators:organizadores,
+        categories:categorias,
         eventos:[
             {
                 "name": "Event 1",
@@ -70,7 +82,7 @@ router.get('/eventViewer', (request, response) => {
             }
         ]
 
-    });
-})
+    };
+}
 
 module.exports = router;

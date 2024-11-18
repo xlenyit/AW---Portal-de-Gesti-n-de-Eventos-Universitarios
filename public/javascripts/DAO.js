@@ -46,5 +46,33 @@ class DAO {
             }
         })
     }
+
+    getOrganizators(callback) {
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `SELECT * FROM usuarios WHERE es_organizador=1`;
+                connection.query(stringQuery, function (err, resultado) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else callback(null,resultado.map(ele => ({id:ele.id, nombre:ele.nombre})));
+                })
+            }
+        })
+    }
+
+    getCategories(callback) {
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `SELECT * FROM categorias`;
+                connection.query(stringQuery, function (err, resultado) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else callback(null,resultado.map(ele => ({id:ele.id, nombre:ele.nombre})));
+                })
+            }
+        })
+    }
 }
 module.exports = DAO

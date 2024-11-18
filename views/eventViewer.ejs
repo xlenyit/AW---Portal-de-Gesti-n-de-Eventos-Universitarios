@@ -12,26 +12,26 @@
             </div>
             <div id="organizatorContainer" class="container w-100 border">
                 <span>Organizadores: </span>
-                <% organizators.forEach(name => {%>
-                    <div id="<%=name%>Container" class="w-100 row mx-2">
+                <% organizators.forEach(res => {%>
+                    <div id="<%=res.nombre%>Container" class="w-100 row mx-2">
                         <div class="col-1">
-                            <input type="checkbox" id="<%=name%>Input">
+                            <input type="checkbox" id="<%=res.nombre%>Input">
                         </div>
                         <div class="col-10">
-                            <label for="<%=name%>Input"><%=name%></label>
+                            <label for="<%=res.nombre%>Input"><%=res.nombre%></label>
                         </div>
                     </div>
                 <%});%>
             </div>
             <div id="categoriesContainer" class="container w-100 border">
                 <span>Categorias: </span>
-                <% categories.forEach(categoryName => {%>
-                <div id="<%=categoryName%>Container" class="w-100 row mx-2">
+                <% categories.forEach(category => {%>
+                <div id="<%=category.nombre%>Container" class="w-100 row mx-2">
                     <div class="col-1">
-                        <input type="checkbox" id="<%=categoryName%>Input">
+                        <input type="checkbox" id="<%=category.nombre%>Input">
                     </div>
                     <div class="col-10">
-                        <label for="<%=categoryName%>Input"><%=categoryName%></label>
+                        <label for="<%=category.nombre%>Input"><%=category.nombre%></label>
                     </div>
                 </div>
                 <%});%>
