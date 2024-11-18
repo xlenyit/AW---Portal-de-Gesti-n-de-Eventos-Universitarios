@@ -3,28 +3,77 @@
 <link rel="stylesheet" type="text/css" href='/stylesheets/eventViewer.css'>
 <%-include('partes/head') %>
 <body>
-<div class="container m-0 p-0">
+<div class="container m-0 p-0 w-100">
     <div class="row">
         <div class="col-2 range">
-
-            <div class="slider">
-                <span class="range-selected"></span>
+            <div id="priceSliderContainer" class="text-center border">
+                <label for="priceSlider" class="w-100">Precio:</label>
+                <input class="slider" type="range" min="0" max="<%=precio_maximo%>" id="priceSlider">
             </div>
-            <div class="slider-input">
-                <input type="range" class="min" min="0" max="<%=precio_maximo%>" value="<%=precio_maximo%>>" step="10">
-                <input type="range" class="max" min="0" max="<%=precio_maximo%>>" value="<%=0.7*precio_maximo%>" step="10">
+            <div id="organizatorContainer" class="container w-100 border">
+                <span>Organizadores: </span>
+                <% organizators.forEach(name => {%>
+                    <div id="<%=name%>Container" class="w-100 row mx-2">
+                        <div class="col-1">
+                            <input type="checkbox" id="<%=name%>Input">
+                        </div>
+                        <div class="col-10">
+                            <label for="<%=name%>Input"><%=name%></label>
+                        </div>
+                    </div>
+                <%});%>
             </div>
-            <div class="slider-price">
-                <label for="min">Min</label>
-                <input type="number" name="min" value="300">
-                <label for="max">Max</label>
-                <input type="number" name="max" value="700">
+            <div id="categoriesContainer" class="container w-100 border">
+                <span>Categorias: </span>
+                <% categories.forEach(categoryName => {%>
+                <div id="<%=categoryName%>Container" class="w-100 row mx-2">
+                    <div class="col-1">
+                        <input type="checkbox" id="<%=categoryName%>Input">
+                    </div>
+                    <div class="col-10">
+                        <label for="<%=categoryName%>Input"><%=categoryName%></label>
+                    </div>
+                </div>
+                <%});%>
             </div>
         </div>
-        <div class="col-10" id="eventsColumn">
+        <div class="col w-100 text-center justify-content-center align-items-center">
+            <div class="container w-100 p-0 m-0">
+                <% let counter = 0; %>
+                <% let size = 0; %>
+                <%if (eventos.length >= 3) size = 3%>
+                <% eventos.forEach((event, index) => { %>
+                    <% if (counter === 0) { %>
+                    <div class="row">
+                        <% } %>
 
+                        <div class="col-4">
+                            <div class="card mb-2">
+                                <img class="card-img-top" src="/img/placeholderEvento.jpg">
+                                <h5 class="card-title"><%= event.name %></h5>
+                                <p class="card-text"><%=event.description%></p>
+                                <div class="card-subtitle text-body-secondary d-flex justify-content-between">
+                                    <span class="px-4"><%= event.date %></span>
+                                    <span class="px-4"><%= event.ocupation %>/<%= event.capacity %></span>
+                                </div>
+                                <div class="align-items-center">
+                                    <a href="#" class="btn btn-info w-75 m-2">Ver más</a>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <% counter++; %>
+                        <% if (counter === 3 || index === eventos.length - 1) { %>
+                    </div>
+                    <% counter = 0; %>
+                    <% } %>
+                <% }); %>
+            </div>
         </div>
     </div>
+
 </div>
 </body>
 </html>

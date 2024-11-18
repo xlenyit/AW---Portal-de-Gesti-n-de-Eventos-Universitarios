@@ -33,6 +33,42 @@ router.get('/eventViewer', (request, response) => {
     response.status(200);
     response.render('eventViewer', {
         precio_maximo:1000,
+        organizators:['Ana', 'Juan'],
+        categories:['Musical', 'Científico'],
+        eventos:[
+            {
+                "name": "Event 1",
+                "date": "2024-11-18",
+                "location": "New York",
+                "description": "A tech conference about AI advancements.",
+                "capacity":"1000",
+                "ocupation": "100"
+            },
+            {
+                "name": "Event 2",
+                "date": "2024-11-20",
+                "location": "San Francisco",
+                "description": "A networking event for software developers.",
+                "capacity":"1000",
+                "ocupation": "100"
+            },
+            {
+                "name": "Event 3",
+                "date": "2024-12-01",
+                "location": "Los Angeles",
+                "description": "A startup pitch competition.",
+                "capacity":"1000",
+                "ocupation": "100"
+            },
+            {
+                "name": "Event 4",
+                "date": "2024-11-01",
+                "location": "Los Angeles",
+                "description": "A startup potch competition.",
+                "capacity":"900",
+                "ocupation": "100"
+            }
+        ]
 
     });
 })
