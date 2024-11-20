@@ -13,6 +13,7 @@ router.get("/event",(request, response) => {//Renderiza pagina de register
         else{
             resultado = resultado[0];
             response.render("event", {
+                isLogged: true,
                 hasNotification: true,
                 nombre: resultado.titulo,
                 fecha: resultado.fecha,
@@ -45,6 +46,7 @@ router.get('/eventViewer', (request, response) => {
 
 function getOptions(organizadores, categorias) {
     return {
+        isLogged: true,
         hasNotification:true,
         precio_maximo:1000,
         organizators:organizadores,

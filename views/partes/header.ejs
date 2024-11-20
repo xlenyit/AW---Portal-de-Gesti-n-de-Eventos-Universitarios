@@ -5,11 +5,14 @@
         <a href="/events/eventViewer">Eventos</a>
     </div>
     <div class="miPerfil">
-        <%let iconPath = "/img/noNotification.png"%>
-        <% if (hasNotification) iconPath = "/img/hasNotification.png"%>
-        <img src="<%=iconPath%>" alt="Icon indicating that
+        <%if (isLogged) {%>
+            <%let iconPath = "/img/noNotification.png"%>
+            <% if (hasNotification) iconPath = "/img/hasNotification.png"%>
+            <img src="<%=iconPath%>" alt="Icon indicating that
                 <%=hasNotification ? 'you have notification' : 'you dont have a notification'%>"
-             class="notifier">
+                 class="notifier">
+        <%}%>
+
         <img src="/img/placeholderEvento.jpg" alt="" class="profileIcon">
     </div>
 </div>

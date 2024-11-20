@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<link rel="stylesheet" type="text/css" href='/stylesheets/eventViewer.css'>
+<%-include('partes/head') %>
+<script src="/javascripts/switchViews.js"></script>
+<body class="vh-100">
+<%-include('partes/header') %>
+
+<div id="body" class="d-flex flex-column justify-content-center">
+    <div class="d-flex justify-content-center mt-5" id="title">
+
+        <h1>Bienvenido <%=user%></h1>
+    </div>
+
+    <div id="buttonsContainer" class="d-flex justify-content-center">
+        <%if (isLogged){%>
+            <button class="btn btn-primary" onclick="showEvents()">Explorar Eventos</button>
+        <%}else{%>
+            <div class="d-flex flex-row">
+                <button class="btn btn-warning mx-2" onclick="openLogin()">Iniciar Sesión</button>
+                <button class="btn btn-info mx-2" onclick="openRegister()">Registrarse</button>
+            </div>
+        <%}%>
+    </div>
+
+
+</div>
+</body>
+</html>
