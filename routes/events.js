@@ -13,8 +13,8 @@ router.get("/event",(request, response) => {//Renderiza pagina de register
         else{
             resultado = resultado[0];
             response.render("event", {
-                isLogged: true,
-                hasNotification: true,
+                isLogged: request.isLogged,
+                hasNotification: request.hasNotification,
                 nombre: resultado.titulo,
                 fecha: resultado.fecha,
                 precio: resultado.precio,
@@ -33,15 +33,21 @@ router.get("/event",(request, response) => {//Renderiza pagina de register
 
 router.get('/eventViewer', (request, response) => {
     response.status(200);
-    midao.getOrganizators((err,organizadores)=> {
+    var config = {};
+
+    midao.getOrganizators((err, organizadores) =>{
         if (err) console.log("Error: ", err)
-        else{
-            midao.getCategories((err,categorias)=> {
-                if (err) console.log("Error: ", err)
-                else response.render('eventViewer', getOptions(organizadores, categorias));
-            })
-        }
+        else
+            config.organizadores = organizadores;
+    })
+
+    midao.getCategories((err, categorias)=> {
+        if (err) console.log("Error: ", err)
+        else config.categories = categorias;
     });
+
+    response.render('eventViewer', getOptions(config.organizadores, config.categories));
+
 })
 
 function getOptions(organizadores, categorias) {

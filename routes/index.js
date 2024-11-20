@@ -2,9 +2,16 @@ var express = require('express');
 var router = express.Router();
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', function(req, res) {
+  var hasNotification = false;
+  var isLogged = res.locals.isLogged;
+  console.log(isLogged);
 
-  res.render('landingPage', { user: 'Usuario',hasNotification: true, isLogged: true});
+  if (isLogged) {
+    hasNotification = true;
+  }
+
+  res.render('landingPage', { user: 'Usuario', isLogged: isLogged, hasNotification: hasNotification });
 });
 
 
