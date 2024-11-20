@@ -1,50 +1,52 @@
 <!DOCTYPE html>
 <html lang="es">
-    <%-include('partes/head') %>
-    <body>
-        <div class="container ">
-            <div class="d-flex mh-0 ph-0">
-                <div id="mainDiv" class=" ">
-                    <h1><%= nombre %></h1>
-                    <div class="container vw-100 m-0 p-0">
-                        <div class="row">
-                            <div class="col" id="eventImageContainer">
-                                <img src="<%=image_path%>" alt="<%=image_alt%>" class="w-75">
-                            </div>
-                            <div class="col" id="eventSpecificationsContainer">
-                                <p>Fecha: <%= fecha %></p>
-                                <p>Hora: <%= hora %></p>
-                                <p>Ubicación: <%= ubicacion %></p>
-                                <p>Precio: <%= precio%></p>
-                                <p>Capacidad: <%= capacidad_maxima%></p>
-                            </div>
-                        </div>
-                        <div class="container vw-100 m-0 p-0 mt-4">
-
-                            <div class="row" id="joinContainer">
-                                <div id="ocupacionContainer" class="col">
-                                    <span>Ocupación: <%= ocupacion%> / <%= capacidad_maxima%> -
-                                        <%=ocupacion*100/capacidad_maxima%> %</span>
-                                </div>
-                                <div id="botonIncribirseContainer" class="col d-flex justify-content-center">
-                                    <button id="changeStateButton"
-                                    <% if (!usuario.esta_inscrito) {%>
-                                         class="w-50 bg-info">Inscribirse
-                                    <% } else if (usuario.esta_lista_espera) {%>
-                                         class="w-50 bg-warning">Quitarse de lista de espera
-                                    <% } else{%>
-                                        class="w-50 bg-danger color-white">Desapuntarse
-                                    <%}; %>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+<%- include('partes/head') %>
+<body>
+<%-include('partes/header') %>
+<div class="container ">
+    <div class="d-flex mh-0 ph-0">
+        <div id="mainDiv" class=" ">
+            <h1><%= nombre %></h1>
+            <div class="container vw-100 m-0 p-0">
+                <div class="row">
+                    <div class="col" id="eventImageContainer">
+                        <img src="<%= image_path %>" alt="<%= image_alt %>" class="w-75">
                     </div>
-                    <div id="descripcion" class="mt-3 p-2 border-solid border">
-                        <%= descripcion %>
+                    <div class="col" id="eventSpecificationsContainer">
+                        <p>Fecha: <%= fecha %></p>
+                        <p>Hora: <%= hora %></p>
+                        <p>Ubicación: <%= ubicacion %></p>
+                        <p>Precio: <%= precio %></p>
+                        <p>Capacidad: <%= capacidad_maxima %></p>
+                    </div>
+                </div>
+                <div class="container vw-100 m-0 p-0 mt-4">
+
+                    <div class="row" id="joinContainer">
+                        <div id="ocupacionContainer" class="col">
+                                    <span>Ocupación: <%= ocupacion %> / <%= capacidad_maxima %> -
+                                        <%= ocupacion*100/capacidad_maxima %> %</span>
+                        </div>
+                        <div id="botonIncribirseContainer" class="col d-flex justify-content-center">
+                            <button id="changeStateButton"
+                            <% if (!usuario.esta_inscrito) { %>
+                                    class="w-50 bg-info">
+                                Inscribirse
+                                <% } else if (usuario.esta_lista_espera) { %>
+                                    class="w-50 bg-warning">Quitarse de lista de espera
+                                <% } else{ %>
+                                    class="w-50 bg-danger color-white">Desapuntarse
+                                <% }; %>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div id="descripcion" class="mt-3 p-2 border-solid border">
+                <%= descripcion %>
+            </div>
         </div>
-    </body>
+    </div>
+</div>
+</body>
 </html>
