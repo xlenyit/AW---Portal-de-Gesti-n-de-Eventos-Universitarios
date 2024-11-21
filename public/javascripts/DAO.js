@@ -33,7 +33,7 @@ class DAO {
                 connection.query(stringQuery, function (err, resultado) {
                     connection.release();
                     if (err) callback(err, null)
-                    else callback(null,resultado.map(ele => ({id:ele.id,
+                    else callback(null,resultado.map(ele => ({  id:ele.id,
                                                                 titulo: ele.titulo,
                                                                 descripcion: ele.descripcion,
                                                                 fecha: ele.fecha,
@@ -70,9 +70,66 @@ class DAO {
                     connection.release();
                     if (err) callback(err, null);
                     else callback(null,resultado.map(ele => ({id:ele.id, nombre:ele.nombre})));
-                })
+                });
             }
         })
+    }
+
+    getOcupacion(idEvento, callback){
+        this.pool.getConnection((err, connection) =>{
+            if (err) callback(err, null);
+            else {
+                let stringQuery = `SELECT COUNT(*) as ocupacion FROM inscripciones WHERE id_evento=${idEvento} AND esta_lista_espera=0`;
+                connection.query(stringQuery, function (err, resultado) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else callback(null,resultado.map(ele => ({ocupacion: ele.ocupacion})));
+                });
+            }
+        })
+    }
+
+    getEventos(callback){
+        this.pool.getConnection((err, connection) =>{
+            if (err) callback(err, null);
+            else {
+                let stringQuery = `SELECT * FROM eventos`;
+                connection.query(stringQuery, function (err, resultado) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else {
+                        const mappedResults = resultado.map(evento => ({
+                            id: evento.id,
+                            titulo: evento.titulo,
+                            descripcion: evento.descripcion,
+                            fecha: evento.fecha,
+                            precio: evento.precio,
+                            hora: evento.hora,
+                            ubicacion: evento.ubicacion,
+                            capacidad_maxima: evento.capacidad_maxima,
+                            id_organizador: evento.id_organizador,
+                        }));
+
+                        callback(null,mappedResults);
+                    }
+                });
+            }
+        });
+    }
+
+    getMaxPrice(callback){
+        this.pool.getConnection((err, connection) =>{
+            if (err) callback(err, null);
+            else {
+                let stringQuery = `SELECT MAX(precio) as max_price FROM eventos`;
+                connection.query(stringQuery, function (err, resultado) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else callback(null,resultado[0]);
+                    
+                });
+            }
+        });
     }
 }
 module.exports = DAO

@@ -7,15 +7,15 @@ const midao = new DAO('localhost','root','','AW_24');
 
 // EVENTO
 router.get('/event',(request, response) => {//Renderiza pagina de register
-    // Esto es temporal, la idea es tomar toda la info de una bd en función de cual sea el id tomado
-    // Hay que acceder a Inscripciones, Evento y Usuario
     response.status(200)
     var config = {};
     let contador = 0;
 
+    // Habría que cambiarlo para que funcionase en lugar de con isLogged, pasando un user.
+    // Si user === null -> !isLogged
+    // Si no, tomar valores desde user.hasNotification, user.esta_inscrito...
     config.isLogged = request.isLogged;
     config.hasNotification = request.hasNotification;
-    config.ocupacion= 100,
     config.usuario= { esta_inscrito: true, esta_lista_espera: true},
     config.image_path= '/img/placeholderEvento.jpg',
     config.image_alt= 'Imagen'
@@ -24,6 +24,7 @@ router.get('/event',(request, response) => {//Renderiza pagina de register
         if(err) console.log('Error: ', err)
         else{
             resultado = resultado[0];
+            config.idEvento = resultado.id;
             config.nombre = resultado.titulo;
             config.fecha = resultado.fecha;
             config.precio= resultado.precio;
@@ -31,15 +32,23 @@ router.get('/event',(request, response) => {//Renderiza pagina de register
             config.ubicacion= resultado.ubicacion;
             config.capacidad_maxima= resultado.capacidad_maxima;
             config.descripcion = resultado.descripcion;
-        };
 
-        contador++;
-        checkAndRender();
+            midao.getOcupacion(config.idEvento, (err, res) =>{
+                if (err){
+                    console.log('Error: ', err)
+                    config.ocupacion = 3;
+                } 
+                else
+                    config.ocupacion = res[0].ocupacion;
+     
+                checkAndRender();
+            });
+        };
     });
     
     const checkAndRender = () =>{
-        if (contador === 1)
-            response.render('event', config);
+        
+        response.render('event', config);
     };
 
 
@@ -81,58 +90,60 @@ router.get('/eventViewer', (request, response) => {
     });
 
 
-    const checkAndRender = () => {
+    const checkAndRender = async() => {
         if (completed === 2) {
+            getOptions(config.organizators, config.categories, (err, options)=>{
+                response.render('eventViewer', options);
+            });
             // Ambas funciones han terminado, renderizamos la respuesta
-            response.render('eventViewer', getOptions(config.organizators, config.categories));
+            
         }
     };  
 
 });
 
-function getOptions(organizadores, categorias) {
-    return {
-        isLogged: true,
-        hasNotification:true,
-        precio_maximo:1000,
-        organizators:organizadores,
-        categories:categorias,
-        eventos:[
-            {
-                'name': 'Event 1',
-                'date': '2024-11-18',
-                'location': 'New York',
-                'description': 'A tech conference about AI advancements.',
-                'capacity':'1000',
-                'ocupation': '100'
-            },
-            {
-                'name': 'Event 2',
-                'date': '2024-11-20',
-                'location': 'San Francisco',
-                'description': 'A networking event for software developers.',
-                'capacity':'1000',
-                'ocupation': '100'
-            },
-            {
-                'name': 'Event 3',
-                'date': '2024-12-01',
-                'location': 'Los Angeles',
-                'description': 'A startup pitch competition.',
-                'capacity':'1000',
-                'ocupation': '100'
-            },
-            {
-                'name': 'Event 4',
-                'date': '2024-11-01',
-                'location': 'Los Angeles',
-                'description': 'A startup potch competition.',
-                'capacity':'900',
-                'ocupation': '100'
-            }
-        ]
+function getOptions(organizadores, categorias, callback) {
 
-    };
+    let config = {};
+
+    config.isLogged = true;
+    config.hasNotification=true;
+    config.organizators=organizadores;
+    config.categories=categorias;
+
+    midao.getEventos((err, eventos) =>{
+        if (err){
+            console.error('Error: ', err)
+            callback(err, null);
+        }
+        else{
+            let resEvents = [];
+            for (let i = 0; i < eventos.length; i++){
+                let evento = eventos[i]
+                midao.getEvento(evento.id, (err, ocupacion) =>{
+                    if (err){
+                        console.error('Error: ', err)
+                        evento.ocupacion = 0;
+                    }
+                    else evento.ocupacion = ocupacion[0].ocupacion;
+                    resEvents.push([evento]);
+                });
+            }
+            config.eventos = resEvents;
+
+            midao.getMaxPrice((err, ret)=>{
+                if (err){
+                    console.log(err);
+                    response.status = 400;
+                    config.precio_maximo = 0;
+                }
+                else
+                    config.precio_maximo = ret.max_price;
+                
+                callback(null, config);
+            });
+        }
+    });
 }
 
 module.exports = router;
