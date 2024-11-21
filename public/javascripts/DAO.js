@@ -29,7 +29,10 @@ class DAO {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery = `SELECT * FROM eventos WHERE id = ${id}`;
+                let stringQuery = `SELECT e.*, COALESCE(COUNT(i.id_usuario), 0) AS total 
+                                    FROM eventos e LEFT JOIN inscripciones i 
+                                    ON i.id_evento = e.id 
+                                    WHERE e.id = ${id}`;
                 connection.query(stringQuery, function (err, resultado) {
                     connection.release();
                     if (err) callback(err, null)
@@ -41,7 +44,9 @@ class DAO {
                                                                 hora: ele.hora,
                                                                 ubicacion: ele.ubicacion,
                                                                 capacidad_maxima: ele.capacidad_maxima,
-                                                                id_organizador: ele.id_organizador})));
+                                                                id_organizador: ele.id_organizador,
+                                                                ocupacion: ele.total
+                                                            })));
                 })
             }
         })
@@ -93,7 +98,10 @@ class DAO {
         this.pool.getConnection((err, connection) =>{
             if (err) callback(err, null);
             else {
-                let stringQuery = `SELECT * FROM eventos`;
+                let stringQuery = `SELECT e.*, COALESCE(COUNT(i.id_usuario), 0) AS total 
+                                    FROM eventos e LEFT JOIN inscripciones i 
+                                    ON i.id_evento = e.id 
+                                    GROUP BY e.id`;
                 connection.query(stringQuery, function (err, resultado) {
                     connection.release();
                     if (err) callback(err, null);
@@ -102,12 +110,13 @@ class DAO {
                             id: evento.id,
                             titulo: evento.titulo,
                             descripcion: evento.descripcion,
-                            fecha: '2023',
+                            fecha: evento.fecha,
                             precio: evento.precio,
                             hora: evento.hora,
                             ubicacion: evento.ubicacion,
                             capacidad_maxima: evento.capacidad_maxima,
                             id_organizador: evento.id_organizador,
+                            ocupacion: evento.total
                         }));
 
                         callback(null,mappedResults);

@@ -32,22 +32,13 @@ router.get('/event',(request, response) => {//Renderiza pagina de register
             config.ubicacion= resultado.ubicacion;
             config.capacidad_maxima= resultado.capacidad_maxima;
             config.descripcion = resultado.descripcion;
+            config.ocupacion = resultado.ocupacion;
 
-            midao.getOcupacion(config.idEvento, (err, res) =>{
-                if (err){
-                    console.error('Error: ', err)
-                    config.ocupacion = 3;
-                } 
-                else
-                    config.ocupacion = res[0].ocupacion;
-     
-                checkAndRender();
-            });
         };
+        checkAndRender();
     });
     
     const checkAndRender = () =>{
-        
         response.render('event', config);
     };
 
@@ -56,15 +47,50 @@ router.get('/event',(request, response) => {//Renderiza pagina de register
 
 router.get('/eventViewer', (request, response) => {
     response.status(200);
-    var config = {};
-    let completed = 0; // Contador para asegurarnos de que ambas funciones terminen
+    let config = {};
+    let validados = 0;
 
+    config.isLogged = true;
+    config.hasNotification=true;
+
+
+    calcularElementosParaFiltros((err, filtros) => {
+        if (err) response.status(400);
+        else{
+            config.organizators = filtros.organizators;
+            config.categories = filtros.categories;
+            config.precio_maximo = filtros.precio_maximo;
+        }
+        validados++;
+        tryRender();
+
+
+    });
+
+    obtenerConfiguracionDeEventos((err, eventos) => {
+        if (err) response.status(400);
+        else config.eventos = eventos;
+        validados++;
+        tryRender();
+    });
+    
+    const tryRender = () => {
+        if (validados === 2)
+            response.render('eventViewer', config);
+    }
+
+});
+
+/// Funciones Extra
+
+function calcularElementosParaFiltros(callback){
+    let config = {};
+    let completed = 0;
 
     midao.getOrganizators((err, organizadores) =>{
         if (err){
             console.error('Error: ', err)
-            response.status(400);
-            config.organizators =  null;
+            checkout(err, null);
         } 
         else
             config.organizators = organizadores;
@@ -74,12 +100,10 @@ router.get('/eventViewer', (request, response) => {
         
     });
 
-
     midao.getCategories((err, categorias)=> {
         if (err){
             console.error('Error: ', err)
-            response.status(400);
-            config.categories = null;
+            checkout(err, null);
         } 
         else
             config.categories = categorias;
@@ -89,65 +113,44 @@ router.get('/eventViewer', (request, response) => {
 
     });
 
+    midao.getMaxPrice((err, maxPrice) => {
+        if (err){
+            console.error('Error: ', err)
+            callback(err, null);
+        }
+        else
+            config.precio_maximo = maxPrice.maxPrice;
 
+        completed++;
+        checkAndRender();
+    })
 
     const checkAndRender = () => {
-        if (completed === 2) {
-            getOptions(config.organizators, config.categories, (err, options)=>{
-                response.render('eventViewer', options);
-            });            
-        }
-    };  
+        if (completed === 3) 
+            callback(null, config);
+    }; 
 
-});
+}
 
-function getOptions(organizadores, categorias, callback) {
+function obtenerConfiguracionDeEventos(callback){
+    let todosLosEventos = [];
 
-    let config = {};
-
-    config.isLogged = true;
-    config.hasNotification=true;
-    config.organizators=organizadores;
-    config.categories=categorias;
-
-    midao.getEventos((err, eventos) =>{
+    midao.getEventos((err, eventos) => {
         if (err){
             console.error('Error: ', err)
             callback(err, null);
         }
         else{
-            let resEvents = [];
             for (let i = 0; i < eventos.length; i++){
-                let evento = eventos[i]
-                midao.getEvento(evento.id, (err, res) =>{
-                    if (err){
-                        console.error('Error: ', err)
-                        evento.res = 0;
-                    }
-                    else{
-                        midao.getOcupacion(res[0].id, (err, ocu)=>{
-                            if (err) callback(err, null)
-                            else evento.ocupacion = ocu[0].ocupacion;
-                        })
-                    }
-                    resEvents.push(evento);
-                });
+                todosLosEventos.push(eventos[i]);
             }
-            config.eventos = resEvents;
 
-            midao.getMaxPrice((err, ret)=>{
-                if (err){
-                    console.error(err);
-                    response.status = 400;
-                    config.precio_maximo = 0;
-                }
-                else
-                    config.precio_maximo = ret.max_price;
-                
-                callback(null, config);
-            });
+            callback(null, todosLosEventos)
         }
+
+
     });
 }
+
 
 module.exports = router;
