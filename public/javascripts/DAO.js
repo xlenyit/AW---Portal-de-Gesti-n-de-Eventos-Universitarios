@@ -1,4 +1,4 @@
-const sql = require("mysql")
+const sql = require('mysql')
 
 class DAO {
     constructor(host, user, password, database) {
@@ -9,6 +9,21 @@ class DAO {
             database: database,
             // port: port
         })
+    }
+
+    // TODO
+    checkUser(user, callback){
+        callback(response.status(200));
+    }
+
+    registerUser(userData, callback){
+        // userdata has the structure:
+        // {name, email, telefono, password, confirmPassword, facultad, rankUser}
+        const {name, email, telefono, password, confirmPassword, facultad, rankUser} = userData;
+
+        // Necesitamos coger el id de la facultad
+
+        callback(null)
     }
 
     getFacultades(callback) {

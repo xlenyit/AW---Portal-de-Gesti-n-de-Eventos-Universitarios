@@ -1,19 +1,21 @@
 'use strict';
 
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
-/* GET home page. */
+// Esto retornará la página principal
 router.get('/', function(req, res) {
-  var hasNotification = false;
-  var isLogged = false;
-  console.log(isLogged);
+
+  // Asumimos solo dos estados: user === null y user === {datos}
+  let isLogged = null;
+
+  let hasNotification = false;
 
   if (isLogged) {
-    hasNotification = true;
+    hasNotification = req.body.user.hasNotification;
   }
 
-  res.render('landingPage', { user: 'Usuario', isLogged: isLogged, hasNotification: hasNotification });
+  res.render('homePage', { user: 'Usuario', isLogged: isLogged, hasNotification: hasNotification });
 });
 
 

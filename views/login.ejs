@@ -7,7 +7,7 @@
             <div class="d-flex align-items-center justify-content-center">
                 <div id="mainDiv" class=" ">
                     <h1>Inicio de sesión</h1>
-                    <form>
+                    <form method="post" action="/users/login">
                         <h4 class="my-3">Correo</h4>
                         <div id="emailContainer">
                             <input class="w-100 form-control" type="text" name="email" id="email" placeholder="example@ucm.es">
@@ -21,7 +21,7 @@
                                 <input id="login" class="btn btn-primary w-100" type="submit" value="Iniciar sesión">
                             </div>
                             <div class="col-4">
-                                <a class="btn btn-sm bg-secondary w-100 text-wrap" href="/users/register">¿No tienes cuenta?</a>
+                                <input class="btn btn-sm bg-secondary w-100 text-wrap" type="submit" href="/users/register">¿No tienes cuenta?</a>
                             </div>
                         </div>
                     </form>

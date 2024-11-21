@@ -3,19 +3,21 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "dev": "node --watch app.js"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcrypt": "5.1.1",
     "cookie": "^1.0.2",
     "cookie-parser": "~1.4.7",
     "debug": "~4.3.7",
-    "ejs": "^3.1.10",
-    "express": "^4.21.1",
-    "express-session": "^1.18.1",
+    "ejs": "3.1.10",
+    "express": "4.21.1",
+    "express-session": "1.18.1",
     "http-errors": "^2.0.0",
     "morgan": "~1.10.0",
-    "mysql": "^2.18.1"
+    "multer": "^1.4.5-lts.1",
+    "mysql": "2.18.1"
   },
   "description": "Programa Final para Aplicaciones Web",
   "main": "app.js",
@@ -38,5 +40,9 @@
   "bugs": {
     "url": "https://github.com/xlenyit/AW-Portal-de-Gestion-de-Eventos-Universitarios/issues"
   },
-  "homepage": "https://github.com/xlenyit/AW-Portal-de-Gestion-de-Eventos-Universitarios#readme"
+  "homepage": "https://github.com/xlenyit/AW-Portal-de-Gestion-de-Eventos-Universitarios#readme",
+  "devDependencies": {
+    "standard": "^17.1.2"
+  },
+  "eslintConfig": {}
 }

@@ -1,18 +1,17 @@
 'use strict';
 
-var createError = require('http-errors');
 const express = require('express');
-const session = require('express-session');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var eventsRouter = require('./routes/events');
-const {request} = require("express");
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const eventsRouter = require('./routes/events');
+const session = require('express-session')
 
-var app = express();
+const app = express();
+const PORT = process.env.PORT ?? 3000;
 
 
 // view engine setup
@@ -21,35 +20,37 @@ app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(express.urlencoded({ extended: true  }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser());
+app.use(session({
+    secret: '31791hjnlkdnasp', // Cambia esto por algo único y seguro
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Usa true si estás en HTTPS
+}))
 
+
+// Middleware para '/'
 app.use('/', indexRouter);
+
+// Middleware para '/users'
 app.use('/users', usersRouter);
+
+// Middleware para '/events'
 app.use('/events', eventsRouter);
 
-app.use(session({secret: 'SecretKey13221', resave: true, saveUninitialized: false}))
+
+// En caso de que la página no exista, el estado pasa a ser el 404: FNF
+// Un 'FinalWare'
+app.use((req, res) =>{
+    res.status(404).send('<h1>404</h1>')
+})
 
 
-
-// // catch 404 and forward to error handler
-// app.use(function(req, res, next) {
-//   next(createError(404));
-// });
-
-// // error handler
-// app.use(function(err, req, res, next) {
-//   // set locals, only providing error in development
-//   res.locals.message = err.message;
-//   res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-//   // render the error page
-//   res.status(err.status || 500);
-//   res.render('error');
-// });
-const port = 3000;
-app.listen(port, () => {
-    console.log(`Servidor escuchando en http://localhost:${port}`);
+app.listen(PORT, () => {
+    console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
+
+
 module.exports = app;
