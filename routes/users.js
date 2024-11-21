@@ -4,6 +4,7 @@ var express = require('express');
 var router = express.Router();
 const DAO = require('../public/javascripts/DAO')
 const midao = new DAO('localhost','root','','AW_24');
+const bcrypt = require('bcrypt');
 
 
 const alreadyLoggedIn = (req, res, next) => {
@@ -26,7 +27,7 @@ router.get('/register', alreadyLoggedIn ,(request, response) => {//Renderiza pag
   })
 });
 
-router.post('/register',(request, response) => { //Crea el nuevo usuario tras submit en vista de register
+router.post('/register', checkValidity,  async (request, response) => {
   //TODO
 });
 
@@ -39,6 +40,10 @@ router.get('/login', alreadyLoggedIn, (request, response) => {//Renderiza pagina
 router.post('/login', function (request, response) {//Inicia sesion
   //TODO
 });
+
+function checkValidity(req, res, next){
+  
+}
 
 module.exports = router;
 
