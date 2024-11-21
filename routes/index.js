@@ -6,7 +6,7 @@ var router = express.Router();
 /* GET home page. */
 router.get('/', function(req, res) {
   var hasNotification = false;
-  var isLogged = res.locals.isLogged;
+  var isLogged = true;
   console.log(isLogged);
 
   if (isLogged) {
