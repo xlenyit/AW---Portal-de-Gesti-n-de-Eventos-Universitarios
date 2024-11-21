@@ -6,10 +6,10 @@ const DAO = require('../public/javascripts/DAO')
 const midao = new DAO('localhost','root','','AW_24');
 
 // EVENTO
-router.get('/event',(request, response) => {//Renderiza pagina de register
+router.get('/event/:id',(request, response) => {//Renderiza pagina de register
     response.status(200)
     var config = {};
-    let contador = 0;
+    let id = request.params.id;
 
     // Habría que cambiarlo para que funcionase en lugar de con isLogged, pasando un user.
     // Si user === null -> !isLogged
@@ -20,7 +20,7 @@ router.get('/event',(request, response) => {//Renderiza pagina de register
     config.image_path= '/img/placeholderEvento.jpg',
     config.image_alt= 'Imagen'
 
-    midao.getEvento(1, (err,resultado)=> {
+    midao.getEvento(id, (err,resultado)=> {
         if(err) console.error('Error: ', err)
         else{
             resultado = resultado[0];
