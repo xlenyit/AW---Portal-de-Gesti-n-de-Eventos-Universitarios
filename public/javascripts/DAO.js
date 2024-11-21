@@ -102,7 +102,7 @@ class DAO {
                             id: evento.id,
                             titulo: evento.titulo,
                             descripcion: evento.descripcion,
-                            fecha: evento.fecha,
+                            fecha: '2023',
                             precio: evento.precio,
                             hora: evento.hora,
                             ubicacion: evento.ubicacion,

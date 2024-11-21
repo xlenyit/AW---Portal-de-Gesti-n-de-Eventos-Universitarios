@@ -21,7 +21,7 @@ router.get('/event',(request, response) => {//Renderiza pagina de register
     config.image_alt= 'Imagen'
 
     midao.getEvento(1, (err,resultado)=> {
-        if(err) console.log('Error: ', err)
+        if(err) console.error('Error: ', err)
         else{
             resultado = resultado[0];
             config.idEvento = resultado.id;
@@ -35,7 +35,7 @@ router.get('/event',(request, response) => {//Renderiza pagina de register
 
             midao.getOcupacion(config.idEvento, (err, res) =>{
                 if (err){
-                    console.log('Error: ', err)
+                    console.error('Error: ', err)
                     config.ocupacion = 3;
                 } 
                 else
@@ -90,13 +90,12 @@ router.get('/eventViewer', (request, response) => {
     });
 
 
-    const checkAndRender = async() => {
+
+    const checkAndRender = () => {
         if (completed === 2) {
             getOptions(config.organizators, config.categories, (err, options)=>{
                 response.render('eventViewer', options);
-            });
-            // Ambas funciones han terminado, renderizamos la respuesta
-            
+            });            
         }
     };  
 
@@ -120,20 +119,25 @@ function getOptions(organizadores, categorias, callback) {
             let resEvents = [];
             for (let i = 0; i < eventos.length; i++){
                 let evento = eventos[i]
-                midao.getEvento(evento.id, (err, ocupacion) =>{
+                midao.getEvento(evento.id, (err, res) =>{
                     if (err){
                         console.error('Error: ', err)
-                        evento.ocupacion = 0;
+                        evento.res = 0;
                     }
-                    else evento.ocupacion = ocupacion[0].ocupacion;
-                    resEvents.push([evento]);
+                    else{
+                        midao.getOcupacion(res[0].id, (err, ocu)=>{
+                            if (err) callback(err, null)
+                            else evento.ocupacion = ocu[0].ocupacion;
+                        })
+                    }
+                    resEvents.push(evento);
                 });
             }
             config.eventos = resEvents;
 
             midao.getMaxPrice((err, ret)=>{
                 if (err){
-                    console.log(err);
+                    console.error(err);
                     response.status = 400;
                     config.precio_maximo = 0;
                 }
