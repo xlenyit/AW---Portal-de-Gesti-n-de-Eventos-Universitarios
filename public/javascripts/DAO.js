@@ -23,10 +23,10 @@ class DAO {
         
         // Antes que nada hemos de verificar que el email o telefono no existen ya en la BD
         // Aunque esta tenga valores UNIQUE para estos campos, mejor handlearlo aqui
-        checkUniqueUserEmail( (err, found) => {
-            if (err || found !== undefined) return callback(err, 'Email repetido');
+        checkUniqueUserEmail(email, (err, found) => {
+            if (err || found !== 0) return callback(err, 'Email repetido');
             checkUniqueUserPhone( (err, found) =>{
-                if (err || found !== undefined) return callback(err, 'Email repetido');
+                if (err || found !== 0) return callback(err, 'Telefono repetido');
                 continueInsertion();
             });
 
@@ -35,7 +35,7 @@ class DAO {
         const continueInsertion = () => {
             // Necesitamos coger el id de la facultad
             let idFacultad = facultad.split('#')[0]; //2#Facultad de sociales
-            let isOrganizator = rankUser === 'organizador';
+            let isOrganizator = rankUser === 'organizador'? 1 : 0;
     
             createRowOnDatabaseUser(name, email, telefono, password, idFacultad, isOrganizator,() => {
                 if (err) callback(err, 'Error añadiendo registro a la BD')
@@ -43,6 +43,58 @@ class DAO {
             })
         }
 
+    }
+
+    createRowOnDatabaseUser(name, email, telefono, password, idFacultad, isOrganizator, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `INSERT INTO usuarios (nombre, correo, telefono, contrasena, es_organizador, id_facultad)
+                                    VALUES (${name}, ${email},${telefono},${password},${isOrganizator},${idFacultad})`
+                connection.query(stringQuery, function (err, tot) {
+                    connection.release();
+                    if (err) callback(err);
+                    else callback(null);
+                           
+                })
+            }
+        })
+    }
+
+    checkUniqueUserEmail(email, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `SELECT COUNT(*) as total FROM usuarios WHERE correo = ${email}`
+                connection.query(stringQuery, function (err, tot) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else {
+                        let total;
+                        tot.map(ele => total = ele.total);
+                        callback(null,total);
+                    }        
+                })
+            }
+        })
+    }
+
+    checkUniqueUserPhone(phone, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `SELECT COUNT(*) as total FROM usuarios WHERE telefono = ${phone}`
+                connection.query(stringQuery, function (err, tot) {
+                    connection.release();
+                    if (err) callback(err, null)
+                    else {
+                        let total;
+                        tot.map(ele => total = ele.total);
+                        callback(null,total);
+                    } 
+                })
+            }
+        })
     }
 
     getFacultades(callback) {

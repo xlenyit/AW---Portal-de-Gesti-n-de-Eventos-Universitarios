@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 22, 2024 at 12:00 PM
+-- Generation Time: Nov 22, 2024 at 01:08 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -154,6 +154,7 @@ CREATE TABLE `usuarios` (
   `nombre` varchar(20) NOT NULL,
   `correo` varchar(50) NOT NULL,
   `telefono` int(11) NOT NULL,
+  `contrasena` varchar(1000) NOT NULL,
   `es_organizador` tinyint(1) NOT NULL,
   `id_facultad` int(11) NOT NULL,
   `id_accesibilidad` int(11) NOT NULL
@@ -163,8 +164,8 @@ CREATE TABLE `usuarios` (
 -- Dumping data for table `usuarios`
 --
 
-INSERT INTO `usuarios` (`id`, `nombre`, `correo`, `telefono`, `es_organizador`, `id_facultad`, `id_accesibilidad`) VALUES
-(1, 'Joaquin', 'joaco@gmail.com', 666666777, 1, 1, 1);
+INSERT INTO `usuarios` (`id`, `nombre`, `correo`, `telefono`, `contrasena`, `es_organizador`, `id_facultad`, `id_accesibilidad`) VALUES
+(1, 'Joaquin', 'joaco@gmail.com', 666666777, '', 1, 1, 1);
 
 --
 -- Indexes for dumped tables
