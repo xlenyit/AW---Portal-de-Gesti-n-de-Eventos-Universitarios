@@ -20,10 +20,29 @@ class DAO {
         // userdata has the structure:
         // {name, email, telefono, password, confirmPassword, facultad, rankUser}
         const {name, email, telefono, password, confirmPassword, facultad, rankUser} = userData;
+        
+        // Antes que nada hemos de verificar que el email o telefono no existen ya en la BD
+        // Aunque esta tenga valores UNIQUE para estos campos, mejor handlearlo aqui
+        checkUniqueUserEmail( (err, found) => {
+            if (err || found !== undefined) return callback(err, 'Email repetido');
+            checkUniqueUserPhone( (err, found) =>{
+                if (err || found !== undefined) return callback(err, 'Email repetido');
+                continueInsertion();
+            });
 
-        // Necesitamos coger el id de la facultad
+        });
 
-        callback(null)
+        const continueInsertion = () => {
+            // Necesitamos coger el id de la facultad
+            let idFacultad = facultad.split('#')[0]; //2#Facultad de sociales
+            let isOrganizator = rankUser === 'organizador';
+    
+            createRowOnDatabaseUser(name, email, telefono, password, idFacultad, isOrganizator,() => {
+                if (err) callback(err, 'Error añadiendo registro a la BD')
+                else callback(null);
+            })
+        }
+
     }
 
     getFacultades(callback) {

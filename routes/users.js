@@ -7,15 +7,15 @@ const midao = new DAO('localhost','root','','AW_24');
 const bcrypt = require('bcrypt');
 
 
-const alreadyLoggedIn = (req, res, next) => {
-  if (req.session.user === undefined) return next();
-  res.redirect('/');
+const alreadyLoggedIn = (request, response, next) => {
+  if (request.session.user === undefined) return next();
+  response.redirect('/');
 };
 
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+router.get('/', function(request, response, next) {
+  response.send('respond with a resource');
 });
 
 // REGISTRO
@@ -31,11 +31,13 @@ router.get('/register', alreadyLoggedIn ,(request, response) => {
 // Maneja el registro
 router.post('/register', checkValidity, async (request, response) => {
   const user = request.body;
+  console.log(user);
 
   try {
     // Encriptar la contraseña
-    const hashedPassword = await bcrypt.hash(user.password, 10);
-    user.password = hashedPassword;
+    const hashedPassword = await bcrypt.hash(user.contrasenaConf, 10);
+    user.contrasena = hashedPassword;
+    user.contrasenaConf = hashedPassword;
 
     // Llama al método para registrar al usuario
     midao.registerUser(user, (err) => {
@@ -46,7 +48,7 @@ router.post('/register', checkValidity, async (request, response) => {
         if (err) return response.status(400).send('Error al obtener ID');
         
         // Establece la sesión para el usuario recién registrado
-        request.session.user = data.id;
+        request.session.user = {id:data.id};
         
         // Redirige a  home si el registro fue exitoso
         return response.redirect('/');
@@ -67,7 +69,7 @@ router.get('/login', alreadyLoggedIn, (request, response) => {//Renderiza pagina
 
 // Middelware para el post de login
 router.post('/login',function (request, response) {//Inicia sesion
-  const { email, password } = req.body;
+  const { email, password } = request.body;
   
   const hashedPassword = bcrypt.hash(password, 10);
 
@@ -83,7 +85,17 @@ router.post('/login',function (request, response) {//Inicia sesion
 });
 
 
-function checkValidity(req, res, next){
+function checkValidity(request, response, next){
+  const user = request.body;
+  
+  // Aqui hay que mirar que los valores sean correctos
+  if (user.contrasena !== user.contrasenaConf)
+      return response.status(400).send('Las contraseñas han de coincidir')
+
+  console.log(user.telefono)
+  if (!user.telefono.match(/(\+[0-9]?[0-9]?)?[0-9]{9}/))
+    return response.status(400).send('Ingrese un número de telefono válido')
+
   next();
 }
 

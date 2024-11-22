@@ -4,6 +4,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const RandExp = require('randexp')
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -24,7 +25,7 @@ app.use(express.urlencoded({ extended: true  }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
 app.use(session({
-    secret: '31791hjnlkdnasp', // Cambia esto por algo único y seguro
+    secret: new RandExp(/([a-zA-Z0-9]{16}){1-3}/).gen(), // Cambia esto por algo único y seguro
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false } // Usa true si estás en HTTPS

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 18, 2024 at 02:24 PM
+-- Generation Time: Nov 22, 2024 at 12:00 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -85,7 +85,8 @@ CREATE TABLE `eventos` (
 --
 
 INSERT INTO `eventos` (`id`, `titulo`, `descripcion`, `precio`, `fecha`, `hora`, `ubicacion`, `capacidad_maxima`, `id_organizador`, `id_categoria`) VALUES
-(1, 'Evento', 'Eventual Eventoso Evento', 200, '2022-08-22', '17:51:55', 'Los Madriles', 1000, 1, 1);
+(1, 'Evento', 'Eventual Eventoso Evento', 200, '2022-08-22', '17:51:55', 'Los Madriles', 1000, 1, 1),
+(2, 'Segundo', 'Juju', 500, '2024-11-06', '12:37:53', 'Los Mandriles', 10, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -118,6 +119,28 @@ CREATE TABLE `inscripciones` (
   `id_evento` int(11) NOT NULL,
   `esta_lista_espera` tinyint(1) DEFAULT NULL,
   `fecha_inscripcion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `inscripciones`
+--
+
+INSERT INTO `inscripciones` (`id_usuario`, `id_evento`, `esta_lista_espera`, `fecha_inscripcion`) VALUES
+(1, 1, 0, '2024-11-12 11:58:58');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notificaciones`
+--
+
+CREATE TABLE `notificaciones` (
+  `id` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `id_evento` int(11) NOT NULL,
+  `titulo` varchar(20) NOT NULL,
+  `mensaje` varchar(100) NOT NULL,
+  `visto` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -181,10 +204,20 @@ ALTER TABLE `inscripciones`
   ADD KEY `FK_idEvento` (`id_evento`);
 
 --
+-- Indexes for table `notificaciones`
+--
+ALTER TABLE `notificaciones`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `Fk_usuarios` (`id_usuario`),
+  ADD KEY `Fk_evento` (`id_evento`);
+
+--
 -- Indexes for table `usuarios`
 --
 ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `UniquenessTelefone` (`telefono`),
+  ADD UNIQUE KEY `UniquenessEmail` (`correo`),
   ADD KEY `FK_idFacultad` (`id_facultad`),
   ADD KEY `FK_idAccesibilidad` (`id_accesibilidad`);
 
@@ -208,13 +241,19 @@ ALTER TABLE `configuraciones_accesibilidad`
 -- AUTO_INCREMENT for table `eventos`
 --
 ALTER TABLE `eventos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `facultades`
 --
 ALTER TABLE `facultades`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `notificaciones`
+--
+ALTER TABLE `notificaciones`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `usuarios`
@@ -239,6 +278,13 @@ ALTER TABLE `eventos`
 ALTER TABLE `inscripciones`
   ADD CONSTRAINT `FK_idEvento` FOREIGN KEY (`id_evento`) REFERENCES `eventos` (`id`),
   ADD CONSTRAINT `FK_idOrganizador` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
+
+--
+-- Constraints for table `notificaciones`
+--
+ALTER TABLE `notificaciones`
+  ADD CONSTRAINT `Fk_evento` FOREIGN KEY (`id_evento`) REFERENCES `eventos` (`id`),
+  ADD CONSTRAINT `Fk_usuarios` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
 
 --
 -- Constraints for table `usuarios`
