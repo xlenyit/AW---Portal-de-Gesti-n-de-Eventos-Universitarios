@@ -4,18 +4,18 @@ const express = require('express');
 const router = express.Router();
 
 // Esto retornará la página principal
-router.get('/', function(req, res) {
+router.get('/', function(request, response) {
 
   // Asumimos solo dos estados: user === null y user === {datos}
-  let isLogged = null;
+  let isLogged = request.session.user;
 
   let hasNotification = false;
 
   if (isLogged) {
-    hasNotification = req.body.user.hasNotification;
+    hasNotification = true;
   }
 
-  res.render('homePage', { user: 'Usuario', isLogged: isLogged, hasNotification: hasNotification });
+  response.render('homePage', { user: 'Usuario', isLogged: isLogged, hasNotification: hasNotification });
 });
 
 

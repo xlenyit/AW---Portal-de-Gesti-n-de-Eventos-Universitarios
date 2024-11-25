@@ -10,18 +10,48 @@ class DAO {
             // port: port
         })
     }
-    
-    // TODO
-    checkUser(user, callback){
-        callback(response.status(200));
+
+    getIdAndPasswordFromEmail(email, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `SELECT id, contrasena FROM usuarios WHERE correo = ?`
+                connection.query(stringQuery, [email], function (err, data) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else {
+                        callback(null,data[0]);
+                    }        
+                })
+            }
+        })
     }
+
+    getIdFromEmail(email, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `SELECT id FROM usuarios WHERE correo = ?`
+                connection.query(stringQuery, [email], function (err, resId) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else {
+                        let id;
+                        resId.map(ele => id = ele.id);
+                        callback(null,id);
+                    }        
+                })
+            }
+        })
+    }
+    
     
     checkUniqueUserEmail(email, callback){
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery = `SELECT COUNT(*) as total FROM usuarios WHERE correo = ${email}`
-                connection.query(stringQuery, function (err, tot) {
+                let stringQuery = `SELECT COUNT(*) as total FROM usuarios WHERE correo = ?`
+                connection.query(stringQuery, [email], function (err, tot) {
                     connection.release();
                     if (err) callback(err, null);
                     else {
@@ -55,13 +85,13 @@ class DAO {
     registerUser(userData, callback){
         // userdata has the structure:
         // {name, email, telefono, password, confirmPassword, facultad, rankUser}
-        const {name, email, telefono, password, confirmPassword, facultad, rankUser} = userData;
-        
+        const {nombre, email, telefono, contrasena, confirmPassword, facultad, userType} = userData;
+
         // Antes que nada hemos de verificar que el email o telefono no existen ya en la BD
         // Aunque esta tenga valores UNIQUE para estos campos, mejor handlearlo aqui
-        checkUniqueUserEmail(email, (err, found) => {
+        this.checkUniqueUserEmail(email, (err, found) => {
             if (err || found !== 0) return callback(err, 'Email repetido');
-            checkUniqueUserPhone( (err, found) =>{
+            this.checkUniqueUserPhone(telefono,  (err, found) =>{
                 if (err || found !== 0) return callback(err, 'Telefono repetido');
                 continueInsertion();
             });
@@ -71,9 +101,10 @@ class DAO {
         const continueInsertion = () => {
             // Necesitamos coger el id de la facultad
             let idFacultad = facultad.split('#')[0]; //2#Facultad de sociales
-            let isOrganizator = rankUser === 'organizador'? 1 : 0;
+            console.log(idFacultad)
+            let isOrganizator = userType === 'organizador'? 1 : 0;
     
-            createRowOnDatabaseUser(name, email, telefono, password, idFacultad, isOrganizator,() => {
+            this.createRowOnDatabaseUser(nombre, email, telefono, contrasena, idFacultad, isOrganizator,(err) => {
                 if (err) callback(err, 'Error añadiendo registro a la BD')
                 else callback(null);
             })
@@ -86,8 +117,8 @@ class DAO {
             if (err) callback(err, null)
             else {
                 let stringQuery = `INSERT INTO usuarios (nombre, correo, telefono, contrasena, es_organizador, id_facultad)
-                                    VALUES (${name}, ${email},${telefono},${password},${isOrganizator},${idFacultad})`
-                connection.query(stringQuery, function (err, tot) {
+                                    VALUES (?, ?,${telefono},?,${isOrganizator},${idFacultad})`
+                connection.query(stringQuery, [name, email, password], function (err, tot) {
                     connection.release();
                     if (err) callback(err);
                     else callback(null);

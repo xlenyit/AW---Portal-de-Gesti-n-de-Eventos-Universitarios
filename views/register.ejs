@@ -51,15 +51,15 @@
             <!--FACULTAD-->
             <div class="row">
               <div class="col">
-                <h4 class="my-3">Facultad</h4>
-                <select id="facultad" name="Curso" class="w-100" required>
-                  <option hidden selected>Selecciona una opción</option>
-                  <% facultades.forEach( ele=> { %>
-                    <option value="<%=ele.id%>#<%=ele.nombre%>"><%=ele.nombre%></option>
-                    <%})%>
+                  <h4 class="my-3">Facultad</h4>
+                  <select id="facultad" name="facultad" class="w-100" required>
+                      <option hidden selected>Selecciona una opción</option>
+                      <% facultades.forEach(ele => { %>
+                          <option value="<%=ele.id%>#<%=ele.nombre%>"><%=ele.nombre%></option>
+                      <% }) %>
                   </select>
-                </div>
-            </div>
+              </div>
+          </div>          
 
             <!-- ROL -->
             <div class="row">

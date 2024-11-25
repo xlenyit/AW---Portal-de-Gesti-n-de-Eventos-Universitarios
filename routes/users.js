@@ -22,7 +22,7 @@ router.get('/', function(request, response, next) {
 //Renderiza pagina de register
 router.get('/register', alreadyLoggedIn ,(request, response) => {
   midao.getFacultades((err,resultado)=> {
-    if(err) console.log('Error: ', err)
+    if(err) console.err('Error: ', err)
     else response.render('register', {facultades:resultado});
   })
 });
@@ -31,7 +31,6 @@ router.get('/register', alreadyLoggedIn ,(request, response) => {
 // Maneja el registro
 router.post('/register', checkValidity, async (request, response) => {
   const user = request.body;
-  console.log(user);
 
   
   // Encriptar la contraseña
@@ -41,14 +40,14 @@ router.post('/register', checkValidity, async (request, response) => {
 
   // Llama al método para registrar al usuario
   midao.registerUser(user, (err) => {
-    if (err) return response.status(400).send('Error de registro');
+    if (err) return response.status(400).send(err);
     
     // Conseguir el ID del usuario recién registrado
-    midao.getIdFromEmail(user.email, (err, data) => {
+    midao.getIdFromEmail(user.email, (err, id) => {
       if (err) return response.status(400).send('Error al obtener ID');
       
       // Establece la sesión para el usuario recién registrado
-      request.session.user = {id:data.id};
+      request.session.user = id;
       
       // Redirige a  home si el registro fue exitoso
       return response.redirect('/');
@@ -64,19 +63,22 @@ router.get('/login', alreadyLoggedIn, (request, response) => {//Renderiza pagina
 })
 
 // Middelware para el post de login
-router.post('/login',function (request, response) {//Inicia sesion
-  const { email, password } = request.body;
-  
-  const hashedPassword = bcrypt.hash(password, 10);
+router.post('/login',async function (request, response) {//Inicia sesion
+  const { email, contrasena } = request.body;
 
   // Conseguir la contraseña e ID relacionada con el email
-  midao.getIdAndPasswordFromUser(email, (err, data) => {
-    if (err) return response.status(400).send('Usuario incorrectos');
-    if (data.password === hashedPassword){
-      request.session.user = data.id;
-      return response.status(200);
-    }
-    return response.status(400).send('Contraseña incorrecta');
+  midao.getIdAndPasswordFromEmail(email, (err, data) => {
+    if (err) return response.status(400).send('Email incorrecto');
+
+    bcrypt.compare(contrasena, data.contrasena, (err, isMatch) => {
+      if (err)  throw(err);
+      if (isMatch) {
+        request.session.user = data.id;
+        return response.status(200).redirect('/');
+      } 
+      return response.status(400).send('Contraseña incorrecta');
+    });
+    
   })
 });
 
@@ -88,7 +90,6 @@ function checkValidity(request, response, next){
   if (user.contrasena !== user.contrasenaConf)
       return response.status(400).send('Las contraseñas han de coincidir')
 
-  console.log(user.telefono)
   if (!user.telefono.match(/(\+[0-9]?[0-9]?)?[0-9]{9}/))
     return response.status(400).send('Ingrese un número de telefono válido')
 

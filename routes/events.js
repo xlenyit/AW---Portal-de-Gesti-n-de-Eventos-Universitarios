@@ -3,7 +3,7 @@
 var express = require('express');
 var router = express.Router();
 const DAO = require('../public/javascripts/DAO')
-const midao = new DAO('localhost','root','','AW_24');
+const midao = new DAO('localhost','root','','aw_24');
 
 // EVENTO
 router.get('/event/:id',(request, response) => {//Renderiza pagina de register
@@ -56,7 +56,7 @@ router.get('/eventViewer', (request, response) => {
 
     calcularElementosParaFiltros((err, filtros) => {
         if (err) response.status(400);
-        else{
+        else{           
             config.organizators = filtros.organizators;
             config.categories = filtros.categories;
             config.precio_maximo = filtros.precio_maximo;
@@ -90,7 +90,7 @@ function calcularElementosParaFiltros(callback){
     midao.getOrganizators((err, organizadores) =>{
         if (err){
             console.error('Error: ', err)
-            checkout(err, null);
+            callback(err, null);
         } 
         else
             config.organizators = organizadores;
@@ -103,7 +103,7 @@ function calcularElementosParaFiltros(callback){
     midao.getCategories((err, categorias)=> {
         if (err){
             console.error('Error: ', err)
-            checkout(err, null);
+            callback(err, null);
         } 
         else
             config.categories = categorias;
