@@ -3,7 +3,7 @@
 var express = require('express');
 var router = express.Router();
 const DAO = require('../public/javascripts/DAO')
-const midao = new DAO('localhost','root','','AW_24');
+const midao = new DAO('localhost','root','','aw_24');
 const bcrypt = require('bcrypt');
 
 
@@ -33,32 +33,28 @@ router.post('/register', checkValidity, async (request, response) => {
   const user = request.body;
   console.log(user);
 
-  try {
-    // Encriptar la contraseña
-    const hashedPassword = await bcrypt.hash(user.contrasenaConf, 10);
-    user.contrasena = hashedPassword;
-    user.contrasenaConf = hashedPassword;
+  
+  // Encriptar la contraseña
+  const hashedPassword = await bcrypt.hash(user.contrasenaConf, 10);
+  user.contrasena = hashedPassword;
+  user.contrasenaConf = hashedPassword;
 
-    // Llama al método para registrar al usuario
-    midao.registerUser(user, (err) => {
-      if (err) return response.status(400).send('Error');
+  // Llama al método para registrar al usuario
+  midao.registerUser(user, (err) => {
+    if (err) return response.status(400).send('Error de registro');
+    
+    // Conseguir el ID del usuario recién registrado
+    midao.getIdFromEmail(user.email, (err, data) => {
+      if (err) return response.status(400).send('Error al obtener ID');
       
-      // Conseguir el ID del usuario recién registrado
-      midao.getIdFromEmail(user.email, (err, data) => {
-        if (err) return response.status(400).send('Error al obtener ID');
-        
-        // Establece la sesión para el usuario recién registrado
-        request.session.user = {id:data.id};
-        
-        // Redirige a  home si el registro fue exitoso
-        return response.redirect('/');
-      });
+      // Establece la sesión para el usuario recién registrado
+      request.session.user = {id:data.id};
+      
+      // Redirige a  home si el registro fue exitoso
+      return response.redirect('/');
     });
-  } catch (err) {
-    console.error('Error durante el registro:', err);
-    // Devuelve un estado y un mensaje de error
-    return response.status(400).json({ error: 'No se pudo registrar el usuario. Por favor, intenta nuevamente.' });
-  }
+  });
+
   
 });
 

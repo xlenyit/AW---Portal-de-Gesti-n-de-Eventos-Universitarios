@@ -10,12 +10,48 @@ class DAO {
             // port: port
         })
     }
-
+    
     // TODO
     checkUser(user, callback){
         callback(response.status(200));
     }
-
+    
+    checkUniqueUserEmail(email, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `SELECT COUNT(*) as total FROM usuarios WHERE correo = ${email}`
+                connection.query(stringQuery, function (err, tot) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else {
+                        let total;
+                        tot.map(ele => total = ele.total);
+                        callback(null,total);
+                    }        
+                })
+            }
+        })
+    }
+    
+    checkUniqueUserPhone(phone, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `SELECT COUNT(*) as total FROM usuarios WHERE telefono = ${phone}`
+                connection.query(stringQuery, function (err, tot) {
+                    connection.release();
+                    if (err) callback(err, null)
+                    else {
+                        let total;
+                        tot.map(ele => total = ele.total);
+                        callback(null,total);
+                    } 
+                })
+            }
+        })
+    }
+    
     registerUser(userData, callback){
         // userdata has the structure:
         // {name, email, telefono, password, confirmPassword, facultad, rankUser}
@@ -61,41 +97,6 @@ class DAO {
         })
     }
 
-    checkUniqueUserEmail(email, callback){
-        this.pool.getConnection((err, connection) => {
-            if (err) callback(err, null)
-            else {
-                let stringQuery = `SELECT COUNT(*) as total FROM usuarios WHERE correo = ${email}`
-                connection.query(stringQuery, function (err, tot) {
-                    connection.release();
-                    if (err) callback(err, null);
-                    else {
-                        let total;
-                        tot.map(ele => total = ele.total);
-                        callback(null,total);
-                    }        
-                })
-            }
-        })
-    }
-
-    checkUniqueUserPhone(phone, callback){
-        this.pool.getConnection((err, connection) => {
-            if (err) callback(err, null)
-            else {
-                let stringQuery = `SELECT COUNT(*) as total FROM usuarios WHERE telefono = ${phone}`
-                connection.query(stringQuery, function (err, tot) {
-                    connection.release();
-                    if (err) callback(err, null)
-                    else {
-                        let total;
-                        tot.map(ele => total = ele.total);
-                        callback(null,total);
-                    } 
-                })
-            }
-        })
-    }
 
     getFacultades(callback) {
         this.pool.getConnection((err, connection) => {
