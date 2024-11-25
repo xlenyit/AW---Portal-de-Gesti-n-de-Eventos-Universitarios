@@ -68,7 +68,8 @@ router.post('/login',async function (request, response) {//Inicia sesion
 
   // Conseguir la contraseña e ID relacionada con el email
   midao.getIdAndPasswordFromEmail(email, (err, data) => {
-    if (err) return response.status(400).send('Email incorrecto');
+    if (err || !data) return response.status(400).send('Email incorrecto');
+
 
     bcrypt.compare(contrasena, data.contrasena, (err, isMatch) => {
       if (err)  throw(err);
