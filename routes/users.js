@@ -12,15 +12,17 @@ const passLocals = (req, res, next) => {
 };
 router.use(passLocals)
 
-const alreadyLoggedIn = (request, response, next) => {
+const alreadyLoggedIn = (request, response, next) => { //Middleware que asegura de que los usuarios no loggeados no puedan acceder a las páginas de login o registro. Si un usuario ya está loggeado, lo redirige al inicio
   if (request.session.user === undefined) return next();
   response.redirect('/');
 };
 
-const isLoggedIn = (req, res, next) => {
+const isLoggedIn = (req, res, next) => { //Middleware que asegura de que solo los usuarios loggeados puedan acceder a ciertas páginas (como el perfil de usuario). Si el usuario no está loggeado, lo redirige a la página de login.
   if (res.locals.user) return next();
   res.redirect('/users/login');
 };
+
+
 
 /* GET users listing. */
 router.get('/', function(request, response, next) {
@@ -47,23 +49,23 @@ router.post('/register', checkValidity, async (request, response) => {
   user.contrasena = hashedPassword;
   user.contrasenaConf = hashedPassword;
   // Llama al método para registrar al usuario
-  midao.registerUser(user, (err) => {
+  midao.registerUser(user, (err, id) => {
     if (err) return response.status(400).send(err);
     // Conseguir el ID del usuario recién registrado
-    midao.getIdFromEmail(user.email, (err, id) => {
-      if (err) return response.status(400).send('Error al obtener ID');
+    // midao.getIdFromEmail(user.email, (err, id) => { //no hace falta 
+    //   if (err) return response.status(400).send('Error al obtener ID');
       
       // Establece la sesión para el usuario recién registrado
       request.session.user = id;
       
-      
+console.log('Registrando usuario:', user);
+console.log('ID del usuario registrado:', id);
       // Redirige a  home si el registro fue exitoso
       return response.redirect('/');
     });
   });
 
   
-});
 
 //LOGIN
 router.get('/login', alreadyLoggedIn, (request, response) => {//Renderiza pagina de login
@@ -105,24 +107,51 @@ function checkValidity(request, response, next){
 
   next();
 }
-
+//LOGOUT
+router.get("/logout", isLoggedIn, (request, response) => { //Redirige a pagina principal, cerrando sesion en locals y session
+  request.session.destroy()
+  response.locals.user = request.session
+  response.status(200)
+  response.redirect('/');
+})
 
 //Profile
-router.get('/profile', (request, response) => {
-  console.log("hola,",response.locals.user)
-  
-  midao.getUserById(request.session.user,(err,resultado)=> {
-    if (err || !resultado) return response.status(400).send('No hay sesion iniciada');
-    else response.render('profile', {usuario:resultado});
+router.get('/profile',isLoggedIn, (request, response) => {
+  midao.getUserById(request.session.user,(err,usuario)=> {
+    if (err || !usuario) return response.status(400).send('No hay sesion iniciada');
+    else{
+      if (usuario.es_organizador === 0) {
+        midao.getEventsEnrolledByUser(request.session.user,(err,resultado)=> {
+          if (err || !resultado) return response.status(400).send('Error al buscar eventos a los que se ha inscrito el usuario');
+          else response.render('profile', {usuario, eventos:resultado});
+        })
+      } else{
+        midao.getEventsCreatedByUser(request.session.user,(err,resultado)=> {
+          if (err || !resultado) return response.status(400).send('Error al buscar eventos que ha creado el usuario');
+          else response.render('profile', {usuario, eventos :resultado});
+        })
+      }
+    } 
   })
 });
 
 router.post('/modifyUser', (request, response) => {
   const { nombre, correo, telefono,facultad, rol} = request.body;
-  console.log("aaaa",rol)
   midao.modifyUser(nombre, correo, telefono, facultad, rol, request.session.user  ,(err,resultado)=> {
     if (err || !resultado) return response.status(400).send('No hay sesion iniciada');
-    else response.render('profile', {usuario:resultado});
+    else{
+      if (rol === 0) {
+        midao.getEventsEnrolledByUser(request.session.user,(err,res)=> {
+          if (err || !res) return response.status(400).send('Error al buscar eventos a los que se ha inscrito el usuario');
+          else response.render('profile', {usuario:resultado, eventos:res});
+        })
+      } else{
+        midao.getEventsCreatedByUser(request.session.user,(err,res)=> {
+          if (err || !res) return response.status(400).send('Error al buscar eventos que ha creado el usuario');
+          else response.render('profile', {usuario:resultado, eventos :res});
+        })
+      }
+    } 
   })
 });
 

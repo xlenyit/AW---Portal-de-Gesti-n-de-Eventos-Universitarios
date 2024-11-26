@@ -26,14 +26,15 @@ $("#editProfile").on("click", (e) => {
             });
         }
         else if (oldId == 'rol') {
-            const oldValue=$(this).val()
-            $(this).empty();
-            $(this).append(`
-                    <select id="${oldId}" name="${oldId}" class="w-100">
-                    <option value="0" ${oldVal == 'Asistente' ? 'selected' : ''}>Asistente</option>
-                    <option value="1" ${oldVal == 'Organizador' ? 'selected' : ''}>Organizador</option>
-                </select>
-                `);
+            // const oldValue=$(this).val()
+            // $('#divEventos').empty();
+            // $(this).empty();
+            // $(this).append(`
+            //         <select id="${oldId}" name="${oldId}" class="w-100">
+            //         <option value="0" ${oldVal == 'Asistente' ? 'selected' : ''}>Asistente</option>
+            //         <option value="1" ${oldVal == 'Organizador' ? 'selected' : ''}>Organizador</option>
+            //     </select>
+            //     `);
         }
         else {
             $(this).empty();
@@ -48,7 +49,6 @@ $("#editProfile").on("click", (e) => {
 $("#saveProfile").on("click", (e) => {
     e.preventDefault();
     const formData = $('#userInfo form').serialize();
-    console.log(formData, "bro")
     $.ajax({
         url: '/users/modifyUser',
         method: 'POST',

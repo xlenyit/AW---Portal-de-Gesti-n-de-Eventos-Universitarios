@@ -90,9 +90,9 @@ class DAO {
         // Antes que nada hemos de verificar que el email o telefono no existen ya en la BD
         // Aunque esta tenga valores UNIQUE para estos campos, mejor handlearlo aqui
         this.checkUniqueUserEmail(email, (err, found) => {
-            if (err || found !== 0) return callback(err, 'Email repetido');
+            if (err || found !== 0) return callback('Email repetido',null);
             this.checkUniqueUserPhone(telefono,  (err, found) =>{
-                if (err || found !== 0) return callback(err, 'Telefono repetido');
+                if (err || found !== 0) return callback('Telefono repetido',null);
                 continueInsertion();
             });
 
@@ -104,9 +104,9 @@ class DAO {
             
             let isOrganizator = userType === 'organizador'? 1 : 0;
     
-            this.createRowOnDatabaseUser(nombre, email, telefono, contrasena, idFacultad, isOrganizator,(err) => {
-                if (err) callback(err, 'Error añadiendo registro a la BD')
-                else callback(null);
+            this.createRowOnDatabaseUser(nombre, email, telefono, contrasena, idFacultad, isOrganizator,(err, id) => {
+                if (err) callback('Error añadiendo registro a la BD', null)
+                else callback(null,id);
             })
         }
 
@@ -117,11 +117,11 @@ class DAO {
             if (err) callback(err, null)
             else {
                 let stringQuery = `INSERT INTO usuarios (nombre, correo, telefono, contrasena, es_organizador, id_facultad, id_accesibilidad)
-                                    VALUES (?, ?,${telefono},?,${isOrganizator},${idFacultad},1)` //Al registrar un usuario tendran la conf de accesibilidad 1 por defecto
-                connection.query(stringQuery, [name, email, password], function (err, resultado) {
+                                    VALUES (?, ?, ?, ?, ?, ?, 1)` //Al registrar un usuario tendran la conf de accesibilidad 1 por defecto
+                connection.query(stringQuery, [name, email, telefono, password, isOrganizator, idFacultad], function (err, resultado) {
                     connection.release();
                     console.log("a",err)
-                    if (err) callback(err);
+                    if (err) callback(err, null);
                     else callback(null,resultado.insertId);
                            
                 })
@@ -278,12 +278,69 @@ class DAO {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery= `UPDATE usuarios SET nombre = ?, correo = ?, telefono = ?, id_facultad = ?, es_organizador = ? WHERE id = ?`; 
-                connection.query(stringQuery, [nombre, correo, telefono, facultad, es_org, id], function (err, res) {
+                // let stringQuery= `UPDATE usuarios SET nombre = ?, correo = ?, telefono = ?, id_facultad = ?, es_organizador = ? WHERE id = ?`;  //No se puede cambiar de rol, complica mucho a la hora de gestionar eventos
+                let stringQuery= `UPDATE usuarios SET nombre = ?, correo = ?, telefono = ?, id_facultad = ? WHERE id = ?`; 
+                // connection.query(stringQuery, [nombre, correo, telefono, facultad, es_org, id], function (err, res) {
+                connection.query(stringQuery, [nombre, correo, telefono, facultad,  id], function (err, res) {
                     connection.release();
-                    console.log(facultad,err,res)
                     if (err) callback(err, null)
                     else callback(null,'Perfil actualizado correctamente');
+                })
+            }
+        })
+    }
+    getEventsEnrolledByUser(userId, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery= `SELECT * FROM eventos WHERE id IN (SELECT id_evento FROM inscripciones WHERE id_usuario = ?)`; 
+                connection.query(stringQuery, userId, function (err, res) {
+                    connection.release();
+                    if (err) callback(err, null)
+                    else {
+                        const mappedResults = res.map(evento => ({
+                            id: evento.id,
+                            titulo: evento.titulo,
+                            descripcion: evento.descripcion,
+                            fecha: evento.fecha.toLocaleDateString("es-ES"),
+                            precio: evento.precio,
+                            hora: evento.hora,
+                            ubicacion: evento.ubicacion,
+                            capacidad_maxima: evento.capacidad_maxima,
+                            id_organizador: evento.id_organizador,
+                            // ocupacion: evento.total
+                        }));
+
+                        callback(null,mappedResults);
+                    }
+                })
+            }
+        })
+    }
+    getEventsCreatedByUser(userId, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery= `SELECT * FROM eventos WHERE id_organizador = ?`; 
+                connection.query(stringQuery, userId, function (err, res) {
+                    connection.release();
+                    if (err) callback(err, null)
+                    else {
+                        const mappedResults = res.map(evento => ({
+                            id: evento.id,
+                            titulo: evento.titulo,
+                            descripcion: evento.descripcion,
+                            fecha: evento.fecha.toLocaleDateString("es-ES"),
+                            precio: evento.precio,
+                            hora: evento.hora,
+                            ubicacion: evento.ubicacion,
+                            capacidad_maxima: evento.capacidad_maxima,
+                            id_organizador: evento.id_organizador,
+                            // ocupacion: evento.total
+                        }));
+
+                        callback(null,mappedResults);
+                    }
                 })
             }
         })
