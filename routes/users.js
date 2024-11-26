@@ -6,12 +6,21 @@ const DAO = require('../public/javascripts/DAO')
 const midao = new DAO('localhost','root','','aw_24');
 const bcrypt = require('bcrypt');
 
+const passLocals = (req, res, next) => {
+  res.locals.user = req.session.user;
+  next();
+};
+router.use(passLocals)
 
 const alreadyLoggedIn = (request, response, next) => {
   if (request.session.user === undefined) return next();
   response.redirect('/');
 };
 
+const isLoggedIn = (req, res, next) => {
+  if (res.locals.user) return next();
+  res.redirect('/users/login');
+};
 
 /* GET users listing. */
 router.get('/', function(request, response, next) {
@@ -37,17 +46,16 @@ router.post('/register', checkValidity, async (request, response) => {
   const hashedPassword = await bcrypt.hash(user.contrasenaConf, 10);
   user.contrasena = hashedPassword;
   user.contrasenaConf = hashedPassword;
-
   // Llama al método para registrar al usuario
   midao.registerUser(user, (err) => {
     if (err) return response.status(400).send(err);
-    
     // Conseguir el ID del usuario recién registrado
     midao.getIdFromEmail(user.email, (err, id) => {
       if (err) return response.status(400).send('Error al obtener ID');
       
       // Establece la sesión para el usuario recién registrado
       request.session.user = id;
+      
       
       // Redirige a  home si el registro fue exitoso
       return response.redirect('/');
@@ -75,6 +83,7 @@ router.post('/login',async function (request, response) {//Inicia sesion
       if (err)  throw(err);
       if (isMatch) {
         request.session.user = data.id;
+        response.locals.user = data.id;
         return response.status(200).redirect('/');
       } 
       return response.status(400).send('Contraseña incorrecta');
@@ -96,6 +105,35 @@ function checkValidity(request, response, next){
 
   next();
 }
+
+
+//Profile
+router.get('/profile', (request, response) => {
+  console.log("hola,",response.locals.user)
+  
+  midao.getUserById(request.session.user,(err,resultado)=> {
+    if (err || !resultado) return response.status(400).send('No hay sesion iniciada');
+    else response.render('profile', {usuario:resultado});
+  })
+});
+
+router.post('/modifyUser', (request, response) => {
+  const { nombre, correo, telefono,facultad, rol} = request.body;
+  console.log("aaaa",rol)
+  midao.modifyUser(nombre, correo, telefono, facultad, rol, request.session.user  ,(err,resultado)=> {
+    if (err || !resultado) return response.status(400).send('No hay sesion iniciada');
+    else response.render('profile', {usuario:resultado});
+  })
+});
+
+router.get('/getFacultades', (req, res) => {
+  midao.getFacultades((err, facultades) => {
+      if (err) {
+          return res.status(500).json({ error: 'Error al obtener facultades' });
+      }
+      res.json({ facultades });
+  });
+});
 
 module.exports = router;
 

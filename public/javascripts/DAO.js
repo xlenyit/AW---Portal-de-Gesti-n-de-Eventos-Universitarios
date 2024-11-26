@@ -101,7 +101,7 @@ class DAO {
         const continueInsertion = () => {
             // Necesitamos coger el id de la facultad
             let idFacultad = facultad.split('#')[0]; //2#Facultad de sociales
-            console.log(idFacultad)
+            
             let isOrganizator = userType === 'organizador'? 1 : 0;
     
             this.createRowOnDatabaseUser(nombre, email, telefono, contrasena, idFacultad, isOrganizator,(err) => {
@@ -116,12 +116,13 @@ class DAO {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery = `INSERT INTO usuarios (nombre, correo, telefono, contrasena, es_organizador, id_facultad)
-                                    VALUES (?, ?,${telefono},?,${isOrganizator},${idFacultad})`
-                connection.query(stringQuery, [name, email, password], function (err, tot) {
+                let stringQuery = `INSERT INTO usuarios (nombre, correo, telefono, contrasena, es_organizador, id_facultad, id_accesibilidad)
+                                    VALUES (?, ?,${telefono},?,${isOrganizator},${idFacultad},1)` //Al registrar un usuario tendran la conf de accesibilidad 1 por defecto
+                connection.query(stringQuery, [name, email, password], function (err, resultado) {
                     connection.release();
+                    console.log("a",err)
                     if (err) callback(err);
-                    else callback(null);
+                    else callback(null,resultado.insertId);
                            
                 })
             }
@@ -257,6 +258,35 @@ class DAO {
                 });
             }
         });
+    }
+
+    getUserById(idUser, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = "SELECT u.*, f.nombre as nombreFacultad FROM usuarios as u JOIN facultades as f ON u.id_facultad = f.id WHERE u.id = ?"
+                connection.query(stringQuery, idUser, function (err, res) {
+                    connection.release();
+                    if (err) callback(err, null)
+                    else callback(null,res[0])
+                })
+            }
+        })
+    }
+
+    modifyUser(nombre, correo, telefono, facultad, es_org, id,  callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery= `UPDATE usuarios SET nombre = ?, correo = ?, telefono = ?, id_facultad = ?, es_organizador = ? WHERE id = ?`; 
+                connection.query(stringQuery, [nombre, correo, telefono, facultad, es_org, id], function (err, res) {
+                    connection.release();
+                    console.log(facultad,err,res)
+                    if (err) callback(err, null)
+                    else callback(null,'Perfil actualizado correctamente');
+                })
+            }
+        })
     }
 }
 module.exports = DAO

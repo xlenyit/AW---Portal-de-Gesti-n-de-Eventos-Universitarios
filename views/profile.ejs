@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang = "es">
+    <%-include('partes/head') %>
+    <%-include('partes/header') %>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="#">Gestión de Eventos</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                  <a class="nav-link" href="/logout">Cerrar Sesión</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      
+        <div class="container my-5">
+          <h1 class="text-center">Perfil de Usuario</h1>
+          <div class="row">
+            <!-- Panel de Información del Usuario -->
+            <div id ="userInfo" class="col-md-6">
+              <h3>Información Personal</h3>
+              <form >
+                <div class="mb-3">
+                  <label for="nombre" class="form-label">Nombre Completo:</label>
+                  <p><%= usuario.nombre %></p>
+                  <!-- <input type="text" class="form-control" id="nombre" name="nombre" placeholder="<%= usuario.nombre %>" required> -->
+                </div>
+                <div class="mb-3">
+                  <label for="correo" class="form-label">Correo Electrónico:</label>
+                  <p><%= usuario.correo %></p>
+                </div>
+                <div class="mb-3">
+                  <label for="telefono" class="form-label">Teléfono de Contacto:</label>
+                  <p><%= usuario.telefono %></p>
+                </div>
+                <div class="mb-3">
+                  <label for="facultad" class="form-label">Facultad:</label>
+                  <p id="<%= usuario.idFacultad %>"><%= usuario.nombreFacultad %></p>
+                </div>
+                <div class="mb-3">
+                  <label for="rol" class="form-label">Rol:</label>
+                  <p><%= usuario.es_organizador == 1 ? 'Organizador' : 'Asistente' %></p>
+                </div>
+                <button id="editProfile" class="btn btn-primary">Editar</button>
+                <button id="saveProfile"type="submit" class="btn btn-primary d-none">Guardar Cambios</button>
+              </form>
+            </div>
+      
+            <!-- Historial de Eventos -->
+            <div class="col-md-6">
+              <h3>Historial de Eventos Inscritos</h3>
+              <ul class="list-group">
+              
+              </ul>
+            </div>
+          </div>
+        </div>
+      
+        
+      </body>
+      <script src="/javascripts/editProfile.js"></script>
+      </html>

@@ -1,19 +1,19 @@
-<body>
+<header>
 <div class="header d-flex">
     <div class="headerLinks">
         <a href="/">Home</a>
         <a href="/events/eventViewer">Eventos</a>
     </div>
     <div class="miPerfil">
-        <%if (isLogged) {%>
-            <%let iconPath = "/img/noNotification.png"%>
-            <% if (hasNotification) iconPath = "/img/hasNotification.png"%>
-            <img src="<%=iconPath%>" alt="Icon indicating that
-                <%=hasNotification ? 'you have notification' : 'you dont have a notification'%>"
+        <!-- <%#if (isLogged) {%>
+            <%#let iconPath = "/img/noNotification.png"%>
+            <%# if (hasNotification) iconPath = "/img/hasNotification.png"%>
+            <img src="<%#=iconPath%>" alt="Icon indicating that
+                <%#=hasNotification ? 'you have notification' : 'you dont have a notification'%>"
                  class="notifier">
-        <%}%>
+        <%#}%> -->
 
-        <img src="/img/placeholderEvento.jpg" alt="" class="profileIcon">
+        <a href="/users/profile"><img src="/img/placeholderEvento.jpg" alt="perfil de usuario" class="profileIcon"></a>
     </div>
 </div>
-</body>
+</header>
