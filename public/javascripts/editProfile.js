@@ -44,6 +44,12 @@ $("#editProfile").on("click", (e) => {
 
     $('#editProfile').addClass('d-none');
     $('#saveProfile').removeClass('d-none');
+    $("#userInfo").on("keypress", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault(); // Evita el comportamiento por defecto de Enter
+          $("#saveProfile").click(); // Simula el clic en el botón
+        }
+      });
 });
 
 $("#saveProfile").on("click", (e) => {
@@ -55,7 +61,7 @@ $("#saveProfile").on("click", (e) => {
         data: formData,
         success: function (response, status, xhr) {
             const statusCode = xhr.status;
-            
+
             switch (statusCode) {
                 case 200:
                     alert('Perfil actualizado con éxito');
@@ -65,6 +71,12 @@ $("#saveProfile").on("click", (e) => {
                     break;
                 case 202:
                     alert('Telefono en uso por otro usuario');
+                    break;
+                case 203:
+                    alert('Formato de correo incorrecto');
+                    break;
+                case 204:
+                    alert('Formato de telefono incorrecto');
                     break;
             }
             

@@ -21,12 +21,14 @@
             <div class="row">
               <div class="col" id="emailContainer">
                 <h4 class="my-3">Correo</h4>
-                <input id="email" class="w-100 form-control" type="email" name="email" placeholder="example@ucm.es" required oninvalid="this.setCustomValidity('Ingrese su correo con formato correcto')"
+                <input id="email" class="w-100 form-control" type="email" name="email" placeholder="example@ucm.es" required 
+                 pattern = "[a-zA-Z0-9]+@[a-zA-Z0-9]+\.(?:com|es|net|io)" oninvalid="this.setCustomValidity('Ingrese su correo con formato correcto')"
                 oninput="this.setCustomValidity('')">
               </div>
               <div class="col" id="telContainer">
                 <h4 class="my-3">Teléfono</h4>
-                <input id="telefono" class=" w-100 form-control" name="telefono"  type="tel">
+                <input id="telefono" class=" w-100 form-control" name="telefono"  type="tel"
+                pattern="[0-9]{9}">
               </div>
             </div>
 

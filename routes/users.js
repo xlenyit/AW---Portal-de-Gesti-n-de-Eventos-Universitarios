@@ -102,9 +102,6 @@ function checkValidity(request, response, next){
   if (user.contrasena !== user.contrasenaConf)
       return response.status(400).send('Las contraseñas han de coincidir')
 
-  if (!user.telefono.match(/(\+[0-9]?[0-9]?)?[0-9]{9}/))
-    return response.status(400).send('Ingrese un número de telefono válido')
-
   next();
 }
 //LOGOUT
@@ -138,6 +135,11 @@ router.get('/profile',isLoggedIn, (request, response) => {
 router.post('/modifyUser', async (request, response) => {
   let completed = 0;
   const { nombre, correo, telefono,facultad, rol} = request.body;
+
+  let validValuesCode = areValidValues(correo, telefono); 
+  if(validValuesCode !== 200)
+    return response.status(validValuesCode).render('profile', {usuario:request.session.user, eventos: []});;
+
   midao.checkUniqueUserPhone(telefono, async (err, found) =>{
     if (err) return response.status(400).send('Error de acceso a la BD');
     midao.getUserTelephone(request.session.user, (err, telephone) =>{
@@ -177,6 +179,14 @@ router.post('/modifyUser', async (request, response) => {
     }}
 });
 
+function areValidValues(correo, telefono){
+  const regexEmail = /[a-zA-Z0-9]+@[a-zA-Z0-9]+\.(?:com|es|net|io)/;
+  const regexTelephone = /[0-9]{9}/;
+  if (!regexEmail.test(correo)) return 203;
+  if (!regexTelephone.test(telefono)) return 204;
+  return 200;
+}
+
 router.get('/getFacultades', (req, res) => {
   midao.getFacultades((err, facultades) => {
       if (err) {
@@ -185,6 +195,8 @@ router.get('/getFacultades', (req, res) => {
       res.json({ facultades });
   });
 });
+
+
 
 module.exports = router;
 
