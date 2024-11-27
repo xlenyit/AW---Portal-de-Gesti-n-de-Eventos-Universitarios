@@ -46,8 +46,8 @@ $("#editProfile").on("click", (e) => {
     $('#saveProfile').removeClass('d-none');
     $("#userInfo").on("keypress", function (e) {
         if (e.key === "Enter") {
-          e.preventDefault(); // Evita el comportamiento por defecto de Enter
-          $("#saveProfile").click(); // Simula el clic en el botón
+          e.preventDefault();
+          $("#saveProfile").click(); 
         }
       });
 });
