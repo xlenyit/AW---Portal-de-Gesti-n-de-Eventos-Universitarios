@@ -44,6 +44,43 @@ class DAO {
             }
         })
     }
+
+    getUserEmail(id, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `SELECT correo FROM usuarios WHERE id = ?`
+                connection.query(stringQuery, [id], function (err, resId) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else {
+                        let correo;
+                        resId.map(ele => correo = ele.correo);
+                        callback(null,correo);
+                    }        
+                })
+            }
+        })
+    }
+
+    getUserTelephone(id, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `SELECT telefono FROM usuarios WHERE id = ?`
+                connection.query(stringQuery, [id], function (err, resId) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else {
+                        let telefono;
+                        resId.map(ele => telefono = ele.telefono);
+                        callback(null,telefono);
+                    }        
+                })
+            }
+        })
+    }
+    
     
     
     checkUniqueUserEmail(email, callback){

@@ -135,24 +135,46 @@ router.get('/profile',isLoggedIn, (request, response) => {
   })
 });
 
-router.post('/modifyUser', (request, response) => {
+router.post('/modifyUser', async (request, response) => {
+  let completed = 0;
   const { nombre, correo, telefono,facultad, rol} = request.body;
-  midao.modifyUser(nombre, correo, telefono, facultad, rol, request.session.user  ,(err,resultado)=> {
+  midao.checkUniqueUserPhone(telefono, async (err, found) =>{
+    if (err) return response.status(400).send('Error de acceso a la BD');
+    midao.getUserTelephone(request.session.user, (err, telephone) =>{
+      if (found === 1 && telephone != telefono)return response.status(202).render('profile', {usuario:request.session.user, eventos: []});
+      completed++;
+      carryOn();
+    });
+  });
+
+  midao.checkUniqueUserEmail(correo, async (err, found) =>{
+    if (err) return response.status(400).send('Error de Acceso a la BD');
+    midao.getUserEmail(request.session.user, (err, email) =>{
+      if (found === 1 && email != correo)return response.status(201).render('profile', {usuario:request.session.user, eventos: []});
+      completed++;
+      carryOn();
+    });
+  });
+
+  const carryOn = () => {
+    if (completed == 2){
+    midao.modifyUser(nombre, correo, telefono, facultad, rol, request.session.user  ,(err,resultado)=> {
     if (err || !resultado) return response.status(400).send('No hay sesion iniciada');
     else{
       if (rol === 0) {
         midao.getEventsEnrolledByUser(request.session.user,(err,res)=> {
           if (err || !res) return response.status(400).send('Error al buscar eventos a los que se ha inscrito el usuario');
-          else response.render('profile', {usuario:resultado, eventos:res});
+          else response.status(200).render('profile', {usuario:resultado, eventos:res});
         })
       } else{
         midao.getEventsCreatedByUser(request.session.user,(err,res)=> {
           if (err || !res) return response.status(400).send('Error al buscar eventos que ha creado el usuario');
-          else response.render('profile', {usuario:resultado, eventos :res});
+          else response.status(200).render('profile', {usuario:resultado, eventos :res});
         })
       }
     } 
   })
+    }}
 });
 
 router.get('/getFacultades', (req, res) => {

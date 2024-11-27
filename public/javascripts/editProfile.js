@@ -53,8 +53,21 @@ $("#saveProfile").on("click", (e) => {
         url: '/users/modifyUser',
         method: 'POST',
         data: formData,
-        success: function (response) {
-            alert('Perfil actualizado con éxito');
+        success: function (response, status, xhr) {
+            const statusCode = xhr.status;
+            
+            switch (statusCode) {
+                case 200:
+                    alert('Perfil actualizado con éxito');
+                    break;
+                case 201:
+                    alert('Email en uso por otro usuario');
+                    break;
+                case 202:
+                    alert('Telefono en uso por otro usuario');
+                    break;
+            }
+            
 
             //Recargar la página para mostrar los datos actualizados
             location.reload();
