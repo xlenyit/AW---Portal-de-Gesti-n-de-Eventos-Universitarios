@@ -166,7 +166,8 @@ class DAO {
         })
     }
 
-
+    //CRUD facultades
+    //read all facultades
     getFacultades(callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
@@ -221,7 +222,9 @@ class DAO {
             }
         })
     }
-
+    
+    //CRUD categorias
+    //read all categorias
     getCategories(callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
@@ -296,7 +299,8 @@ class DAO {
             }
         });
     }
-
+    //CRUD usuarios
+    //read by id
     getUserById(idUser, callback){
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
@@ -310,7 +314,7 @@ class DAO {
             }
         })
     }
-
+    //update
     modifyUser(nombre, correo, telefono, facultad, es_org, id,  callback){
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
@@ -326,6 +330,67 @@ class DAO {
             }
         })
     }
+    
+    checkIfUserIsEnrolledInEvent(userId, eventId, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `SELECT * FROM inscripciones WHERE id_usuario = ? AND id_evento = ?`
+                connection.query(stringQuery, [userId, eventId], function (err, res) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else {
+                        callback(null,res);
+                    }        
+                })
+            }
+        })
+    }
+    //CRUD inscripciones
+    createInscription(idUsuario, idEvento, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = "INSERT INTO inscripciones (id_usuario, id_evento, esta_lista_espera, fecha_inscripcion) VALUES (?,?,0, SYSDATE())"
+                connection.query(stringQuery,[idUsuario, idEvento], function (err, res) {
+                    connection.release();
+                    if (err) callback(err, null)
+                    else callback(null,res.insertId)
+                })
+            }
+        })
+    }
+
+    deleteInscription(idUsuario, idEvento, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = "DELETE FROM inscripciones WHERE id_usuario = ? && id_evento = ?"
+                connection.query(stringQuery,[idUsuario, idEvento], function (err, res) {
+                    connection.release();
+                    if (err) callback(err, null)
+                    else callback(null,res.affectedRows)
+                })
+            }
+        })
+    }
+
+    //CRUD EVENTOS
+    //create
+    createEvent(titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_organizador, id_categoria, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = "INSERT INTO eventos (titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_organizador, id_categoria) VALUES (?,?,?,?,?,?,?,?,?)"
+                connection.query(stringQuery,[titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_organizador, id_categoria], function (err, res) {
+                    connection.release();
+                    if (err) callback(err, null)
+                    else callback(null,res.insertId)
+                })
+            }
+        })
+    }
+    //readByEnrolledUserId
     getEventsEnrolledByUser(userId, callback){
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
@@ -354,6 +419,7 @@ class DAO {
             }
         })
     }
+    //read by CreatorId
     getEventsCreatedByUser(userId, callback){
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
@@ -378,49 +444,6 @@ class DAO {
 
                         callback(null,mappedResults);
                     }
-                })
-            }
-        })
-    }
-    checkIfUserIsEnrolledInEvent(userId, eventId, callback){
-        this.pool.getConnection((err, connection) => {
-            if (err) callback(err, null)
-            else {
-                let stringQuery = `SELECT * FROM inscripciones WHERE id_usuario = ? AND id_evento = ?`
-                connection.query(stringQuery, [userId, eventId], function (err, res) {
-                    connection.release();
-                    if (err) callback(err, null);
-                    else {
-                        callback(null,res);
-                    }        
-                })
-            }
-        })
-    }
-
-    createInscription(idUsuario, idEvento, callback){
-        this.pool.getConnection((err, connection) => {
-            if (err) callback(err, null)
-            else {
-                let stringQuery = "INSERT INTO inscripciones (id_usuario, id_evento, esta_lista_espera, fecha_inscripcion) VALUES (?,?,0, SYSDATE())"
-                connection.query(stringQuery,[idUsuario, idEvento], function (err, res) {
-                    connection.release();
-                    if (err) callback(err, null)
-                    else callback(null,res.insertId)
-                })
-            }
-        })
-    }
-
-    deleteInscription(idUsuario, idEvento, callback){
-        this.pool.getConnection((err, connection) => {
-            if (err) callback(err, null)
-            else {
-                let stringQuery = "DELETE FROM inscripciones WHERE id_usuario = ? && id_evento = ?"
-                connection.query(stringQuery,[idUsuario, idEvento], function (err, res) {
-                    connection.release();
-                    if (err) callback(err, null)
-                    else callback(null,res.affectedRows)
                 })
             }
         })

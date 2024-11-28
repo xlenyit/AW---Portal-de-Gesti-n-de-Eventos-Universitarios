@@ -5,6 +5,21 @@ var router = express.Router();
 const DAO = require('../public/javascripts/DAO')
 const midao = new DAO('localhost','root','','aw_24');
 
+const userIsOrganizer = (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect('/login');  
+    }
+
+    midao.getUserById(req.session.user, function(err, usuario){
+        if(err) console.error('Error: No se ha encontrado el usuario ', null)
+        else{
+            if (usuario.es_organizador == 0)  return res.render('error', {message:"no eres organizador", error:{status:404, stack:404}});
+            else next();
+        }
+    })
+    
+};
+
 // EVENTO
 router.get('/event/:id',(request, response) => {
     response.status(200)
@@ -17,38 +32,62 @@ router.get('/event/:id',(request, response) => {
     config.isLogged = (request.session.user ==null ? false: true);
     config.hasNotification = request.hasNotification;
     config.usuario= { esta_inscrito: true, esta_lista_espera: true};
+    config.organizadorDeEste=false;
+    config.usuarioOrg=false;
     config.image_path= '/img/placeholderEvento.jpg',
     config.image_alt= 'Imagen'
 
-    midao.checkIfUserIsEnrolledInEvent(request.session.user, id, (err, inscrito) =>{
-        if(err) console.error('Error: ', null)
+    midao.getUserById(request.session.user, function(err, res){
+        if(err) console.error('Error: No se ha encontrado el usuario ', null)
         else{
-            config.usuario.esta_inscrito = inscrito[0] ? true:false;
-            if(config.usuario.esta_inscrito)  config.usuario.esta_lista_espera = inscrito[0].esta_lista_espera;
+            config.usuarioOrg = res.es_organizador == 1?true:false;
+            if(config.usuarioOrg){ //Si es organizador, necesito comprobar si es el organizador del evento id para dejarle editar en esta vista
+                midao.getEventsCreatedByUser(request.session.user, function(err, eventosMap) {
+                    if(err) console.error('Error: No se ha encontrado el usuario ', null)
+                    else{
+                        eventosMap.forEach(ele => {
+                            if(parseInt(id) == ele.id) {
+                                config.organizadorDeEste = true;
+                            }
+                        });
+                    } 
+                })
+                console.log(config.organizadorDeEste )
+            }else{ //No es organizador, por tanto es asistente, comprobar si esta inscrito ya o no para darle las opciones de asistente
+                midao.checkIfUserIsEnrolledInEvent(request.session.user, id, (err, inscrito) =>{
+                    if(err) console.error('Error: ', null)
+                    else{
+                        config.usuario.esta_inscrito = inscrito[0] ? true:false;
+                        if(config.usuario.esta_inscrito)  config.usuario.esta_lista_espera = inscrito[0].esta_lista_espera;
+                    } 
+                })
+
+            }
+            midao.getEvento(id, (err,resultado)=> {
+                if(err) console.error('Error: ', null)
+                else{
+                    resultado = resultado[0];
+                    config.idEvento = resultado.id;
+                    config.nombre = resultado.titulo;
+                    config.fecha = resultado.fecha;
+                    config.precio= resultado.precio;
+                    config.hora= resultado.hora;
+                    config.ubicacion= resultado.ubicacion;
+                    config.capacidad_maxima= resultado.capacidad_maxima;
+                    config.descripcion = resultado.descripcion;
+                    config.ocupacion = resultado.ocupacion;
+        
+                };
+                checkAndRender();
+            });
+            
+            const checkAndRender = () =>{
+                response.render('event', config);
+            };
         } 
     })
 
-    midao.getEvento(id, (err,resultado)=> {
-        if(err) console.error('Error: ', null)
-        else{
-            resultado = resultado[0];
-            config.idEvento = resultado.id;
-            config.nombre = resultado.titulo;
-            config.fecha = resultado.fecha;
-            config.precio= resultado.precio;
-            config.hora= resultado.hora;
-            config.ubicacion= resultado.ubicacion;
-            config.capacidad_maxima= resultado.capacidad_maxima;
-            config.descripcion = resultado.descripcion;
-            config.ocupacion = resultado.ocupacion;
-
-        };
-        checkAndRender();
-    });
     
-    const checkAndRender = () =>{
-        response.render('event', config);
-    };
 
 
 });
@@ -104,7 +143,25 @@ router.post('/:id/deleteInscription', (request, response) => {
       if(err) console.log(err)
       else response.json(res)
     })
-  })
+})
+
+
+//CREAR EVENTO
+router.post('/createEvent', userIsOrganizer, (request, response) => {
+    const {titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_categoria} = request.body;
+    midao.createEvent(titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, request.session.user, id_categoria,(err, res) => {
+      if(err) console.log(err)
+      else {
+            response.status(200).redirect("/events/eventViewer")
+      }
+    })
+})
+router.get('/createEvent',userIsOrganizer,(request, response) => {
+    midao.getCategories((err,resultado)=> {
+      if(err) console.err('Error: No se ha podido recoger las categorias', null)
+      else response.render('createEvent', {categorias:resultado});
+    })
+  });
 /// Funciones Extra
 
 function calcularElementosParaFiltros(callback){

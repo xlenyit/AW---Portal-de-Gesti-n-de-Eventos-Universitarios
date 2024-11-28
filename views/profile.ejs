@@ -76,14 +76,20 @@
               <%}else{ %>
 
                 <h3>Historial de Eventos Inscritos</h3>
-                  <div class="scrollable-panel" style="max-height: 300px; overflow-y: auto;">
+                  <div class="scrollable-panel h-100 bg-info" style="max-height: 300px; overflow-y: auto;">
                     <% if (eventos && eventos.length > 0) { %>
-                        <ul class="list-group">
+                        <ul class="list-group ">
                             <% eventos.forEach(evento => { %>
-                                <li class="list-group-item m-2 rounded">
-                                    <strong><%= evento.nombre %></strong> <br>
+                                <li class="list-group-item  m-2 rounded d-flex justify-content-between">
+                                  <div class="">
+
+                                    <strong><%= evento.titulo %></strong> <br>
                                     Fecha: <%= evento.fecha %> <br>
                                     Ubicación: <%= evento.ubicacion %>
+                                  </div>
+                                  <div class="align-content-center">
+                                    <button id="changeStateButton" class="desapuntarse" name = "<%=evento.id%>">Desapuntarse</button>
+                                  </div>
                                 </li>
                             <% }) %>
                         </ul>
@@ -100,4 +106,5 @@
         
       </body>
       <script src="/javascripts/editProfile.js"></script>
+      <script src="/javascripts/withdrawFromEvent.js"></script>
       </html>

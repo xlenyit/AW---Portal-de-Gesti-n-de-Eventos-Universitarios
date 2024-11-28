@@ -27,20 +27,29 @@
                                     <span>Ocupación: <%= ocupacion %> / <%= capacidad_maxima %> -
                                         <%= (ocupacion*100/capacidad_maxima).toFixed(0) %> %</span>
                         </div>
+                        <% if (usuarioOrg && organizadorDeEste) { %>
+                            <div id="botonEditarEventoContainer" class="col d-flex justify-content-center ">
+                                <button id="editEventButton" class="w-50 bg-primary text-white">
+                                    Editar Evento
+                                </button>
+                            </div>
+                        
+                        <% }else{  %>
                         <div id="botonIncribirseContainer" class="col d-flex justify-content-center <% if (!isLogged) { %>d-none<% } %>">
                             <button id="changeStateButton" name="<%= idEvento %>"
                                 <% if (!usuario.esta_inscrito && ocupacion < capacidad_maxima){ %>
-                                    class="w-50 bg-info noInscrito" >
+                                    class="w-50 bg-info noInscrito <% if (usuarioOrg) { %>d-none<% } %>" >
                                 Inscribirse
                                 <% } else if (!usuario.esta_inscrito && ocupacion == capacidad_maxima) { %>
-                                    class="w-50 bg-secondary completo">Añadirse a lista de espera
+                                    class="w-50 bg-secondary completo <% if (usuarioOrg) { %>d-none<% } %>">Añadirse a lista de espera
                                 <% } else if (usuario.esta_lista_espera) { %>
-                                    class="w-50 bg-warning enEspera">Quitarse de lista de espera
+                                    class="w-50 bg-warning enEspera <% if (usuarioOrg) { %>d-none<% } %>">Quitarse de lista de espera
                                 <% } else{ %>
-                                    class="w-50 bg-danger text-white desapuntarse">Desapuntarse
+                                    class="w-50 bg-danger text-white desapuntarse <% if (usuarioOrg) { %>d-none<% } %>">Desapuntarse
                                 <% }; %>
                             </button>
                         </div>
+                        <% } %>
                     </div>
                 </div>
             </div>

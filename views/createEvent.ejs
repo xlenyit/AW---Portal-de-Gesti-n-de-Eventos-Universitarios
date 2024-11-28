@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<%-include('partes/head') %>
+    <body>
+        <%-include('partes/header') %>
+            <div class="container mt-5">
+                <h1 class="mb-4">Crear un Nuevo Evento</h1>
+                <form action="/events/createEvent" method="POST">
+                    <!-- Título -->
+                    <div class="mb-3">
+                        <label for="titulo" class="form-label">Título</label>
+                        <input type="text" class="form-control" id="titulo" name="titulo" required>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required></textarea>
+                    </div>
+
+                    <!-- Precio -->
+                    <div class="mb-3">
+                        <label for="precio" class="form-label">Precio</label>
+                        <input type="number" class="form-control" id="precio" name="precio" step="0.01" min="0"
+                            required>
+                    </div>
+
+                    <!-- Fecha -->
+                    <div class="mb-3">
+                        <label for="fecha" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha" required>
+                    </div>
+
+                    <!-- Hora -->
+                    <div class="mb-3">
+                        <label for="hora" class="form-label">Hora</label>
+                        <input type="time" class="form-control" id="hora" name="hora" required>
+                    </div>
+
+                    <!-- Ubicación -->
+                    <div class="mb-3">
+                        <label for="ubicacion" class="form-label">Ubicación</label>
+                        <input type="text" class="form-control" id="ubicacion" name="ubicacion" required>
+                    </div>
+
+                    <!-- Capacidad Máxima -->
+                    <div class="mb-3">
+                        <label for="capacidad_maxima" class="form-label">Capacidad Máxima</label>
+                        <input type="number" class="form-control" id="capacidad_maxima" name="capacidad_maxima" min="1"
+                            required>
+                    </div>
+
+                    <!-- Categoría -->
+                    <div class="mb-3">
+                        <label for="id_categoria" class="form-label">Categoría</label>
+                        <select class="form-select" id="id_categoria" name="id_categoria" required>
+                            <option value="" selected disabled>Selecciona una categoría</option>
+                            <% categorias.forEach(categoria=> { %>
+                                <option value="<%= categoria.id %>">
+                                    <%= categoria.nombre %>
+                                </option>
+                                <% }) %>
+                        </select>
+                    </div>
+
+                    <!-- Botón de enviar -->
+                    <button type="submit" class="btn btn-primary">Crear Evento</button>
+                </form>
+            </div>
+    </body>
+</html>
