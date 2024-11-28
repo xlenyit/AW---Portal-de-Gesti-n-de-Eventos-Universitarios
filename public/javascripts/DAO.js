@@ -1,6 +1,12 @@
 const sql = require('mysql')
 
+
 class DAO {
+    static CODIGO_INSCRIPCION = 1; 
+    static CODIGO_DESAPUNTAR = 2;
+    static CODIGO_CANCELACION = 3;
+    static CODIGO_ELIMINAR = 4;
+
     constructor(host, user, password, database) {
         this.pool = sql.createPool({
             host: host,
@@ -448,5 +454,130 @@ class DAO {
             }
         })
     }
+
+    async createNotificacion(idUser, idEvento, tipo, callback){
+        let titulo = "", mensaje = "";
+
+        switch (tipo){
+            case this.CODIGO_INSCRIPCION:
+                this.getEvento(idEvento, (err, data) => {
+                    let eventData = data[0]
+                    if (err) callback(err);
+                    titulo = eventData.titulo;
+                    mensaje = `Su inscripcion al evento ${titulo} se ha realizado con exito`;
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => {callback(err)});
+                    this.getUserById(idUser, (err, data) => {
+                        if (err) callback(err);
+                        let username = data.nombre;
+                        mensaje = `El usuario ${username} se ha inscrito al evento`;
+                        idUser = eventData.id_organizador;
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje,(err) => {callback(err)});
+                    });
+                    callback(null);
+                })
+                break;
+            case this.CODIGO_DESAPUNTAR:
+                this.getEvento(idEvento, (err, data) => {
+                    let eventData = data[0]
+                    if (err) callback(err);
+                    titulo = eventData.titulo;
+                    mensaje = `Se ha eliminado su inscripcion al evento ${titulo} con exito`;
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => {callback(err)});
+                    this.getUserById(idUser, (err, data) => {
+                        if (err) callback(err);
+                        let username = data.nombre;
+                        mensaje = `El usuario ${username} se ha desapuntado del evento`;
+                        idUser = eventData.id_organizador;
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje,(err) => {callback(err)});
+                    });
+                    callback(null);
+                })
+                break;
+
+            case this.CODIGO_CANCELACION:
+                this.getEvento(idEvento, (err, data) => {
+                    let eventData = data[0]
+                    if (err) callback(err);
+                    titulo = eventData.titulo;
+                    mensaje = `Se ha cancelado el evento ${titulo} :(. Lamentamos las molestias.`;
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => {callback(err)});
+                    mensaje = `Se ha cancelado el evento ${titulo} con éxito`;
+                    idUser = eventData.id_organizador;
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje,(err) => {callback(err)});
+                    callback(null);
+                })
+                break;
+
+            case this.CODIGO_ELIMINAR:
+                this.getEvento(idEvento, (err, data) => {
+                    let eventData = data[0]
+                    if (err) callback(err);
+                    titulo = eventData.titulo;
+                    mensaje = `El organizador del evento ${titulo} ha retirado su inscripción. Lamentamos las molestias`;
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => {callback(err)});
+                    this.getUserById(idUser, (err, data) => {
+                        if (err) callback(err);
+                        let username = data.nombre;
+                        mensaje = `Se ha retirado al usuario: ${username} del evento ${titulo} con éxito.`;
+                        idUser = eventData.id_organizador;
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje,(err) => {callback(err)});
+                    });
+                    callback(null);
+                })
+                break;
+            
+            case this.CODIGO_SALIR_LISTA_ESPERA:
+                this.getEvento(idEvento, (err, data) => {
+                    let eventData = data[0]
+                    if (err) callback(err);
+                    titulo = eventData.titulo;
+                    mensaje = `¡Enhorabuena! Has salido de la lista de espera para el evento: ${titulo}. ¡Bienvenido a la plantilla oficial ;)!`;
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => {callback(err)});
+                    this.getUserById(idUser, (err, data) => {
+                        if (err) callback(err);
+                        let username = data.nombre;
+                        mensaje = `El usuario ${username} a avanzado de la lista de espera a usuario inscrito`;
+                        idUser = eventData.id_organizador;
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje,(err) => {callback(err)});
+                    });
+                    callback(null);
+                })
+                break;
+            
+            default:
+                callback('Error registering notification');
+        }
+    }
+
+    createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery= `INSERT INTO notificaciones (id_usuario, id_evento, titulo, mensaje, visto)
+                                    VALUES (?, ?, ?, ?, 0)`; 
+                connection.query(stringQuery, [idUser, idEvento, titulo, mensaje], function (err, res) {
+                    connection.release();
+                    if (err) callback(err)
+                    else callback(null);
+                })
+            }
+        })
+    }
+
+    getUsuariosInEvent(idEvento, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery= `SELECT u.* FROM usuarios as u JOIN inscripciones as i ON i.id_usuario = u.id WHERE i.id_evento = ?;`; 
+                connection.query(stringQuery, idEvento, function (err, res) {
+                    connection.release();
+                    if (err) callback(err)
+                        //TODO: Imagino que un map
+                    else callback(res);
+                })
+            }
+        })
+    }
 }
+
 module.exports = DAO

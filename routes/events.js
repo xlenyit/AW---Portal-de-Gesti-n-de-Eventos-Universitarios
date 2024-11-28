@@ -132,8 +132,13 @@ router.get('/eventViewer', (request, response) => {
 //INSCRIBIRSE A EVENTO
 router.post('/:id/createInscription', (request, response) => {
     midao.createInscription(request.session.user,request.params.id,(err, res) => {
-      if(err) console.log(err)
-      else response.json(res)
+        if(err) console.log(err)
+        else {
+            midao.createNotificacion(request.session.user, request.params.id, DAO.CODIGO_INSCRIPCION, (err) =>{
+                if (err) console.error(err);
+            })
+            response.json(res)
+        }
     })
 })
 
@@ -141,7 +146,12 @@ router.post('/:id/createInscription', (request, response) => {
 router.post('/:id/deleteInscription', (request, response) => {
     midao.deleteInscription(request.session.user,request.params.id,(err, res) => {
       if(err) console.log(err)
-      else response.json(res)
+      else {
+        midao.createNotificacion(request.session.user, request.params.id, DAO.CODIGO_DESAPUNTAR, (err) =>{
+            if (err) console.error(err);
+        })
+        response.json(res)
+      }
     })
 })
 
@@ -162,6 +172,20 @@ router.get('/createEvent',userIsOrganizer,(request, response) => {
       else response.render('createEvent', {categorias:resultado});
     })
   });
+
+
+// VER USUARIOS EN EVENTO
+router.get('/:id/eventUserManager', (request, response) =>{
+    let eventId = request.params.eventId;
+    midao.getUsuariosInEvent(eventId, (err, users) =>{
+        if (err) console.err('Error al tomar los datos de los usuarios de la bd');
+        // TODO: Hay que añadirle el nombre del evento tambien
+        else response.render('eventUserManager', users);
+    });
+})
+
+
+
 /// Funciones Extra
 
 function calcularElementosParaFiltros(callback){
