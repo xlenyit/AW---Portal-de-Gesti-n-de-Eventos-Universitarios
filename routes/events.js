@@ -90,8 +90,17 @@ router.get('/eventViewer', (request, response) => {
 
 });
 
+//INSCRIBIRSE A EVENTO
 router.post('/:id/createInscription', (request, response) => {
     midao.createInscription(request.session.user,request.params.id,(err, res) => {
+      if(err) console.log(err)
+      else response.json(res)
+    })
+})
+
+//DESAPUNTASE DE EVENTO
+router.post('/:id/deleteInscription', (request, response) => {
+    midao.deleteInscription(request.session.user,request.params.id,(err, res) => {
       if(err) console.log(err)
       else response.json(res)
     })

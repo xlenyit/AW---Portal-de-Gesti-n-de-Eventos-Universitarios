@@ -411,5 +411,19 @@ class DAO {
             }
         })
     }
+
+    deleteInscription(idUsuario, idEvento, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = "DELETE FROM inscripciones WHERE id_usuario = ? && id_evento = ?"
+                connection.query(stringQuery,[idUsuario, idEvento], function (err, res) {
+                    connection.release();
+                    if (err) callback(err, null)
+                    else callback(null,res.affectedRows)
+                })
+            }
+        })
+    }
 }
 module.exports = DAO
