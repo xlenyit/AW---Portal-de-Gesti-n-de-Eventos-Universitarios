@@ -24,13 +24,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true  }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
+
 app.use(session({
     secret: new RandExp(/([a-zA-Z0-9]{16}){1-3}/).gen(), // Cambia esto por algo único y seguro
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // Usa true si estás en HTTPS
+    cookie: { secure: false }, // Usa true si estás en HTTPS
+    
 }))
-
+app.use((req, res, next) => {
+    console.log('Datos de sesión en app:', req.session);
+    next();
+});
 
 // Middleware para '/'
 app.use('/', indexRouter);

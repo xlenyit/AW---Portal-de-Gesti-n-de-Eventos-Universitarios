@@ -6,7 +6,7 @@ const DAO = require('../public/javascripts/DAO')
 const midao = new DAO('localhost','root','','aw_24');
 
 // EVENTO
-router.get('/event/:id',(request, response) => {//Renderiza pagina de register
+router.get('/event/:id',(request, response) => {
     response.status(200)
     var config = {};
     let id = request.params.id;
@@ -14,14 +14,22 @@ router.get('/event/:id',(request, response) => {//Renderiza pagina de register
     // Habría que cambiarlo para que funcionase en lugar de con isLogged, pasando un user.
     // Si user === null -> !isLogged
     // Si no, tomar valores desde user.hasNotification, user.esta_inscrito...
-    config.isLogged = request.isLogged;
+    config.isLogged = (request.session.user ==null ? false: true);
     config.hasNotification = request.hasNotification;
-    config.usuario= { esta_inscrito: true, esta_lista_espera: true},
+    config.usuario= { esta_inscrito: true, esta_lista_espera: true};
     config.image_path= '/img/placeholderEvento.jpg',
     config.image_alt= 'Imagen'
 
+    midao.checkIfUserIsEnrolledInEvent(request.session.user, id, (err, inscrito) =>{
+        if(err) console.error('Error: ', null)
+        else{
+            config.usuario.esta_inscrito = inscrito[0] ? true:false;
+            if(config.usuario.esta_inscrito)  config.usuario.esta_lista_espera = inscrito[0].esta_lista_espera;
+        } 
+    })
+
     midao.getEvento(id, (err,resultado)=> {
-        if(err) console.error('Error: ', err)
+        if(err) console.error('Error: ', null)
         else{
             resultado = resultado[0];
             config.idEvento = resultado.id;
@@ -45,6 +53,7 @@ router.get('/event/:id',(request, response) => {//Renderiza pagina de register
 
 });
 
+//LISTA EVENTOS
 router.get('/eventViewer', (request, response) => {
     response.status(200);
     let config = {};
@@ -81,6 +90,12 @@ router.get('/eventViewer', (request, response) => {
 
 });
 
+router.post('/:id/createInscription', (request, response) => {
+    midao.createInscription(request.session.user,request.params.id,(err, res) => {
+      if(err) console.log(err)
+      else response.json(res)
+    })
+  })
 /// Funciones Extra
 
 function calcularElementosParaFiltros(callback){

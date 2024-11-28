@@ -27,15 +27,17 @@
                                     <span>Ocupación: <%= ocupacion %> / <%= capacidad_maxima %> -
                                         <%= ocupacion*100/capacidad_maxima %> %</span>
                         </div>
-                        <div id="botonIncribirseContainer" class="col d-flex justify-content-center">
+                        <div id="botonIncribirseContainer" class="col d-flex justify-content-center <% if (!isLogged) { %>d-none<% } %>">
                             <button id="changeStateButton"
-                            <% if (!usuario.esta_inscrito) { %>
-                                    class="w-50 bg-info">
+                                <% if (!usuario.esta_inscrito && ocupacion < capacidad_maxima){ %>
+                                    class="w-50 bg-info noInscrito" name="<%= idEvento %>">
                                 Inscribirse
+                                <% } else if (!usuario.esta_inscrito && ocupacion == capacidad_maxima) { %>
+                                    class="w-50 bg-secondary completo">Añadirse a lista de espera
                                 <% } else if (usuario.esta_lista_espera) { %>
-                                    class="w-50 bg-warning">Quitarse de lista de espera
+                                    class="w-50 bg-warning enEspera">Quitarse de lista de espera
                                 <% } else{ %>
-                                    class="w-50 bg-danger color-white">Desapuntarse
+                                    class="w-50 bg-danger text-white desapuntarse">Desapuntarse
                                 <% }; %>
                             </button>
                         </div>
@@ -49,4 +51,5 @@
     </div>
 </div>
 </body>
+<script src="/javascripts/enrollInEvent.js"></script>
 </html>

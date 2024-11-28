@@ -382,5 +382,34 @@ class DAO {
             }
         })
     }
+    checkIfUserIsEnrolledInEvent(userId, eventId, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `SELECT * FROM inscripciones WHERE id_usuario = ? AND id_evento = ?`
+                connection.query(stringQuery, [userId, eventId], function (err, res) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else {
+                        callback(null,res);
+                    }        
+                })
+            }
+        })
+    }
+
+    createInscription(idUsuario, idEvento, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = "INSERT INTO inscripciones (id_usuario, id_evento, esta_lista_espera, fecha_inscripcion) VALUES (?,?,0, SYSDATE())"
+                connection.query(stringQuery,[idUsuario, idEvento], function (err, res) {
+                    connection.release();
+                    if (err) callback(err, null)
+                    else callback(null,res.insertId)
+                })
+            }
+        })
+    }
 }
 module.exports = DAO
