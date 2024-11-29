@@ -18,5 +18,4 @@ router.get('/', function(request, response) {
   response.render('homePage', { user: 'Usuario', isLogged: isLogged, hasNotification: hasNotification });
 });
 
-
 module.exports = router;

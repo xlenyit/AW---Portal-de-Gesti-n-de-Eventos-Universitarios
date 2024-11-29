@@ -5,6 +5,28 @@ var router = express.Router();
 const DAO = require('../public/javascripts/DAO')
 const midao = new DAO('localhost','root','','aw_24');
 
+const sqlInjectionCheckMiddleware = (request, res, next) => {
+    // Expresión regular para detectar patrones comunes de inyección SQL
+    const sqlInjectionPattern = /(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE|--|#|\/\*|\*\/)/;
+  
+    // Verificar cada campo en request.body
+    for (const key in request.body) {
+      if (request.body.hasOwnProperty(key)) {
+        const value = request.body[key];
+  
+        
+        if (sqlInjectionPattern.test(value)) {
+            midao.banear(request.ip);
+          return res.status(400).send('Has sido baneado por posible intento de inyección SQL.');
+        }
+      }
+    }
+  
+    
+    next();
+  };
+  
+
 const userIsOrganizer = (req, res, next) => {
     if (!req.session.user) {
         return res.redirect('/login');  
@@ -52,7 +74,6 @@ router.get('/event/:id',(request, response) => {
                         });
                     } 
                 })
-                console.log(config.organizadorDeEste )
             }else{ //No es organizador, por tanto es asistente, comprobar si esta inscrito ya o no para darle las opciones de asistente
                 midao.checkIfUserIsEnrolledInEvent(request.session.user, id, (err, inscrito) =>{
                     if(err) console.error('Error: ', null)
@@ -121,9 +142,16 @@ router.get('/eventViewer', (request, response) => {
         validados++;
         tryRender();
     });
+
+    midao.esOrganizador(request.session.user, (err, esOrganizador) => {
+        if (err) config.es_organizador = false;
+        else config.es_organizador = esOrganizador;
+        validados++;
+        tryRender();
+    });
     
     const tryRender = () => {
-        if (validados === 2)
+        if (validados === 3)
             response.render('eventViewer', config);
     }
 
@@ -132,7 +160,7 @@ router.get('/eventViewer', (request, response) => {
 //INSCRIBIRSE A EVENTO
 router.post('/:id/createInscription', (request, response) => {
     midao.createInscription(request.session.user,request.params.id,(err, res) => {
-        if(err) console.log(err)
+        if(err) console.error(err)
         else {
             midao.createNotificacion(request.session.user, request.params.id, DAO.CODIGO_INSCRIPCION, (err) =>{
                 if (err) console.error(err);
@@ -145,7 +173,7 @@ router.post('/:id/createInscription', (request, response) => {
 //DESAPUNTASE DE EVENTO
 router.post('/:id/deleteInscription', (request, response) => {
     midao.deleteInscription(request.session.user,request.params.id,(err, res) => {
-      if(err) console.log(err)
+      if(err) console.error(err)
       else {
         midao.createNotificacion(request.session.user, request.params.id, DAO.CODIGO_DESAPUNTAR, (err) =>{
             if (err) console.error(err);
@@ -155,12 +183,25 @@ router.post('/:id/deleteInscription', (request, response) => {
     })
 })
 
+// BORRAR USUARIO DE EVENTO (ORG)
+router.post('/:eventId/deleteInscription/:userId', (request, response) => {
+    midao.deleteInscription(request.params.userId,request.params.eventId,(err, res) => {
+      if(err) console.error(err)
+      else {
+        midao.createNotificacion(request.params.userId, request.params.eventId, DAO.CODIGO_ELIMINAR, (err) =>{
+            if (err) console.error(err);
+        })
+        response.json(res)
+      }
+    })
+})
+
 
 //CREAR EVENTO
-router.post('/createEvent', userIsOrganizer, (request, response) => {
+router.post('/createEvent', sqlInjectionCheckMiddleware, userIsOrganizer, (request, response) => {
     const {titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_categoria} = request.body;
     midao.createEvent(titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, request.session.user, id_categoria,(err, res) => {
-      if(err) console.log(err)
+      if(err) console.error(err)
       else {
             response.status(200).redirect("/events/eventViewer")
       }
@@ -175,13 +216,36 @@ router.get('/createEvent',userIsOrganizer,(request, response) => {
 
 
 // VER USUARIOS EN EVENTO
-router.get('/:id/eventUserManager', (request, response) =>{
-    let eventId = request.params.eventId;
+router.get('/eventUserManager/:id', (request, response) =>{
+    let eventId = request.params.id;
+    let config = {};
+    let validated = 0;
     midao.getUsuariosInEvent(eventId, (err, users) =>{
-        if (err) console.err('Error al tomar los datos de los usuarios de la bd');
-        // TODO: Hay que añadirle el nombre del evento tambien
-        else response.render('eventUserManager', users);
+        if (err) console.error('Error al tomar los datos de los usuarios de la bd');
+        else {
+            config.users = users;
+            validated++;
+            tryRender();
+        }
     });
+
+    midao.getEvento(eventId, (err, event) =>{
+        if (err) console.error('Error al tomar los datos de los usuarios de la bd');
+        else {
+            config.event = {};
+            config.event.nombre = event[0].titulo;
+            config.event.id = event[0].id;
+            validated++;
+            tryRender();
+        }
+    });
+
+
+    const tryRender = () => {
+        if (validated === 2){
+            response.render('eventUserManager', config);
+        }
+    }
 })
 
 

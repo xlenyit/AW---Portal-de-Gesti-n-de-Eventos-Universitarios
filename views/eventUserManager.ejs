@@ -1,23 +1,30 @@
 <!DOCTYPE html>
 <html lang="es">
 <%- include('partes/head') %>
+<script src="/javascripts/removeUserFromEvent.js"></script>
 <body>
 <%-include('partes/header') %>
 <div class="container ">
     <div class="d-flex mh-0 ph-0">
         <div id="mainDiv" class=" ">
-            <h1><%= nombre %></h1>
+            <h1><%=event.nombre%></h1>
             
-            <% for (let user : <%=inscritos>) {>
+            <% users.forEach((user) => {%>
                 <div class="d-flex flex-row">
                     <div class="">
-                        <p>Usuario:<%=user.nombre%></p>
-                        <p>Estado: <%=user.esta_lista_espera%></p>
+                        <p>Usuario:<%=user.correo%></p>
+                        <p>Estado: <%=user.esta_lista_espera ? 'En lista de espera' : 'Inscrito'%></p>
                         <p>Fecha Inscripcion: <%=user.fecha_inscripcion%></p>
-                        <button onclick='removeUserFromEvent("<%=user.id%>")'>Eliminar Usuario</button>
+                        <button onclick="removeUserFromEvent('<%=user.id%>', '<%=event.id%>')">Eliminar Usuario</button>
                     </div>
                 </div>
-            <%}>
+            <%})%>
+
+            <% if (users.length != 0){%>
+                <div>
+                    <button onclick="removeUsersFromEvent('<%= JSON.stringify(users) %>', '<%= event.id %>')">Eliminar a todos los usuarios</button>
+                </div>
+            <%}%>
         </div>
     </div>
 </div>

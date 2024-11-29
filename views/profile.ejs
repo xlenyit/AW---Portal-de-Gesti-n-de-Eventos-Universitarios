@@ -2,6 +2,7 @@
 <html lang = "es">
     <%-include('partes/head') %>
     <%-include('partes/header') %>
+    <script src="/javascripts/switchViews.js"></script>
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
           <div class="container-fluid">
@@ -61,11 +62,13 @@
                   <% if (eventos && eventos.length > 0) { %>
                       <ul class="list-group">
                           <% eventos.forEach(evento => { %>
+                            <a id="clickEventPanel" href="<%= '/events/eventUserManager/' + evento.id %>">
                               <li class="list-group-item m-2 rounded">
-                                  <strong><%= evento.titulo %></strong> <br>
-                                  Fecha: <%= evento.fecha %> <br>
-                                  Ubicación: <%= evento.ubicacion %>
+                                <strong><%= evento.titulo %></strong> <br>
+                                Fecha: <%= evento.fecha %> <br>
+                                Ubicación: <%= evento.ubicacion %>
                               </li>
+                            </a>
                           <% }) %>
                       </ul>
                   <% } else { %>

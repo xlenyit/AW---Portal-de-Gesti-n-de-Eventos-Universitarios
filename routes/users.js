@@ -6,6 +6,28 @@ const DAO = require('../public/javascripts/DAO')
 const midao = new DAO('localhost','root','','aw_24');
 const bcrypt = require('bcrypt');
 
+const sqlInjectionCheckMiddleware = (request, res, next) => {
+  // Expresión regular para detectar patrones comunes de inyección SQL
+  const sqlInjectionPattern = /(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE|--|#|\/\*|\*\/)/;
+
+  // Verificar cada campo en request.body
+  for (const key in request.body) {
+    if (request.body.hasOwnProperty(key)) {
+      const value = request.body[key];
+
+      
+      if (sqlInjectionPattern.test(value)) {
+        midao.banear(request.ip);
+        return res.status(400).send('Has sido baneado por posible intento de inyección SQL.');
+      }
+    }
+  }
+
+  
+  next();
+};
+
+
 const passLocals = (req, res, next) => {
   res.locals.user = req.session.user;
   next();
@@ -40,7 +62,7 @@ router.get('/register', alreadyLoggedIn ,(request, response) => {
 
 
 // Maneja el registro
-router.post('/register', checkValidity, async (request, response) => {
+router.post('/register', sqlInjectionCheckMiddleware, checkValidity, async (request, response) => {
   const user = request.body;
 
   
@@ -58,8 +80,8 @@ router.post('/register', checkValidity, async (request, response) => {
       // Establece la sesión para el usuario recién registrado
       request.session.user = id;
       
-console.log('Registrando usuario:', user);
-console.log('ID del usuario registrado:', id);
+      console.log('Registrando usuario:', user);
+      console.log('ID del usuario registrado:', id);
       // Redirige a  home si el registro fue exitoso
       return response.redirect('/');
     });
@@ -73,7 +95,7 @@ router.get('/login', alreadyLoggedIn, (request, response) => {//Renderiza pagina
 })
 
 // Middelware para el post de login
-router.post('/login',async function (request, response) {//Inicia sesion
+router.post('/login', sqlInjectionCheckMiddleware,async function (request, response) {//Inicia sesion
   const { email, contrasena } = request.body;
 
   // Conseguir la contraseña e ID relacionada con el email
@@ -97,7 +119,6 @@ router.post('/login',async function (request, response) {//Inicia sesion
 
 function checkValidity(request, response, next){
   const user = request.body;
-  
   // Aqui hay que mirar que los valores sean correctos
   if (user.contrasena !== user.contrasenaConf)
       return response.status(400).send('Las contraseñas han de coincidir')
@@ -132,7 +153,7 @@ router.get('/profile',isLoggedIn, (request, response) => {
   })
 });
 
-router.post('/modifyUser', async (request, response) => {
+router.post('/modifyUser',sqlInjectionCheckMiddleware, async (request, response) => {
   let completed = 0;
   const { nombre, correo, telefono,facultad, rol} = request.body;
 
@@ -195,7 +216,6 @@ router.get('/getFacultades', (req, res) => {
       res.json({ facultades });
   });
 });
-
 
 
 module.exports = router;

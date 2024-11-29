@@ -11,3 +11,7 @@ function openRegister(){
 function showEvents(){
     window.location.href= "/events/eventViewer";
 }
+
+function renderUsers(eventId){
+    window.location.href= `/events/${eventId}eventViewer`;
+}

@@ -86,6 +86,21 @@ class DAO {
             }
         })
     }
+
+    esOrganizador(id, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `SELECT es_organizador FROM usuarios WHERE id = ?`
+                connection.query(stringQuery, [id], function (err, result) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else callback(null,  result[0].es_organizador===1);
+      
+                })
+            }
+        })
+    }
     
     
     
@@ -163,7 +178,6 @@ class DAO {
                                     VALUES (?, ?, ?, ?, ?, ?, 1)` //Al registrar un usuario tendran la conf de accesibilidad 1 por defecto
                 connection.query(stringQuery, [name, email, telefono, password, isOrganizator, idFacultad], function (err, resultado) {
                     connection.release();
-                    console.log("a",err)
                     if (err) callback(err, null);
                     else callback(null,resultado.insertId);
                            
@@ -195,7 +209,7 @@ class DAO {
                 let stringQuery = `SELECT e.*, COALESCE(COUNT(i.id_usuario), 0) AS total 
                                     FROM eventos e LEFT JOIN inscripciones i 
                                     ON i.id_evento = e.id 
-                                    WHERE e.id = ${id}`;
+                                    WHERE e.id = ${id} AND i.activo=1`;
                 connection.query(stringQuery, function (err, resultado) {
                     connection.release();
                     if (err) callback(err, null)
@@ -249,7 +263,7 @@ class DAO {
         this.pool.getConnection((err, connection) =>{
             if (err) callback(err, null);
             else {
-                let stringQuery = `SELECT COUNT(*) as ocupacion FROM inscripciones WHERE id_evento=${idEvento} AND esta_lista_espera=0`;
+                let stringQuery = `SELECT COUNT(*) as ocupacion FROM inscripciones WHERE id_evento=${idEvento} AND esta_lista_espera=0 AND activo=1`;
                 connection.query(stringQuery, function (err, resultado) {
                     connection.release();
                     if (err) callback(err, null);
@@ -263,9 +277,9 @@ class DAO {
         this.pool.getConnection((err, connection) =>{
             if (err) callback(err, null);
             else {
-                let stringQuery = `SELECT e.*, COALESCE(COUNT(i.id_usuario), 0) AS total 
-                                    FROM eventos e LEFT JOIN inscripciones i 
-                                    ON i.id_evento = e.id 
+                let stringQuery = `SELECT e.*, COALESCE(COUNT(CASE WHEN i.activo = 1 THEN i.id_usuario END), 0) AS total
+                                    FROM eventos e
+                                    LEFT JOIN inscripciones i ON i.id_evento = e.id
                                     GROUP BY e.id`;
                 connection.query(stringQuery, function (err, resultado) {
                     connection.release();
@@ -341,7 +355,7 @@ class DAO {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery = `SELECT * FROM inscripciones WHERE id_usuario = ? AND id_evento = ?`
+                let stringQuery = `SELECT * FROM inscripciones WHERE id_usuario = ? AND id_evento = ? AND activo=1`
                 connection.query(stringQuery, [userId, eventId], function (err, res) {
                     connection.release();
                     if (err) callback(err, null);
@@ -357,7 +371,7 @@ class DAO {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery = "INSERT INTO inscripciones (id_usuario, id_evento, esta_lista_espera, fecha_inscripcion) VALUES (?,?,0, SYSDATE())"
+                let stringQuery = "INSERT INTO inscripciones (id_usuario, id_evento, esta_lista_espera, fecha_inscripcion) VALUES (?, ?, 0, SYSDATE()) ON DUPLICATE KEY UPDATE activo = 1, fecha_inscripcion = SYSDATE();"
                 connection.query(stringQuery,[idUsuario, idEvento], function (err, res) {
                     connection.release();
                     if (err) callback(err, null)
@@ -371,7 +385,7 @@ class DAO {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery = "DELETE FROM inscripciones WHERE id_usuario = ? && id_evento = ?"
+                let stringQuery = "UPDATE inscripciones SET activo=0 WHERE id_usuario = ? && id_evento = ?"
                 connection.query(stringQuery,[idUsuario, idEvento], function (err, res) {
                     connection.release();
                     if (err) callback(err, null)
@@ -401,7 +415,7 @@ class DAO {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery= `SELECT * FROM eventos WHERE id IN (SELECT id_evento FROM inscripciones WHERE id_usuario = ?)`; 
+                let stringQuery= `SELECT * FROM eventos WHERE id IN (SELECT id_evento FROM inscripciones WHERE id_usuario = ? AND activo=1)`; 
                 connection.query(stringQuery, userId, function (err, res) {
                     connection.release();
                     if (err) callback(err, null)
@@ -459,7 +473,7 @@ class DAO {
         let titulo = "", mensaje = "";
 
         switch (tipo){
-            case this.CODIGO_INSCRIPCION:
+            case DAO.CODIGO_INSCRIPCION:
                 this.getEvento(idEvento, (err, data) => {
                     let eventData = data[0]
                     if (err) callback(err);
@@ -476,7 +490,7 @@ class DAO {
                     callback(null);
                 })
                 break;
-            case this.CODIGO_DESAPUNTAR:
+            case DAO.CODIGO_DESAPUNTAR:
                 this.getEvento(idEvento, (err, data) => {
                     let eventData = data[0]
                     if (err) callback(err);
@@ -494,7 +508,7 @@ class DAO {
                 })
                 break;
 
-            case this.CODIGO_CANCELACION:
+            case DAO.CODIGO_CANCELACION:
                 this.getEvento(idEvento, (err, data) => {
                     let eventData = data[0]
                     if (err) callback(err);
@@ -508,7 +522,7 @@ class DAO {
                 })
                 break;
 
-            case this.CODIGO_ELIMINAR:
+            case DAO.CODIGO_ELIMINAR:
                 this.getEvento(idEvento, (err, data) => {
                     let eventData = data[0]
                     if (err) callback(err);
@@ -526,7 +540,7 @@ class DAO {
                 })
                 break;
             
-            case this.CODIGO_SALIR_LISTA_ESPERA:
+            case DAO.CODIGO_SALIR_LISTA_ESPERA:
                 this.getEvento(idEvento, (err, data) => {
                     let eventData = data[0]
                     if (err) callback(err);
@@ -568,12 +582,40 @@ class DAO {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery= `SELECT u.* FROM usuarios as u JOIN inscripciones as i ON i.id_usuario = u.id WHERE i.id_evento = ?;`; 
-                connection.query(stringQuery, idEvento, function (err, res) {
+                let stringQuery= `SELECT u.*, i.* FROM usuarios as u JOIN inscripciones as i ON i.id_usuario = u.id WHERE i.id_evento = ? AND i.activo=1`; 
+                connection.query(stringQuery, [idEvento], function (err, res) {
                     connection.release();
-                    if (err) callback(err)
-                        //TODO: Imagino que un map
-                    else callback(res);
+                    if (err) callback(err, null)
+                    else{
+                        callback(null, res);
+                    }
+                })
+            }
+        })
+    }
+
+    banear(IP){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery= `INSERT INTO blacklist (IP) VALUES (?)`; 
+                connection.query(stringQuery, [IP], function (err) {
+                    connection.release();
+                    if (err) console.error(err);
+                })
+            }
+        })
+    }
+
+    getBanned(callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery= `SELECT IP FROM blacklist`; 
+                connection.query(stringQuery, function (err, res) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    callback(null, res.map(ele => ele.IP))
                 })
             }
         })

@@ -18,6 +18,7 @@ const PORT = process.env.PORT ?? 3000;
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.set('trust proxy', true)
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -35,6 +36,22 @@ app.use(session({
 app.use((req, res, next) => {
     console.log('Datos de sesión en app:', req.session);
     next();
+});
+
+// Middleware para todo
+app.use('/', (request, response, next) => {
+    const DAO = require('./public/javascripts/DAO')
+    const midao = new DAO('localhost','root','','aw_24');
+
+    midao.getBanned((err, banned) =>{
+        if (err) console.error(err);
+        for (let i = 0; i < banned.length; i++)
+            if (request.ip == banned[i])
+                return response.send('Estas Baneado por Inyeccion SQL');
+        next();
+    });
+
+    
 });
 
 // Middleware para '/'
