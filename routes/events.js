@@ -120,8 +120,7 @@ router.get('/eventViewer', (request, response) => {
     let validados = 0;
 
     config.isLogged = true;
-    config.hasNotification=true;
-
+    
 
     calcularElementosParaFiltros((err, filtros) => {
         if (err) response.status(400);
@@ -151,6 +150,7 @@ router.get('/eventViewer', (request, response) => {
     });
     
     const tryRender = () => {
+        console.log(`EventViewer: hasNotification -> ${response.locals.hasNotification}`);
         if (validados === 3)
             response.render('eventViewer', config);
     }
@@ -195,7 +195,18 @@ router.post('/:eventId/deleteInscription/:userId', (request, response) => {
       }
     })
 })
-
+//SER AÑADIDO A LISTA DE ESPERA == INSCRIBIRSE A EVENTO COMPLETO
+router.post('/:id/createInscriptionWaitingList', (request, response) => {
+    midao.createInscriptionWaitingList(request.session.user,request.params.id,(err, res) => {
+        if(err) console.error(err)
+        else {
+            midao.createNotificacion(request.session.user, request.params.id, DAO.CODIGO_EN_ESPERA, (err) =>{
+                if (err) console.error(err);
+            })
+            response.json(res)
+        }
+    })
+})
 
 //CREAR EVENTO
 router.post('/createEvent', sqlInjectionCheckMiddleware, userIsOrganizer, (request, response) => {
@@ -223,31 +234,61 @@ router.get('/eventUserManager/:id', (request, response) =>{
     midao.getUsuariosInEvent(eventId, (err, users) =>{
         if (err) console.error('Error al tomar los datos de los usuarios de la bd');
         else {
-            config.users = users;
-            validated++;
-            tryRender();
+            // config.users = users;
+            // validated++;
+            // tryRender();
+            midao.getEvento(eventId, (err, event) =>{
+                if (err) console.error('Error al tomar los datos de los usuarios de la bd');
+                else {
+                    // config.event = {};
+                    // config.event.nombre = event[0].titulo;
+                    // config.event.id = event[0].id;
+                    // validated++;
+                    // tryRender();
+                    response.render('eventUserManager', {usuarios:users, event});
+                }
+            });
         }
     });
 
-    midao.getEvento(eventId, (err, event) =>{
-        if (err) console.error('Error al tomar los datos de los usuarios de la bd');
-        else {
-            config.event = {};
-            config.event.nombre = event[0].titulo;
-            config.event.id = event[0].id;
-            validated++;
-            tryRender();
-        }
-    });
 
 
-    const tryRender = () => {
-        if (validated === 2){
-            response.render('eventUserManager', config);
-        }
-    }
+    // const tryRender = () => {
+    //     if (validated === 2){
+    //         response.render('eventUserManager', config);
+    //     }
+    // }
 })
 
+router.get('/:id/edit', (request, response) => {
+    let eventId = request.params.id;
+
+    midao.getEvento(eventId, (err, evento) => {
+        if (err || !evento) {
+            return response.status(400).send('Evento no encontrado');
+        }
+
+        midao.getCategories((err, categorias) => {
+            console.log("cate",evento[0].fecha.toISOString().split('T')[0])
+            evento[0].fecha=evento[0].fecha.toISOString().split('T')[0]
+            if (err) return response.status(500).send('Error al obtener las categorías');
+            response.status(200).render('editEvent', {evento: evento[0], categorias});
+        });
+    });
+});
+
+router.post('/:id/edit', sqlInjectionCheckMiddleware, (request, response) => {
+    const {  titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_categoria } = request.body;
+
+console.log("a ver",request.params.id,titulo,descripcion,precio,fecha,hora,ubicacion,capacidad_maxima,id_categoria)
+    midao.modifyEvent(request.params.id,titulo,descripcion,precio,fecha,hora,ubicacion,capacidad_maxima,id_categoria,(err, result) => {
+        if (err) {
+            console.error('Error al modificar el evento:', err);
+            return response.status(500).send('Error al modificar el evento');
+        }
+        else response.status(200).redirect('/events/event/'+request.params.id);
+    });
+});
 
 
 /// Funciones Extra

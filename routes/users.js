@@ -8,7 +8,8 @@ const bcrypt = require('bcrypt');
 
 const sqlInjectionCheckMiddleware = (request, res, next) => {
   // Expresión regular para detectar patrones comunes de inyección SQL
-  const sqlInjectionPattern = /(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE|--|#|\/\*|\*\/)/;
+  // const sqlInjectionPattern = /(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE|--|#|\/\*|\*\/)/;
+  const sqlInjectionPattern = /(['";])\s*(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE)/i;
 
   // Verificar cada campo en request.body
   for (const key in request.body) {
@@ -17,8 +18,18 @@ const sqlInjectionCheckMiddleware = (request, res, next) => {
 
       
       if (sqlInjectionPattern.test(value)) {
-        midao.banear(request.ip);
-        return res.status(400).send('Has sido baneado por posible intento de inyección SQL.');
+        // midao.banear(request.ip);
+        // return res.status(400).send('Has sido baneado por posible intento de inyección SQL.');
+        const ip = req.ip;
+                sqlInjectionAttempts[ip] = (sqlInjectionAttempts[ip] || 0) + 1;
+
+                if (sqlInjectionAttempts[ip] >= 3) {
+                    midao.banear(ip);
+                    return res.status(400).send('Has sido baneado por posible intento de inyección SQL.');
+                }
+
+                console.warn(`Intento sospechoso de ${ip}: ${value}`);
+                return res.status(400).send('Solicitud inválida.');
       }
     }
   }

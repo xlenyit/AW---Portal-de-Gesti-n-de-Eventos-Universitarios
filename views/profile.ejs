@@ -83,12 +83,13 @@
                     <% if (eventos && eventos.length > 0) { %>
                         <ul class="list-group ">
                             <% eventos.forEach(evento => { %>
-                                <li class="list-group-item  m-2 rounded d-flex justify-content-between">
+                                <li class="list-group-item  m-2 rounded d-flex justify-content-between ">
                                   <div class="">
 
                                     <strong><%= evento.titulo %></strong> <br>
                                     Fecha: <%= evento.fecha %> <br>
                                     Ubicación: <%= evento.ubicacion %>
+                                    <p class="<%= evento.esta_lista_espera === 0 ? 'd-none' : 'text-danger' %>">Estás en la lista de espera</p>
                                   </div>
                                   <div class="align-content-center">
                                     <button id="changeStateButton" class="desapuntarse" name = "<%=evento.id%>">Desapuntarse</button>

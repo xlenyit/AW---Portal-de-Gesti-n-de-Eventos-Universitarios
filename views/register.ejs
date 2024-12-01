@@ -2,6 +2,7 @@
 <html lang="es">
   <%-include('partes/head') %>
   <body>
+    <%-include('partes/header') %>
     <div class="container">
       <div class="d-flex align-items-center">
         <div class="  mx-auto   ">
@@ -36,17 +37,23 @@
             <div class="row">
               <div class="col" id="passContainer">
                 <h4 class="my-3">Contraseña</h4>
-                  <input class="w-100 form-control" type="password" name="contrasena" id="password" placeholder="Contraseña" 
-                  pattern="[a-zA-Z0-9]{6,20}"
-                  oninvalid="this.setCustomValidity('Su contraseña ha de contener entre 6 y 20 caracteres alfanumericos')"
-                  oninput="this.setCustomValidity('')"
-                  required>
+                  <div class="input-group" >
+                    <input class="w-75 form-control" type="password" name="contrasena" id="password" placeholder="Contraseña" 
+                    pattern="[a-zA-Z0-9]{6,20}"
+                    oninvalid="this.setCustomValidity('Su contraseña ha de contener entre 6 y 20 caracteres alfanumericos')"
+                    oninput="this.setCustomValidity('')"
+                    required>
+                    <button type="button" class="passButton w-25" id="togglePassword">Mostrar</button>
+                  </div>  
               </div>
               <div id="confirmContainer" class="col">
                 <h4 class="my-3">Confirmación</h4>
-                  <input class="w-100 form-control" type="password" name="contrasenaConf" id="confirmPassword" placeholder="Contraseña" 
-                  pattern="[a-zA-Z0-9]{6,20}"
-                  required>
+                  <div class="input-group" >
+                    <input class="w-75 form-control" type="password" name="contrasenaConf" id="confirmPassword" placeholder="Contraseña" 
+                    pattern="[a-zA-Z0-9]{6,20}"
+                    required>
+                    <button type="button" class="passButton w-25" id="toggleConfirmPassword">Mostrar</button>
+                  </div> 
               </div>
             </div>
               
@@ -78,12 +85,14 @@
 
             <!--BOTON-->
             <div class="row d-flex my-4">
-              <button id="register" class=" w-50  btn btn-primary  mx-auto " type="submit">Registrarme</button>            </div>
+              <button id="register" class=" w-50  btn btn-primary  mx-auto " disabled type="submit">Registrarme</button>            </div>
           </form>
 
           </form>
         </div>
       </div>
     </div>
+    <script src="/javascripts/validateRegister.js"></script>
+    <script src="/javascripts/showPassword.js"></script>
   </body>
 </html>

@@ -13,7 +13,7 @@
                         <img src="<%= image_path %>" alt="<%= image_alt %>" class="w-75">
                     </div>
                     <div class="col" id="eventSpecificationsContainer">
-                        <p>Fecha: <%= fecha %></p>
+                        <p>Fecha: <%= fecha.toLocaleDateString("es-ES") %></p>
                         <p>Hora: <%= hora %></p>
                         <p>Ubicación: <%= ubicacion %></p>
                         <p>Precio: <%= precio %></p>
@@ -29,9 +29,9 @@
                         </div>
                         <% if (usuarioOrg && organizadorDeEste) { %>
                             <div id="botonEditarEventoContainer" class="col d-flex justify-content-center ">
-                                <button id="editEventButton" class="w-50 bg-primary text-white">
+                                <a href="/events/<%= idEvento %>/edit"><button id="editEventButton" class="w-50 bg-primary text-white">
                                     Editar Evento
-                                </button>
+                                </button></a>
                             </div>
                         
                         <% }else{  %>
@@ -62,4 +62,5 @@
 </body>
 <script src="/javascripts/enrollInEvent.js"></script>
 <script src="/javascripts/withdrawFromEvent.js"></script>
+<script src="/javascripts/beAddedToWaitingList.js"></script>
 </html>

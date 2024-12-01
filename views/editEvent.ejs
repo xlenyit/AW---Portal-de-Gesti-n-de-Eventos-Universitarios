@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('partes/head') %>
+<body>
+<%- include('partes/header') %>
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Editar Evento</h1>
+    <form action="/events/<%= evento.id %>/edit" method="POST" class="needs-validation" novalidate>
+        <!-- Título -->
+        <div class="mb-3">
+            <label for="titulo" class="form-label">Título</label>
+            <input type="text" class="form-control" id="titulo" name="titulo" value="<%= evento.titulo %>">
+            <div class="invalid-feedback">
+                Por favor, ingresa un título válido.
+            </div>
+        </div>
+        <!-- Descripción -->
+        <div class="mb-3">
+            <label for="descripcion" class="form-label">Descripción</label>
+            <textarea class="form-control" id="descripcion" name="descripcion" rows="5"><%= evento.descripcion %></textarea>
+            <div class="invalid-feedback">
+                Por favor, ingresa una descripción válida.
+            </div>
+        </div>
+        <!-- Precio -->
+        <div class="mb-3">
+            <label for="precio" class="form-label">Precio</label>
+            <input type="number" class="form-control" id="precio" name="precio" value="<%= evento.precio %>" min="0" >
+            <div class="invalid-feedback">
+                Por favor, ingresa un precio válido.
+            </div>
+        </div>
+        <!-- Fecha -->
+        <div class="mb-3">
+            <label for="fecha" class="form-label">Fecha</label>
+            <input type="date" class="form-control" id="fecha" name="fecha" value="<%= evento.fecha %>" >
+            <div class="invalid-feedback">
+                Por favor, selecciona una fecha válida.
+            </div>
+        </div>
+        <!-- Hora -->
+        <div class="mb-3">
+            <label for="hora" class="form-label">Hora</label>
+            <input type="time" class="form-control" id="hora" name="hora" value="<%= evento.hora %>" >
+            <div class="invalid-feedback">
+                Por favor, selecciona una hora válida.
+            </div>
+        </div>
+        <!-- Ubicación -->
+        <div class="mb-3">
+            <label for="ubicacion" class="form-label">Ubicación</label>
+            <input type="text" class="form-control" id="ubicacion" name="ubicacion" value="<%= evento.ubicacion %>" >
+            <div class="invalid-feedback">
+                Por favor, ingresa una ubicación válida.
+            </div>
+        </div>
+        <!-- Capacidad Máxima -->
+        <div class="mb-3">
+            <label for="capacidad_maxima" class="form-label">Capacidad Máxima</label>
+            <input type="number" class="form-control" id="capacidad_maxima" name="capacidad_maxima" value="<%= evento.capacidad_maxima %>" min="1" >
+            <div class="invalid-feedback">
+                Por favor, ingresa una capacidad máxima válida.
+            </div>
+        </div>
+        <!-- Categoría -->
+        <div class="mb-3">
+            <label for="id_categoria" class="form-label">Categoría</label>
+            <select class="form-select" id="id_categoria" name="id_categoria" >
+                <% categorias.forEach((categoria) => { %>
+                    <option value="<%= categoria.id %>" <%= evento.id_categoria === categoria.id ? 'selected' : '' %>>
+                        <%= categoria.nombre %>
+                    </option>
+                <% }) %>
+            </select>
+            <div class="invalid-feedback">
+                Por favor, selecciona una categoría válida.
+            </div>
+        </div>
+        <!-- Botón de enviar -->
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+    </form>
+</div>
+
+<!-- <script>
+    // Validación del formulario con Bootstrap
+    (function () {
+        'use strict';
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script> -->
+</body>
+</html>

@@ -1,34 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
-<%- include('partes/head') %>
-<script src="/javascripts/removeUserFromEvent.js"></script>
-<body>
-<%-include('partes/header') %>
-<div class="container ">
-    <div class="d-flex mh-0 ph-0">
-        <div id="mainDiv" class=" ">
-            <h1><%=event.nombre%></h1>
-            
-            <% users.forEach((user) => {%>
-                <div class="d-flex flex-row">
-                    <div class="">
-                        <p>Usuario:<%=user.correo%></p>
-                        <p>Estado: <%=user.esta_lista_espera ? 'En lista de espera' : 'Inscrito'%></p>
-                        <p>Fecha Inscripcion: <%=user.fecha_inscripcion%></p>
-                        <button onclick="removeUserFromEvent('<%=user.id%>', '<%=event.id%>')">Eliminar Usuario</button>
-                    </div>
-                </div>
-            <%})%>
+  <script src="/javascripts/removeUserFromEvent.js"></script>
+  <%- include('partes/head') %>
+  <body>
+    <%- include('partes/header') %>
 
-            <% if (users.length != 0){%>
-                <div>
-                    <button onclick="removeUsersFromEvent('<%= JSON.stringify(users) %>', '<%= event.id %>')">Eliminar a todos los usuarios</button>
-                </div>
-            <%}%>
-        </div>
+    <div class="container mt-4">
+      <div class="d-flex flex-column bg-light p-4 rounded shadow-sm">
+        <h1 class="text-center mb-4"><%= event.nombre %></h1>
+
+        <% usuarios.forEach((user) => { %>
+          <div class="card mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Usuario: <%= user.correo %></h5>
+              <p class="card-text">
+                <strong>Estado:</strong> 
+                <%= user.esta_lista_espera ? 'En lista de espera' : 'Inscrito' %>
+              </p>
+              <p class="card-text">
+                <strong>Fecha Inscripción:</strong> <%= user.fecha_inscripcion.toLocaleDateString("es-ES") %>
+              </p>
+              <button 
+                class="btn btn-danger" 
+                onclick="removeUserFromEvent('<%= user.id %>', '<%= event.id %>')">
+                Eliminar Usuario
+              </button>
+            </div>
+          </div>
+        <% }) %>
+
+        <% if (usuarios.length != 0) { %>
+          <div class="mt-4 text-center">
+            <button 
+              class="btn btn-warning" 
+              onclick="removeUsersFromEvent('<%= JSON.stringify(usuarios) %>', '<%= event.id %>')">
+              Eliminar a todos los usuarios
+            </button>
+          </div>
+        <% } else { %>
+          <div class="alert alert-info mt-4 text-center" role="alert">
+            No hay usuarios en la lista de espera.
+          </div>
+        <% } %>
+      </div>
     </div>
-</div>
-</body>
-<script src="/javascripts/enrollInEvent.js"></script>
-<script src="/javascripts/withdrawFromEvent.js"></script>
+
+    <script src="/javascripts/enrollInEvent.js"></script>
+    <script src="/javascripts/withdrawFromEvent.js"></script>
+  </body>
 </html>

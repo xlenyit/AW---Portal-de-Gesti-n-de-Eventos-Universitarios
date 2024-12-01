@@ -5,15 +5,16 @@
         <a href="/events/eventViewer">Eventos</a>
     </div>
     <div class="miPerfil">
-        <!-- <%#if (isLogged) {%>
-            <%#let iconPath = "/img/noNotification.png"%>
-            <%# if (hasNotification) iconPath = "/img/hasNotification.png"%>
-            <img src="<%#=iconPath%>" alt="Icon indicating that
-                <%#=hasNotification ? 'you have notification' : 'you dont have a notification'%>"
-                 class="notifier">
-        <%#}%> -->
-
-        <a href="/users/profile"><img src="/img/placeholderEvento.jpg" alt="perfil de usuario" class="profileIcon"></a>
+        <% console.log("Soy plantilla header:", hasNotification)%>
+        <% if (typeof hasNotification !== 'undefined') { %>
+            <% let iconPath = hasNotification ? "/img/hasNotification.png" : "/img/noNotification.png"; %>
+            <a href="/notificaciones"><img src="<%= iconPath %>" alt="<%= hasNotification ? 'Tienes notificaciones' : 'No tienes notificaciones' %>" class="notifier"></a>
+        <% } else { %>
+            <img src="/img/noNotification.png" alt="Estado desconocido de notificaciones" class="notifier">
+        <% } %>
+        <a href="/users/profile">
+            <img src="/img/placeholderEvento.jpg" alt="Perfil de usuario" class="profileIcon">
+        </a>
     </div>
 </div>
 </header>

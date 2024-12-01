@@ -59,7 +59,7 @@
                                 <h5 class="card-title"><%= event.titulo %></h5>
                                 <p class="card-text"><%=event.descripcion%></p>
                                 <div class="card-subtitle text-body-secondary d-flex justify-content-between">
-                                    <span class="px-4"><%= event.fecha %></span>
+                                    <span class="px-4"><%= event.fecha.toLocaleDateString("es-ES") %></span>
                                     <span class="px-4"><%= event.ocupacion %>/<%= event.capacidad_maxima %></span>
                                 </div>
                                 <div class="align-items-center">

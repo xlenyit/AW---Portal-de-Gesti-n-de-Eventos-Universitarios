@@ -38,6 +38,9 @@ app.use((req, res, next) => {
     next();
 });
 
+
+
+
 // Middleware para todo
 app.use('/', (request, response, next) => {
     const DAO = require('./public/javascripts/DAO')
@@ -53,7 +56,27 @@ app.use('/', (request, response, next) => {
 
     
 });
-
+app.use( (req, response, next) => {
+    const DAO = require('./public/javascripts/DAO')
+    const midao = new DAO('localhost','root','','aw_24');
+    if (req.session.user) { 
+        midao.checkIfUserHasNotification(req.session.user, (err, hasNotification) => {
+            if (err) {
+                console.error('Error checking notifications:', err);
+                response.locals.hasNotification = false; // Valor predeterminado en caso de error
+            } else {
+                response.locals.hasNotification = hasNotification;
+            }
+            console.log(response.locals.hasNotification,"WHAT")
+            next();
+        });
+    }else {
+        // Si no hay usuario logueado, continuar el flujo
+        response.locals.hasNotification = false;
+        console.log(response.locals.hasNotification,"HUH")
+        next();
+    }
+})
 // Middleware para '/'
 app.use('/', indexRouter);
 

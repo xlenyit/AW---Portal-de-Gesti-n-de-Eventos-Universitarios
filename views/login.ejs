@@ -3,6 +3,7 @@
     <%-include('partes/head') %>
 
     <body>
+        <%-include('partes/header') %>
         <div class="container ">
             <div class="d-flex align-items-center justify-content-center">
                 <div id="mainDiv" class=" ">
@@ -14,7 +15,8 @@
                         </div>
                         <h4 class="my-3">Contraseña</h4>
                         <div id="passContainer" class="input-group">
-                            <input class="w-100 form-control" type="password" name="contrasena" id="password" placeholder="Contraseña">
+                            <input class="w-75 form-control" type="password" name="contrasena" id="password" placeholder="Contraseña">
+                            <button type="button" class="passButton w-25" id="togglePassword">Mostrar</button>
                         </div>
                         <div class="row my-4 d-flex align-items-center justify-content-center ">
                             <div class="col-8">
@@ -29,4 +31,5 @@
             </div>
         </div>
     </body>
+    <script src="/javascripts/showPassword.js"></script>
 </html>

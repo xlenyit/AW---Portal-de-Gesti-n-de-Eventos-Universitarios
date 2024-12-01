@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+    <%-include('partes/head') %>
+<body>
+    <%-include('partes/header') %>
+    <h1>Notificaciones</h1>
+
+    <!-- Verificamos si hay notificaciones -->
+    <% if (notifications.length === 0) { %>
+        <p>No tienes notificaciones.</p>
+    <% } else { %>
+
+        <div class="container">
+    
+            <!-- Sección de notificaciones NO vistas -->
+            <div class="notifications-section">
+                <ul class="notifications-list">
+                    <% notifications.filter(n => !n.visto).forEach(notification => { %>
+                        <li class="notification-item">
+                            <div class="notification-content">
+                                <p><%= notification.mensaje %></p>
+                                <small>Recibida el <%= notification.fecha %></small>
+                            </div>
+                            <!-- Botón para marcar como leída -->
+                            <form action="/notifications/markAsRead" method="POST" style="display:inline;">
+                                <input type="hidden" name="notificationId" id="notificationId" value="<%= notification.id %>">
+                                <button type="submit" class="mark-read-btn">Marcar como leído</button>
+                            </form>
+                        </li>
+                    <% }); %>
+                </ul>
+            </div>
+    
+            <hr> <!-- Línea separadora -->
+    
+            <!-- Sección de notificaciones VISTAS -->
+            <div class="notifications-section">
+                <h2>Notificaciones Vistas</h2>
+                <ul class="notifications-list">
+                    <% notifications.filter(n => n.visto).forEach(notification => { %>
+                        <li class="notification-item read">
+                            <div class="notification-content">
+                                <p><%= notification.mensaje %></p>
+                                <small>Recibida el <%= notification.fecha %></small>
+                            </div>
+                        </li>
+                    <% }); %>
+                </ul>
+            </div>
+        </div>
+
+    <% } %>
+
+    <script src="/javascripts/markNotifAsRead.js"></script>
+</body>
+</html>

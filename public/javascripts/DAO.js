@@ -2,7 +2,7 @@ const sql = require('mysql')
 
 
 class DAO {
-    static CODIGO_INSCRIPCION = 1; 
+    static CODIGO_INSCRIPCION = 1;
     static CODIGO_DESAPUNTAR = 2;
     static CODIGO_CANCELACION = 3;
     static CODIGO_ELIMINAR = 4;
@@ -17,7 +17,7 @@ class DAO {
         })
     }
 
-    getIdAndPasswordFromEmail(email, callback){
+    getIdAndPasswordFromEmail(email, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
@@ -26,14 +26,14 @@ class DAO {
                     connection.release();
                     if (err) callback(err, null);
                     else {
-                        callback(null,data[0]);
-                    }        
+                        callback(null, data[0]);
+                    }
                 })
             }
         })
     }
 
-    getIdFromEmail(email, callback){
+    getIdFromEmail(email, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
@@ -44,14 +44,14 @@ class DAO {
                     else {
                         let id;
                         resId.map(ele => id = ele.id);
-                        callback(null,id);
-                    }        
+                        callback(null, id);
+                    }
                 })
             }
         })
     }
 
-    getUserEmail(id, callback){
+    getUserEmail(id, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
@@ -62,14 +62,14 @@ class DAO {
                     else {
                         let correo;
                         resId.map(ele => correo = ele.correo);
-                        callback(null,correo);
-                    }        
+                        callback(null, correo);
+                    }
                 })
             }
         })
     }
 
-    getUserTelephone(id, callback){
+    getUserTelephone(id, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
@@ -80,14 +80,14 @@ class DAO {
                     else {
                         let telefono;
                         resId.map(ele => telefono = ele.telefono);
-                        callback(null,telefono);
-                    }        
+                        callback(null, telefono);
+                    }
                 })
             }
         })
     }
 
-    esOrganizador(id, callback){
+    esOrganizador(id, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
@@ -95,16 +95,16 @@ class DAO {
                 connection.query(stringQuery, [id], function (err, result) {
                     connection.release();
                     if (err) callback(err, null);
-                    else callback(null,  result[0].es_organizador===1);
-      
+                    else callback(null, result[0].es_organizador === 1);
+
                 })
             }
         })
     }
-    
-    
-    
-    checkUniqueUserEmail(email, callback){
+
+
+
+    checkUniqueUserEmail(email, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
@@ -115,14 +115,14 @@ class DAO {
                     else {
                         let total;
                         tot.map(ele => total = ele.total);
-                        callback(null,total);
-                    }        
+                        callback(null, total);
+                    }
                 })
             }
         })
     }
-    
-    checkUniqueUserPhone(phone, callback){
+
+    checkUniqueUserPhone(phone, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
@@ -133,24 +133,24 @@ class DAO {
                     else {
                         let total;
                         tot.map(ele => total = ele.total);
-                        callback(null,total);
-                    } 
+                        callback(null, total);
+                    }
                 })
             }
         })
     }
-    
-    registerUser(userData, callback){
+
+    registerUser(userData, callback) {
         // userdata has the structure:
         // {name, email, telefono, password, confirmPassword, facultad, rankUser}
-        const {nombre, email, telefono, contrasena, confirmPassword, facultad, userType} = userData;
+        const { nombre, email, telefono, contrasena, confirmPassword, facultad, userType } = userData;
 
         // Antes que nada hemos de verificar que el email o telefono no existen ya en la BD
         // Aunque esta tenga valores UNIQUE para estos campos, mejor handlearlo aqui
         this.checkUniqueUserEmail(email, (err, found) => {
-            if (err || found !== 0) return callback('Email repetido',null);
-            this.checkUniqueUserPhone(telefono,  (err, found) =>{
-                if (err || found !== 0) return callback('Telefono repetido',null);
+            if (err || found !== 0) return callback('Email repetido', null);
+            this.checkUniqueUserPhone(telefono, (err, found) => {
+                if (err || found !== 0) return callback('Telefono repetido', null);
                 continueInsertion();
             });
 
@@ -159,18 +159,18 @@ class DAO {
         const continueInsertion = () => {
             // Necesitamos coger el id de la facultad
             let idFacultad = facultad.split('#')[0]; //2#Facultad de sociales
-            
-            let isOrganizator = userType === 'organizador'? 1 : 0;
-    
-            this.createRowOnDatabaseUser(nombre, email, telefono, contrasena, idFacultad, isOrganizator,(err, id) => {
+
+            let isOrganizator = userType === 'organizador' ? 1 : 0;
+
+            this.createRowOnDatabaseUser(nombre, email, telefono, contrasena, idFacultad, isOrganizator, (err, id) => {
                 if (err) callback('Error añadiendo registro a la BD', null)
-                else callback(null,id);
+                else callback(null, id);
             })
         }
 
     }
 
-    createRowOnDatabaseUser(name, email, telefono, password, idFacultad, isOrganizator, callback){
+    createRowOnDatabaseUser(name, email, telefono, password, idFacultad, isOrganizator, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
@@ -179,8 +179,8 @@ class DAO {
                 connection.query(stringQuery, [name, email, telefono, password, isOrganizator, idFacultad], function (err, resultado) {
                     connection.release();
                     if (err) callback(err, null);
-                    else callback(null,resultado.insertId);
-                           
+                    else callback(null, resultado.insertId);
+
                 })
             }
         })
@@ -196,7 +196,7 @@ class DAO {
                 connection.query(stringQuery, function (err, resultado) {
                     connection.release();
                     if (err) callback(err, null)
-                    else callback(null,resultado.map(ele => ({ id: ele.id, nombre: ele.nombre })))
+                    else callback(null, resultado.map(ele => ({ id: ele.id, nombre: ele.nombre })))
                 })
             }
         })
@@ -213,17 +213,19 @@ class DAO {
                 connection.query(stringQuery, function (err, resultado) {
                     connection.release();
                     if (err) callback(err, null)
-                    else callback(null,resultado.map(ele => ({  id:ele.id,
-                                                                titulo: ele.titulo,
-                                                                descripcion: ele.descripcion,
-                                                                fecha: ele.fecha,
-                                                                precio: ele.precio,
-                                                                hora: ele.hora,
-                                                                ubicacion: ele.ubicacion,
-                                                                capacidad_maxima: ele.capacidad_maxima,
-                                                                id_organizador: ele.id_organizador,
-                                                                ocupacion: ele.total
-                                                            })));
+                    else callback(null, resultado.map(ele => ({
+                        id: ele.id,
+                        titulo: ele.titulo,
+                        descripcion: ele.descripcion,
+                        fecha: ele.fecha,
+                        precio: ele.precio,
+                        hora: ele.hora,
+                        ubicacion: ele.ubicacion,
+                        capacidad_maxima: ele.capacidad_maxima,
+                        id_organizador: ele.id_organizador,
+                        ocupacion: ele.total,
+                        id_categoria: ele.id_categoria
+                    })));
                 })
             }
         })
@@ -237,12 +239,12 @@ class DAO {
                 connection.query(stringQuery, function (err, resultado) {
                     connection.release();
                     if (err) callback(err, null);
-                    else callback(null,resultado.map(ele => ({id:ele.id, nombre:ele.nombre})));
+                    else callback(null, resultado.map(ele => ({ id: ele.id, nombre: ele.nombre })));
                 })
             }
         })
     }
-    
+
     //CRUD categorias
     //read all categorias
     getCategories(callback) {
@@ -253,28 +255,28 @@ class DAO {
                 connection.query(stringQuery, function (err, resultado) {
                     connection.release();
                     if (err) callback(err, null);
-                    else callback(null,resultado.map(ele => ({id:ele.id, nombre:ele.nombre})));
+                    else callback(null, resultado.map(ele => ({ id: ele.id, nombre: ele.nombre })));
                 });
             }
         })
     }
 
-    getOcupacion(idEvento, callback){
-        this.pool.getConnection((err, connection) =>{
+    getOcupacion(idEvento, callback) {
+        this.pool.getConnection((err, connection) => {
             if (err) callback(err, null);
             else {
                 let stringQuery = `SELECT COUNT(*) as ocupacion FROM inscripciones WHERE id_evento=${idEvento} AND esta_lista_espera=0 AND activo=1`;
                 connection.query(stringQuery, function (err, resultado) {
                     connection.release();
                     if (err) callback(err, null);
-                    else callback(null,resultado.map(ele => ({ocupacion: ele.ocupacion})));
+                    else callback(null, resultado.map(ele => ({ ocupacion: ele.ocupacion })));
                 });
             }
         })
     }
 
-    getEventos(callback){
-        this.pool.getConnection((err, connection) =>{
+    getEventos(callback) {
+        this.pool.getConnection((err, connection) => {
             if (err) callback(err, null);
             else {
                 let stringQuery = `SELECT e.*, COALESCE(COUNT(CASE WHEN i.activo = 1 THEN i.id_usuario END), 0) AS total
@@ -298,30 +300,30 @@ class DAO {
                             ocupacion: evento.total
                         }));
 
-                        callback(null,mappedResults);
+                        callback(null, mappedResults);
                     }
                 });
             }
         });
     }
 
-    getMaxPrice(callback){
-        this.pool.getConnection((err, connection) =>{
+    getMaxPrice(callback) {
+        this.pool.getConnection((err, connection) => {
             if (err) callback(err, null);
             else {
                 let stringQuery = `SELECT MAX(precio) as max_price FROM eventos`;
                 connection.query(stringQuery, function (err, resultado) {
                     connection.release();
                     if (err) callback(err, null);
-                    else callback(null,resultado[0]);
-                    
+                    else callback(null, resultado[0]);
+
                 });
             }
         });
     }
     //CRUD usuarios
     //read by id
-    getUserById(idUser, callback){
+    getUserById(idUser, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
@@ -329,29 +331,29 @@ class DAO {
                 connection.query(stringQuery, idUser, function (err, res) {
                     connection.release();
                     if (err) callback(err, null)
-                    else callback(null,res[0])
+                    else callback(null, res[0])
                 })
             }
         })
     }
     //update
-    modifyUser(nombre, correo, telefono, facultad, es_org, id,  callback){
+    modifyUser(nombre, correo, telefono, facultad, es_org, id, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
                 // let stringQuery= `UPDATE usuarios SET nombre = ?, correo = ?, telefono = ?, id_facultad = ?, es_organizador = ? WHERE id = ?`;  //No se puede cambiar de rol, complica mucho a la hora de gestionar eventos
-                let stringQuery= `UPDATE usuarios SET nombre = ?, correo = ?, telefono = ?, id_facultad = ? WHERE id = ?`; 
+                let stringQuery = `UPDATE usuarios SET nombre = ?, correo = ?, telefono = ?, id_facultad = ? WHERE id = ?`;
                 // connection.query(stringQuery, [nombre, correo, telefono, facultad, es_org, id], function (err, res) {
-                connection.query(stringQuery, [nombre, correo, telefono, facultad,  id], function (err, res) {
+                connection.query(stringQuery, [nombre, correo, telefono, facultad, id], function (err, res) {
                     connection.release();
                     if (err) callback(err, null)
-                    else callback(null,'Perfil actualizado correctamente');
+                    else callback(null, 'Perfil actualizado correctamente');
                 })
             }
         })
     }
-    
-    checkIfUserIsEnrolledInEvent(userId, eventId, callback){
+
+    checkIfUserIsEnrolledInEvent(userId, eventId, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
@@ -360,36 +362,48 @@ class DAO {
                     connection.release();
                     if (err) callback(err, null);
                     else {
-                        callback(null,res);
-                    }        
+                        callback(null, res);
+                    }
                 })
             }
         })
     }
     //CRUD inscripciones
-    createInscription(idUsuario, idEvento, callback){
+    createInscription(idUsuario, idEvento, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery = "INSERT INTO inscripciones (id_usuario, id_evento, esta_lista_espera, fecha_inscripcion) VALUES (?, ?, 0, SYSDATE()) ON DUPLICATE KEY UPDATE activo = 1, fecha_inscripcion = SYSDATE();"
-                connection.query(stringQuery,[idUsuario, idEvento], function (err, res) {
+                let stringQuery = "INSERT INTO inscripciones (id_usuario, id_evento, esta_lista_espera, fecha_inscripcion, activo) VALUES (?, ?, 0, SYSDATE(), 1) ON DUPLICATE KEY UPDATE activo = 1, fecha_inscripcion = SYSDATE();"
+                connection.query(stringQuery, [idUsuario, idEvento], function (err, res) {
                     connection.release();
                     if (err) callback(err, null)
-                    else callback(null,res.insertId)
+                    else callback(null, res.insertId)
                 })
             }
         })
     }
-
-    deleteInscription(idUsuario, idEvento, callback){
+    createInscriptionWaitingList(idUsuario, idEvento, callback) {
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = "INSERT INTO inscripciones (id_usuario, id_evento, esta_lista_espera, fecha_inscripcion, activo) VALUES (?, ?, 1, SYSDATE(), 1) ON DUPLICATE KEY UPDATE activo = 1, esta_lista_espera=1, fecha_inscripcion = SYSDATE();"
+                connection.query(stringQuery, [idUsuario, idEvento], function (err, res) {
+                    connection.release();
+                    if (err) callback(err, null)
+                    else callback(null, res.insertId)
+                })
+            }
+        })
+    }
+    deleteInscription(idUsuario, idEvento, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
                 let stringQuery = "UPDATE inscripciones SET activo=0 WHERE id_usuario = ? && id_evento = ?"
-                connection.query(stringQuery,[idUsuario, idEvento], function (err, res) {
+                connection.query(stringQuery, [idUsuario, idEvento], function (err, res) {
                     connection.release();
                     if (err) callback(err, null)
-                    else callback(null,res.affectedRows)
+                    else callback(null, res.affectedRows)
                 })
             }
         })
@@ -397,25 +411,26 @@ class DAO {
 
     //CRUD EVENTOS
     //create
-    createEvent(titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_organizador, id_categoria, callback){
+    createEvent(titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_organizador, id_categoria, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
                 let stringQuery = "INSERT INTO eventos (titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_organizador, id_categoria) VALUES (?,?,?,?,?,?,?,?,?)"
-                connection.query(stringQuery,[titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_organizador, id_categoria], function (err, res) {
+                connection.query(stringQuery, [titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_organizador, id_categoria], function (err, res) {
                     connection.release();
                     if (err) callback(err, null)
-                    else callback(null,res.insertId)
+                    else callback(null, res.insertId)
                 })
             }
         })
     }
     //readByEnrolledUserId
-    getEventsEnrolledByUser(userId, callback){
+    getEventsEnrolledByUser(userId, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery= `SELECT * FROM eventos WHERE id IN (SELECT id_evento FROM inscripciones WHERE id_usuario = ? AND activo=1)`; 
+                // let stringQuery= `SELECT * FROM eventos WHERE id IN (SELECT id_evento FROM inscripciones WHERE id_usuario = ? AND activo=1)`; 
+                let stringQuery = `SELECT e.*, i.esta_lista_espera FROM eventos e JOIN inscripciones i ON e.id = i.id_evento WHERE i.id_usuario = ? AND i.activo = 1;`;
                 connection.query(stringQuery, userId, function (err, res) {
                     connection.release();
                     if (err) callback(err, null)
@@ -430,21 +445,22 @@ class DAO {
                             ubicacion: evento.ubicacion,
                             capacidad_maxima: evento.capacidad_maxima,
                             id_organizador: evento.id_organizador,
+                            esta_lista_espera: evento.esta_lista_espera
                             // ocupacion: evento.total
                         }));
 
-                        callback(null,mappedResults);
+                        callback(null, mappedResults);
                     }
                 })
             }
         })
     }
     //read by CreatorId
-    getEventsCreatedByUser(userId, callback){
+    getEventsCreatedByUser(userId, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery= `SELECT * FROM eventos WHERE id_organizador = ?`; 
+                let stringQuery = `SELECT * FROM eventos WHERE id_organizador = ?`;
                 connection.query(stringQuery, userId, function (err, res) {
                     connection.release();
                     if (err) callback(err, null)
@@ -462,30 +478,65 @@ class DAO {
                             // ocupacion: evento.total
                         }));
 
-                        callback(null,mappedResults);
+                        callback(null, mappedResults);
                     }
                 })
             }
         })
     }
 
-    async createNotificacion(idUser, idEvento, tipo, callback){
+    //update
+    
+    modifyEvent(id,titulo,descripcion,precio,fecha,hora,ubicacion,capacidad_maxima,id_categoria, callback) {
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null);
+            else {
+                let stringQuery = `UPDATE eventos SET titulo = ?, descripcion = ?, precio = ?, fecha = ?, hora = ?, ubicacion = ?, capacidad_maxima = ?, id_categoria = ? WHERE id = ?`;
+                connection.query(stringQuery, [titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_categoria, id], (err, res) => {
+                        connection.release(); 
+                        if (err) callback(err, null);
+                        else callback(null, 'Evento actualizado correctamente');
+                    }
+                );
+            }
+        });
+    }
+    
+
+    async createNotificacion(idUser, idEvento, tipo, callback) {
         let titulo = "", mensaje = "";
 
-        switch (tipo){
+        switch (tipo) {
             case DAO.CODIGO_INSCRIPCION:
                 this.getEvento(idEvento, (err, data) => {
                     let eventData = data[0]
                     if (err) callback(err);
                     titulo = eventData.titulo;
                     mensaje = `Su inscripcion al evento ${titulo} se ha realizado con exito`;
-                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => {callback(err)});
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
                     this.getUserById(idUser, (err, data) => {
                         if (err) callback(err);
                         let username = data.nombre;
                         mensaje = `El usuario ${username} se ha inscrito al evento`;
                         idUser = eventData.id_organizador;
-                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje,(err) => {callback(err)});
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                    });
+                    callback(null);
+                })
+                break;
+            case DAO.CODIGO_EN_ESPERA:
+                this.getEvento(idEvento, (err, data) => {
+                    let eventData = data[0]
+                    if (err) callback(err);
+                    titulo = eventData.titulo;
+                    mensaje = `Su inscripcion a la lista de espera del evento ${titulo} se ha realizado con exito`;
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                    this.getUserById(idUser, (err, data) => {
+                        if (err) callback(err);
+                        let username = data.nombre;
+                        mensaje = `El usuario ${username} se ha inscrito al evento`;
+                        idUser = eventData.id_organizador;
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
                     });
                     callback(null);
                 })
@@ -496,13 +547,13 @@ class DAO {
                     if (err) callback(err);
                     titulo = eventData.titulo;
                     mensaje = `Se ha eliminado su inscripcion al evento ${titulo} con exito`;
-                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => {callback(err)});
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
                     this.getUserById(idUser, (err, data) => {
                         if (err) callback(err);
                         let username = data.nombre;
                         mensaje = `El usuario ${username} se ha desapuntado del evento`;
                         idUser = eventData.id_organizador;
-                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje,(err) => {callback(err)});
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
                     });
                     callback(null);
                 })
@@ -514,10 +565,10 @@ class DAO {
                     if (err) callback(err);
                     titulo = eventData.titulo;
                     mensaje = `Se ha cancelado el evento ${titulo} :(. Lamentamos las molestias.`;
-                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => {callback(err)});
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
                     mensaje = `Se ha cancelado el evento ${titulo} con éxito`;
                     idUser = eventData.id_organizador;
-                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje,(err) => {callback(err)});
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
                     callback(null);
                 })
                 break;
@@ -528,47 +579,47 @@ class DAO {
                     if (err) callback(err);
                     titulo = eventData.titulo;
                     mensaje = `El organizador del evento ${titulo} ha retirado su inscripción. Lamentamos las molestias`;
-                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => {callback(err)});
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
                     this.getUserById(idUser, (err, data) => {
                         if (err) callback(err);
                         let username = data.nombre;
                         mensaje = `Se ha retirado al usuario: ${username} del evento ${titulo} con éxito.`;
                         idUser = eventData.id_organizador;
-                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje,(err) => {callback(err)});
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
                     });
                     callback(null);
                 })
                 break;
-            
+
             case DAO.CODIGO_SALIR_LISTA_ESPERA:
                 this.getEvento(idEvento, (err, data) => {
                     let eventData = data[0]
                     if (err) callback(err);
                     titulo = eventData.titulo;
                     mensaje = `¡Enhorabuena! Has salido de la lista de espera para el evento: ${titulo}. ¡Bienvenido a la plantilla oficial ;)!`;
-                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => {callback(err)});
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
                     this.getUserById(idUser, (err, data) => {
                         if (err) callback(err);
                         let username = data.nombre;
                         mensaje = `El usuario ${username} a avanzado de la lista de espera a usuario inscrito`;
                         idUser = eventData.id_organizador;
-                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje,(err) => {callback(err)});
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
                     });
                     callback(null);
                 })
                 break;
-            
+
             default:
                 callback('Error registering notification');
         }
     }
 
-    createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, callback){
+    createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery= `INSERT INTO notificaciones (id_usuario, id_evento, titulo, mensaje, visto)
-                                    VALUES (?, ?, ?, ?, 0)`; 
+                let stringQuery = `INSERT INTO notificaciones (id_usuario, id_evento, titulo, mensaje, visto)
+                                    VALUES (?, ?, ?, ?, 0)`;
                 connection.query(stringQuery, [idUser, idEvento, titulo, mensaje], function (err, res) {
                     connection.release();
                     if (err) callback(err)
@@ -578,15 +629,15 @@ class DAO {
         })
     }
 
-    getUsuariosInEvent(idEvento, callback){
+    getUsuariosInEvent(idEvento, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery= `SELECT u.*, i.* FROM usuarios as u JOIN inscripciones as i ON i.id_usuario = u.id WHERE i.id_evento = ? AND i.activo=1`; 
+                let stringQuery = `SELECT u.*, i.* FROM usuarios as u JOIN inscripciones as i ON i.id_usuario = u.id WHERE i.id_evento = ? AND i.activo=1`;
                 connection.query(stringQuery, [idEvento], function (err, res) {
                     connection.release();
                     if (err) callback(err, null)
-                    else{
+                    else {
                         callback(null, res);
                     }
                 })
@@ -594,11 +645,11 @@ class DAO {
         })
     }
 
-    banear(IP){
+    banear(IP) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery= `INSERT INTO blacklist (IP) VALUES (?)`; 
+                let stringQuery = `INSERT INTO blacklist (IP) VALUES (?)`;
                 connection.query(stringQuery, [IP], function (err) {
                     connection.release();
                     if (err) console.error(err);
@@ -607,11 +658,11 @@ class DAO {
         })
     }
 
-    getBanned(callback){
+    getBanned(callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery= `SELECT IP FROM blacklist`; 
+                let stringQuery = `SELECT IP FROM blacklist`;
                 connection.query(stringQuery, function (err, res) {
                     connection.release();
                     if (err) callback(err, null);
@@ -620,6 +671,65 @@ class DAO {
             }
         })
     }
+    checkIfUserHasNotification(userId, callback) {
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null);
+            else {
+                let stringQuery = `SELECT COUNT(*) AS count FROM notificaciones WHERE id_usuario = ? AND visto = 0`;
+                connection.query(stringQuery, [userId], function (err, res) {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else {
+                        callback(null, res[0].count > 0);
+                    }
+                });
+            }
+        });
+    }
+    getNotifications(idUsuario, callback) {
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `SELECT * FROM notificaciones WHERE id_usuario = ?`;
+                connection.query(stringQuery, [idUsuario], function (err, res) {
+                    connection.release();
+                    if (err) callback(err, null)
+                    else {
+                        const notifications = res.map(ele => {
+                            return {
+                                id: ele.id,
+                                id_usuario: ele.id_usuario,
+                                id_evento: ele.id_evento,
+                                titulo: ele.titulo,
+                                mensaje: ele.mensaje,
+                                visto: ele.visto,
+                                fecha: ele.fechaRecibida.toLocaleDateString("es-ES", { hour: '2-digit', minute: '2-digit' })
+                            };
+                        });
+
+                        // Devolver las notificaciones
+                        callback(null, notifications);
+                    }
+                })
+            }
+        })
+    }
+
+    markNotificationAsRead(userId, notificationId, callback) {
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null);
+            else {
+                let stringQuery = `UPDATE notificaciones SET visto = 1 WHERE id = ? AND id_usuario = ?`;
+                connection.query(stringQuery, [notificationId, userId], function (err, result) {
+                    connection.release();
+                    if (err) callback(err, null)
+                    else callback(null, 'Notificacion actualizado correctamente');
+
+                });
+            }
+        });
+    }
+
 }
 
 module.exports = DAO
