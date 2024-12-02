@@ -5,23 +5,35 @@ const router = express.Router();
 const DAO = require('../public/javascripts/DAO')
 const midao = new DAO('localhost','root','','aw_24');
 
-// Esto retornará la página principal
+const isLoggedIn = (req, res, next) => { //Middleware que asegura de que solo los usuarios loggeados puedan acceder a ciertas páginas (como el perfil de usuario). Si el usuario no está loggeado, lo redirige a la página de login.
+  if (req.session.user) return next();
+  res.redirect('/users/login');
+};
+
 router.get('/', function(request, response) {
-
-  // Asumimos solo dos estados: user === null y user === {datos}
   let isLogged = request.session.user;
+  
+  if (isLogged) {
+      midao.getUserById(request.session.user, (err, userData) => {
+          if (err || !userData) {
+              return response.status(500).send('Error al obtener datos del usuario');
+          }
 
-  // let hasNotification = false;
+          midao.getEventos((err, events) => {
+              if (err) {
+                  return response.status(500).send('Error al obtener los eventos');
+              }
 
-  // if (isLogged) {
-  //   hasNotification = true;
-  // }
-  console.log(`Home: hasNotification -> ${response.locals.hasNotification}`);
-  // response.render('homePage', { user: 'Usuario', isLogged: isLogged, hasNotification: hasNotification });
-  response.render('homePage', { user: 'Usuario', isLogged: isLogged });
+              response.render('homePage', {user: userData, isLogged: true, events: events});
+          });
+      });
+  } else {
+      response.render('homePage', { user: null, isLogged: false });
+  }
 });
 
-router.get('/notificaciones',(request, response) => {
+
+router.get('/notificaciones', isLoggedIn, (request, response) => {
   midao.getNotifications(request.session.user,(err,resultado)=> {
     if(err) response.render('error', {message:"'Error: No se ha podido recoger las notificaciones'", error:{status:404, stack:404}})
     else response.render('notificationsViewer', {notifications:resultado});

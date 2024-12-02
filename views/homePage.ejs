@@ -1,35 +1,70 @@
 <!DOCTYPE html>
 <html lang="es">
-<link rel="stylesheet" type="text/css" href='/stylesheets/eventViewer.css'>
-<%-include('partes/head') %>
-<script src="/javascripts/switchViews.js"></script>
-<body class="vh-100">
-<%-include('partes/header') %>
+    <link rel="stylesheet" type="text/css" href='/stylesheets/eventViewer.css'>
+    <%- include('partes/head') %>
+    <script src="/javascripts/switchViews.js"></script>
+    <body class="d-flex flex-column min-vh-100 bg-light ">
+        <%- include('partes/header') %>
 
-<div id="body" class="d-flex flex-column justify-content-center">
-    <%if (isLogged){%>
-        <div class="d-flex justify-content-center mt-5" id="title">
-            <h1>Bienvenido <%=user%></h1>
-        </div>
-        <div id="buttonsContainer" class="d-flex justify-content-center">
-            <div class="d-flex flex-row">
-                <button class="btn btn-primary" onclick="showEvents()">Explorar Eventos</button>
+        <div class="container">
+            <!-- Row principal -->
+            <div class="row ">
+                <!-- Columna de bienvenida -->
+                <div class="col-md-4 d-flex align-items-center">
+                    <div class="card shadow-lg p-4 w-100">
+                        <% if (isLogged) { %>
+                            <div class="text-center">
+                                <h2>Bienvenido, <%= user.nombre %></h2>
+                                <p class="text-muted">¡Explora los eventos disponibles!</p>
+                            </div>
+                        <% } else { %>
+                            <div class="text-center">
+                                <h2>Bienvenido</h2>
+                                <p class="text-muted">Únete a nuestra comunidad de eventos.</p>
+                                <div class="d-flex justify-content-center mt-3">
+                                    <button class="btn btn-warning btn-lg mx-2" onclick="openLogin()">Iniciar Sesión</button>
+                                    <button class="btn btn-info btn-lg mx-2" onclick="openRegister()">Registrarse</button>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Columna de eventos -->
+                <div class="col-md-8 d-flex flex-column mb-5">
+                    <div class="card shadow-lg  ">
+                        <a class = "text-black text-decoration-none" href="/events/eventViewer"><div class="card-header text-center position-sticky top-0 z-index-100">
+                            <h3>Eventos disponibles</h3>
+                        </div></a>
+                        <div class="card-body z-index-0 scrollable">
+                            <% if (isLogged && events.length > 0) { %>
+                                <% events.forEach(event => { %>
+                                    <div class="card mb-3">
+                                        <div class="row g-0">
+                                            <div class="col-md-4">
+                                                <img src="<%= event.foto === null ? '/img/placeholderEvento.jpg' : event.foto %>" 
+                                                     class="img-fluid rounded-start" 
+                                                     alt="<%= event.titulo %>">
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="card-body">
+                                                    <h5 class="card-title"><%= event.titulo %></h5>
+                                                    <p class="card-text"><%= event.descripcion %></p>
+                                                    <p class="card-text"><small class="text-muted">Fecha: <%= new Date(event.fecha).toLocaleDateString('es-ES') %></small></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <p class="text-center text-muted">No hay eventos disponibles.</p>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-    <%}else{%>
-        <div class="d-flex justify-content-center mt-5" id="title">
-            <h1>Bienvenido</h1>
-        </div>
-        <div id="buttonsContainer" class="d-flex justify-content-center">
-            <div class="d-flex flex-row">
-                <button class="btn btn-warning mx-2" onclick="openLogin()">Iniciar Sesión</button>
-                <button class="btn btn-info mx-2" onclick="openRegister()">Registrarse</button>
-            </div>
-        </div>
-        
-    <%}%>
-
-</div>
-</body>
+        <%- include('partes/footer') %>
+    </body>
 </html>

@@ -7,7 +7,7 @@
 
     <div class="container mt-4">
       <div class="d-flex flex-column bg-light p-4 rounded shadow-sm">
-        <h1 class="text-center mb-4"><%= event.nombre %></h1>
+        <h1 class="text-center mb-4"><%= event.titulo %></h1>
 
         <% usuarios.forEach((user) => { %>
           <div class="card mb-3">
@@ -39,7 +39,7 @@
           </div>
         <% } else { %>
           <div class="alert alert-info mt-4 text-center" role="alert">
-            No hay usuarios en la lista de espera.
+            No hay usuarios inscritos en <%= event.titulo %>.
           </div>
         <% } %>
       </div>

@@ -51,7 +51,7 @@ const alreadyLoggedIn = (request, response, next) => { //Middleware que asegura 
 };
 
 const isLoggedIn = (req, res, next) => { //Middleware que asegura de que solo los usuarios loggeados puedan acceder a ciertas páginas (como el perfil de usuario). Si el usuario no está loggeado, lo redirige a la página de login.
-  if (res.locals.user) return next();
+  if (req.session.user) return next();
   res.redirect('/users/login');
 };
 

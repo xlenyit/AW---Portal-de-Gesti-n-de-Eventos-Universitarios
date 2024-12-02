@@ -1,20 +1,37 @@
 <header>
-<div class="header d-flex">
-    <div class="headerLinks">
-        <a href="/">Home</a>
-        <a href="/events/eventViewer">Eventos</a>
-    </div>
-    <div class="miPerfil">
-        <% console.log("Soy plantilla header:", hasNotification)%>
-        <% if (typeof hasNotification !== 'undefined') { %>
-            <% let iconPath = hasNotification ? "/img/hasNotification.png" : "/img/noNotification.png"; %>
-            <a href="/notificaciones"><img src="<%= iconPath %>" alt="<%= hasNotification ? 'Tienes notificaciones' : 'No tienes notificaciones' %>" class="notifier"></a>
-        <% } else { %>
-            <img src="/img/noNotification.png" alt="Estado desconocido de notificaciones" class="notifier">
-        <% } %>
-        <a href="/users/profile">
-            <img src="/img/placeholderEvento.jpg" alt="Perfil de usuario" class="profileIcon">
-        </a>
-    </div>
-</div>
+    <nav class="navbar navbar-expand-lg  shadow-sm p-3 mb-5 rounded">
+        <div class="container-fluid">
+            <!-- Logo o Enlace Home -->
+            <a class="navbar-brand" href="/">
+                <img src="/img/logo.png" alt="Logo" class="d-inline-block align-text-center" height="40">
+                Portal de Eventos
+            </a>
+
+            <!-- Links de navegación -->
+            <div class="navbar-nav ms-auto text-white">
+                <a class="nav-link " href="/">Home</a>
+                <a class="nav-link" href="/events/eventViewer">Eventos</a>
+            </div>
+
+            <!-- Perfil y notificaciones -->
+            <div class="d-flex align-items-center ms-3">
+                <div class="position-relative">
+                    <% if (typeof hasNotification !== 'undefined') { %>
+                        <% let iconPath = hasNotification ? "/img/hasNotification.png" : "/img/noNotification.png"; %>
+                        <a href="/notificaciones" class="d-flex align-items-center">
+                            <img src="<%= iconPath %>" alt="<%= hasNotification ? 'Tienes notificaciones' : 'No tienes notificaciones' %>" class="rounded-circle notifier">
+                        </a>
+                    <% } else { %>
+                        <img src="/img/noNotification.png" alt="Estado desconocido de notificaciones" class="rounded-circle notifier">
+                    <% } %>
+                </div>
+
+                <!-- Icono de perfil -->
+                <a href="/users/profile" class="ms-3">
+                    <img src="/img/placeholderEvento.jpg" alt="Perfil de usuario" class="rounded-circle profileIcon" width="40" height="40">
+                </a>
+            </div>
+        </div>
+    </nav>
 </header>
+

@@ -4,6 +4,8 @@ var express = require('express');
 var router = express.Router();
 const DAO = require('../public/javascripts/DAO')
 const midao = new DAO('localhost','root','','aw_24');
+const multer=require('multer');
+const multerFactory= multer({storage: multer.memoryStorage()})
 
 const sqlInjectionCheckMiddleware = (request, res, next) => {
     // Expresión regular para detectar patrones comunes de inyección SQL
@@ -42,8 +44,13 @@ const userIsOrganizer = (req, res, next) => {
     
 };
 
+const isLoggedIn = (req, res, next) => { //Middleware que asegura de que solo los usuarios loggeados puedan acceder a ciertas páginas (como el perfil de usuario). Si el usuario no está loggeado, lo redirige a la página de login.
+    if (req.session.user) return next();
+    res.redirect('/users/login');
+  };
+
 // EVENTO
-router.get('/event/:id',(request, response) => {
+router.get('/event/:id',isLoggedIn,(request, response) => {
     response.status(200)
     var config = {};
     let id = request.params.id;
@@ -114,13 +121,12 @@ router.get('/event/:id',(request, response) => {
 });
 
 //LISTA EVENTOS
-router.get('/eventViewer', (request, response) => {
+router.get('/eventViewer', isLoggedIn,(request, response) => {
     response.status(200);
     let config = {};
     let validados = 0;
 
     config.isLogged = true;
-    
 
     calcularElementosParaFiltros((err, filtros) => {
         if (err) response.status(400);
@@ -209,9 +215,10 @@ router.post('/:id/createInscriptionWaitingList', (request, response) => {
 })
 
 //CREAR EVENTO
-router.post('/createEvent', sqlInjectionCheckMiddleware, userIsOrganizer, (request, response) => {
+router.post('/createEvent', sqlInjectionCheckMiddleware, userIsOrganizer,multerFactory.single('imagen'), (request, response) => {
     const {titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_categoria} = request.body;
-    midao.createEvent(titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, request.session.user, id_categoria,(err, res) => {
+    const foto = request.file ? request.file.buffer : null; 
+    midao.createEvent(titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, request.session.user, id_categoria, foto,(err, res) => {
       if(err) console.error(err)
       else {
             response.status(200).redirect("/events/eventViewer")
@@ -245,7 +252,8 @@ router.get('/eventUserManager/:id', (request, response) =>{
                     // config.event.id = event[0].id;
                     // validated++;
                     // tryRender();
-                    response.render('eventUserManager', {usuarios:users, event});
+                    
+                    response.render('eventUserManager', {usuarios:users, event: event[0]});
                 }
             });
         }

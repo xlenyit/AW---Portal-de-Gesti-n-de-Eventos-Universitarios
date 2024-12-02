@@ -60,7 +60,7 @@
                                 <p class="card-text"><%=event.descripcion%></p>
                                 <div class="card-subtitle text-body-secondary d-flex justify-content-between">
                                     <span class="px-4"><%= event.fecha.toLocaleDateString("es-ES") %></span>
-                                    <span class="px-4"><%= event.ocupacion %>/<%= event.capacidad_maxima %></span>
+                                    <span class="px-4"><%=  (event.ocupacion> event.capacidad_maxima)?event.capacidad_maxima:event.ocupacion  %>/<%= event.capacidad_maxima %></span>
                                 </div>
                                 <div class="align-items-center">
                                     <a href="<%= '/events/event/' + event.id %>" class="btn btn-info w-75 m-2">Ver más</a>

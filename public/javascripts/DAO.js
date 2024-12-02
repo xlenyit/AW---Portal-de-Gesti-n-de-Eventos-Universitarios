@@ -297,7 +297,8 @@ class DAO {
                             ubicacion: evento.ubicacion,
                             capacidad_maxima: evento.capacidad_maxima,
                             id_organizador: evento.id_organizador,
-                            ocupacion: evento.total
+                            ocupacion: evento.total,
+                            foto: evento.foto ? `data:image/jpeg;base64,${evento.foto.toString('base64')}` : null
                         }));
 
                         callback(null, mappedResults);
@@ -411,12 +412,12 @@ class DAO {
 
     //CRUD EVENTOS
     //create
-    createEvent(titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_organizador, id_categoria, callback) {
+    createEvent(titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_organizador, id_categoria, foto, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery = "INSERT INTO eventos (titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_organizador, id_categoria) VALUES (?,?,?,?,?,?,?,?,?)"
-                connection.query(stringQuery, [titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_organizador, id_categoria], function (err, res) {
+                let stringQuery = "INSERT INTO eventos (titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_organizador, id_categoria, foto) VALUES (?,?,?,?,?,?,?,?,?,?)"
+                connection.query(stringQuery, [titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_organizador, id_categoria, foto], function (err, res) {
                     connection.release();
                     if (err) callback(err, null)
                     else callback(null, res.insertId)
