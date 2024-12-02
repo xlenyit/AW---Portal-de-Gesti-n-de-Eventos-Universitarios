@@ -731,6 +731,50 @@ class DAO {
         });
     }
 
+    getUserAccesibilitySettings(id, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null);
+            else {
+                let stringQuery = `SELECT * FROM configuraciones_accesibilidad WHERE id=?`;
+                connection.query(stringQuery, [id], function (err, result) {
+                    connection.release();
+                    if (err) callback(err, null)
+                    else callback(null, result);
+    
+                });
+            }
+        });
+    }
+
+    createAccessibilityTableForUser(id, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null);
+            else {
+                let stringQuery = `INSERT INTO configuraciones_accesibilidad (id, paleta, tamanyo_texto, configuracion_navegacion) VALUES(?, null, null, null)`;
+                connection.query(stringQuery, [id], function (err) {
+                    connection.release();
+                    if (err) callback(err)
+                    else callback(null);
+    
+                });
+            }
+        });
+    }
+
+    setAccesibilityFontSize(value, id, callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null);
+            else {
+                let stringQuery = `UPDATE configuraciones_accesibilidad SET tamanyo_texto = ? WHERE id=?`;
+                connection.query(stringQuery, [parseInt(value), id], function (err) {
+                    connection.release();
+                    if (err) callback(err)
+                    else callback(null);
+                });
+            }
+        });
+    }
+
 }
 
 module.exports = DAO

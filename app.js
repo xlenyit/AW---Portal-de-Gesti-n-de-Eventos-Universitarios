@@ -9,6 +9,7 @@ const RandExp = require('randexp')
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const eventsRouter = require('./routes/events');
+const accessibilityRouter = require('./routes/accessibility');
 const session = require('express-session')
 
 const app = express();
@@ -56,6 +57,40 @@ app.use('/', (request, response, next) => {
 
     
 });
+
+app.use('/',  (req, response, next) => {
+    const DAO = require('./public/javascripts/DAO')
+    const midao = new DAO('localhost','root','','aw_24');
+
+    if (req.session.user) { 
+        midao.getUserAccesibilitySettings(req.session.user, (err, accesibility) => {
+            if (err || accesibility[0] == undefined) {
+                return;
+            }
+            let fontSize;
+            switch (accesibility.fontSize){
+                case 0:
+                    fontSize = '12px';
+                    break;
+                case 1:
+                    fontSize = '18px';
+                    break;
+                case 2:
+                    fontSize = '25px';
+                    break;
+                default:
+                    fontSize = '18px';
+                    break;
+            }
+            console.log('Texto cambiado')
+            response.locals.fontSize = fontSize;
+        });
+    }else
+        response.locals.fontSize = '18px';
+    next();
+})
+
+
 app.use( (req, response, next) => {
     const DAO = require('./public/javascripts/DAO')
     const midao = new DAO('localhost','root','','aw_24');
@@ -67,13 +102,11 @@ app.use( (req, response, next) => {
             } else {
                 response.locals.hasNotification = hasNotification;
             }
-            console.log(response.locals.hasNotification,"WHAT")
             next();
         });
     }else {
         // Si no hay usuario logueado, continuar el flujo
         response.locals.hasNotification = false;
-        console.log(response.locals.hasNotification,"HUH")
         next();
     }
 })
@@ -85,6 +118,8 @@ app.use('/users', usersRouter);
 
 // Middleware para '/events'
 app.use('/events', eventsRouter);
+
+app.use('/accessibility', accessibilityRouter);
 
 
 // En caso de que la página no exista, el estado pasa a ser el 404: FNF
