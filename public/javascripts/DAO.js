@@ -396,19 +396,56 @@ class DAO {
             }
         })
     }
+
+    updateWaitingList(idEvento, callback) {
+        this.pool.getConnection((err, connection) => {
+            if (err) {
+                callback(err, null);
+            } else {
+                let selectQuery = "SELECT id_usuario FROM inscripciones WHERE id_evento = ? AND esta_lista_espera = 0 ORDER BY fecha_inscripcion DESC LIMIT 1";
+                connection.query(selectQuery, [idEvento], (err, res) => {
+                    if (err) {
+                        connection.release(); // Release connection if an error occurs
+                        callback(err);
+                    } else if (!res.length || res[0] === null) {
+                        connection.release(); // Release connection if no results found
+                        callback(null);
+                    } else {
+                        let updateQuery = "UPDATE inscripciones SET esta_lista_espera = 1 WHERE id_usuario = ? AND id_evento = ?";
+                        connection.query(updateQuery, [res[0].id_usuario, idEvento], (err) => {
+                            connection.release(); // Release connection after the UPDATE query
+                            if (err) {
+                                callback(err);
+                            } else {
+                                callback(null);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+    
+
     deleteInscription(idUsuario, idEvento, callback) {
         this.pool.getConnection((err, connection) => {
-            if (err) callback(err, null)
+            if (err) callback(err, null);
             else {
-                let stringQuery = "UPDATE inscripciones SET activo=0 WHERE id_usuario = ? && id_evento = ?"
-                connection.query(stringQuery, [idUsuario, idEvento], function (err, res) {
+                let stringQuery = "UPDATE inscripciones SET activo=0 WHERE id_usuario = ? && id_evento = ?";
+                connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
                     connection.release();
-                    if (err) callback(err, null)
-                    else callback(null, res.affectedRows)
-                })
+                    if (err) callback(err, null);
+                    else {
+                        this.updateWaitingList(idEvento, (err) => {
+                            if (err) callback(err, null); // Pass the error if `updateWaitingList` fails
+                            else callback(null, res.affectedRows); // Otherwise, return the number of affected rows
+                        });
+                    }
+                });
             }
-        })
+        });
     }
+    
 
     //CRUD EVENTOS
     //create
