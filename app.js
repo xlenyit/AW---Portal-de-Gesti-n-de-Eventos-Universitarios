@@ -47,6 +47,8 @@ app.use('/', (request, response, next) => {
     const DAO = require('./public/javascripts/DAO')
     const midao = new DAO('localhost','root','','aw_24');
 
+    response.locals.user = request.session.user;
+
     midao.getBanned((err, banned) =>{
         if (err) console.error(err);
         for (let i = 0; i < banned.length; i++)
@@ -65,28 +67,31 @@ app.use('/',  (req, response, next) => {
     if (req.session.user) { 
         midao.getUserAccesibilitySettings(req.session.user, (err, accesibility) => {
             if (err || accesibility[0] == undefined) {
-                return;
+                response.locals.fontSize = '18px';
             }
-            let fontSize;
-            switch (accesibility.fontSize){
-                case 0:
-                    fontSize = '12px';
-                    break;
-                case 1:
-                    fontSize = '18px';
-                    break;
-                case 2:
-                    fontSize = '25px';
-                    break;
-                default:
-                    fontSize = '18px';
-                    break;
+            else{
+                let fontSize;
+                switch (accesibility[0].tamanyo_texto){
+                    case 1:
+                        fontSize = '12px';
+                        break;
+                    case 2:
+                        fontSize = '18px';
+                        break;
+                    case 3:
+                        fontSize = '25px';
+                        break;
+                    default:
+                        fontSize = '18px';
+                        break;
+                }
+                
+                response.locals.fontSize = fontSize;
             }
-            console.log('Texto cambiado')
-            response.locals.fontSize = fontSize;
         });
     }else
         response.locals.fontSize = '18px';
+
     next();
 })
 

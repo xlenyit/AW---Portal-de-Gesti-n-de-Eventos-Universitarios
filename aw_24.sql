@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `aw_24`
 --
+CREATE DATABASE IF NOT EXISTS `aw_24` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `aw_24`;
 
 -- --------------------------------------------------------
 
@@ -58,9 +60,9 @@ INSERT INTO `categorias` (`id`, `nombre`) VALUES
 
 CREATE TABLE `configuraciones_accesibilidad` (
   `id` int(11) NOT NULL,
-  `paleta` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`paleta`)),
-  `tamanyo_texto` int(11) NOT NULL,
-  `configuracion_navegacion` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`configuracion_navegacion`))
+  `paleta` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin CHECK (json_valid(`paleta`)),
+  `tamanyo_texto` int(11),
+  `configuracion_navegacion` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin CHECK (json_valid(`configuracion_navegacion`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

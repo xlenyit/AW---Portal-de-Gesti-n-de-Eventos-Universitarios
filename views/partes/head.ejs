@@ -13,9 +13,9 @@
   <link rel="stylesheet" href="/stylesheets/headerStyles.css">
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <script src="/javascripts/accesibilitySettings.js"></script>
-  <style>
-        body {
-            font-size: '<%=fontSize%>' !important;
-        }
-  </style>
 </head>
+<body>
+        <script>
+                document.body.style.fontSize = '<%=fontSize%>';
+        </script>
+</html>

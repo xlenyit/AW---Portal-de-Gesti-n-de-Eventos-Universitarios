@@ -14,26 +14,26 @@ router.post('/fontSize/:value', (request, response) => {
     midao.getUserAccesibilitySettings(id, (err, values) =>{
         if (err){
             console.error('Error');
-            return;
+            return response.status(400).send();
         };
 
         if (values[0] == undefined)
             midao.createAccessibilityTableForUser(id, (err) =>{
                 if (err){
                     console.error('Error creando fila');
-                    return;
+                    return response.status(400).send();
                 };
             });
 
         midao.setAccesibilityFontSize(fontSize, id, (err) =>{
             if (err) {
                 console.error('Error setteando columna');
-                return;
+                return response.status(400).send();
             };
         });
 
     });
-    return;
+    return response.status(200).send();
 });
 
 

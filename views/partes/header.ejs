@@ -13,15 +13,15 @@
                 <a class="nav-link" href="/events/eventViewer">Eventos</a>
             </div>
 
-            <%if (user != undefined) {%>
+            <%if (user) {%>
             <div class="dropdown">
                 <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                   <img src="/img/text-size.png" class="w-25">
                 </button>
                 <ul class="dropdown-menu">
-                  <li><button class="dropdown-item text-dark small" onclick="changeFontSize(0)">Pequeño</a></li>
-                  <li><button class="dropdown-item text-dark medium" onclick="changeFontSize(1)">Mediano</a></li>
-                  <li><button class="dropdown-item text-dark large" onclick="changeFontSize(2)">Grande</a></li>
+                  <li><button class="dropdown-item text-dark small" onclick="changeFontSize(1)">Pequeño</a></li>
+                  <li><button class="dropdown-item text-dark medium" onclick="changeFontSize(2)">Mediano</a></li>
+                  <li><button class="dropdown-item text-dark large" onclick="changeFontSize(3)">Grande</a></li>
                   <li><a class="dropdown-item text-dark medium" href="#">Más opciones de accesibilidad ></a></li>
                 </ul>
               </div>
