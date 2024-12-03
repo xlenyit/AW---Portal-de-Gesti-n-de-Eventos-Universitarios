@@ -179,7 +179,7 @@ router.post('/:id/createInscription', (request, response) => {
 //DESAPUNTASE DE EVENTO
 router.post('/:id/deleteInscription', (request, response) => {
     midao.deleteInscription(request.session.user,request.params.id,(err, res) => {
-      if(err) console.error(err)
+      if(err) console.error(res)
       else {
         midao.createNotificacion(request.session.user, request.params.id, DAO.CODIGO_DESAPUNTAR, (err) =>{
             if (err) console.error(err);
@@ -192,7 +192,7 @@ router.post('/:id/deleteInscription', (request, response) => {
 // BORRAR USUARIO DE EVENTO (ORG)
 router.post('/:eventId/deleteInscription/:userId', (request, response) => {
     midao.deleteInscription(request.params.userId,request.params.eventId,(err, res) => {
-      if(err) console.error(err)
+      if(err) console.error(res)
       else {
         midao.createNotificacion(request.params.userId, request.params.eventId, DAO.CODIGO_ELIMINAR, (err) =>{
             if (err) console.error(err);

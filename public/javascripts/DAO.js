@@ -397,36 +397,46 @@ class DAO {
         })
     }
 
-    updateWaitingList(idEvento, callback) {
+    getFirstInWaitingList(idEvento, callback){
         this.pool.getConnection((err, connection) => {
             if (err) {
                 callback(err, null);
             } else {
-                let selectQuery = "SELECT id_usuario FROM inscripciones WHERE id_evento = ? AND esta_lista_espera = 0 ORDER BY fecha_inscripcion DESC LIMIT 1";
+                let selectQuery = "SELECT id_usuario FROM inscripciones WHERE id_evento = ? AND esta_lista_espera = 1 ORDER BY fecha_inscripcion DESC LIMIT 1";
                 connection.query(selectQuery, [idEvento], (err, res) => {
-                    if (err) {
-                        connection.release(); // Release connection if an error occurs
-                        callback(err);
-                    } else if (!res.length || res[0] === null) {
-                        connection.release(); // Release connection if no results found
-                        callback(null);
-                    } else {
-                        let updateQuery = "UPDATE inscripciones SET esta_lista_espera = 1 WHERE id_usuario = ? AND id_evento = ?";
-                        connection.query(updateQuery, [res[0].id_usuario, idEvento], (err) => {
-                            connection.release(); // Release connection after the UPDATE query
-                            if (err) {
-                                callback(err);
-                            } else {
-                                callback(null);
-                            }
-                        });
-                    }
+                    connection.release(); 
+                    if (err || !res.length || res[0] === null) 
+                        callback(err, "There is no one in waiting list");
+                    else 
+                        callback(null, res[0].id_usuario);
                 });
             }
         });
     }
     
+    updateWaitingList(idEvento, callback) {
+        this.getFirstInWaitingList(idEvento, (err, result) => {
+            if (err) callback(err, result);
 
+            this.pool.getConnection((err, connection) => {
+                if (err) {
+                    callback(err, 'DB Error');
+                } else {
+                    let updateQuery = "UPDATE inscripciones SET esta_lista_espera = 1 WHERE id_usuario = ? AND id_evento = ?";
+                    connection.query(updateQuery, [result, idEvento], (err) => {
+                        connection.release();
+                        if (err) {
+                            callback(err, "Error Updating BD");
+                        } else {
+                            callback(null);
+                        }
+                    });
+                }
+            });
+        });
+    }
+    
+    //Elimina el evento
     deleteInscription(idUsuario, idEvento, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null);
@@ -436,9 +446,9 @@ class DAO {
                     connection.release();
                     if (err) callback(err, null);
                     else {
-                        this.updateWaitingList(idEvento, (err) => {
-                            if (err) callback(err, null); // Pass the error if `updateWaitingList` fails
-                            else callback(null, res.affectedRows); // Otherwise, return the number of affected rows
+                        this.updateWaitingList(idEvento, (err, errMsg) => { // Para actualizar la lista de espera
+                            if (err) callback(err, errMsg); 
+                            else callback(null, res.affectedRows); 
                         });
                     }
                 });
