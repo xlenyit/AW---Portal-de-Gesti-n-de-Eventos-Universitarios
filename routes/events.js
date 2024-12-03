@@ -9,16 +9,20 @@ const multerFactory= multer({storage: multer.memoryStorage()})
 
 const sqlInjectionCheckMiddleware = (request, res, next) => {
     // Expresión regular para detectar patrones comunes de inyección SQL
-    const sqlInjectionPattern = /(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE|--|#|\/\*|\*\/)/;
+    // const sqlInjectionPattern = /(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE|--|#|\/\*|\*\/)/;
+    const sqlInjectionPattern = /(['";]|SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE)/i;
   
     // Verificar cada campo en request.body
     for (const key in request.body) {
       if (request.body.hasOwnProperty(key)) {
         const value = request.body[key];
   
-        
         if (sqlInjectionPattern.test(value)) {
-            midao.banear(request.ip);
+          console.log('El test paso')
+          // midao.banear(request.ip);
+          // return res.status(400).send('Has sido baneado por posible intento de inyección SQL.');
+          const ip = request.ip;
+          midao.banear(ip);
           return res.status(400).send('Has sido baneado por posible intento de inyección SQL.');
         }
       }
