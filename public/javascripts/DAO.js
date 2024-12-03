@@ -422,7 +422,7 @@ class DAO {
                 if (err) {
                     callback(err, 'DB Error');
                 } else {
-                    let updateQuery = "UPDATE inscripciones SET esta_lista_espera = 1 WHERE id_usuario = ? AND id_evento = ?";
+                    let updateQuery = "UPDATE inscripciones SET esta_lista_espera = 0 WHERE id_usuario = ? AND id_evento = ?";
                     connection.query(updateQuery, [result, idEvento], (err) => {
                         connection.release();
                         if (err) {
