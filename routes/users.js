@@ -101,7 +101,7 @@ router.post('/login', sqlInjectionCheckMiddleware,async function (request, respo
 
   // Conseguir la contraseña e ID relacionada con el email
   midao.getIdAndPasswordFromEmail(email, (err, data) => {
-    if (err || !data) return response.status(400).send('Email incorrecto');
+    if (err || !data) return response.render('login', { error: 'Email incorrecto', correo: email });
 
 
     bcrypt.compare(contrasena, data.contrasena, (err, isMatch) => {
@@ -111,7 +111,7 @@ router.post('/login', sqlInjectionCheckMiddleware,async function (request, respo
         response.locals.user = data.id;
         return response.status(200).redirect('/');
       } 
-      return response.status(400).send('Contraseña incorrecta');
+      return response.render('login', { error: 'Contraseña incorrecta', correo: email });
     });
     
   })

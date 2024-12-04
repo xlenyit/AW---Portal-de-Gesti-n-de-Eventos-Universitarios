@@ -17,7 +17,11 @@
                             id="email" 
                             class="form-control" 
                             placeholder="example@ucm.es" 
-                            required>
+                            required
+                            <% if (typeof correo !== 'undefined' && correo) { %>
+                            value=<%=correo%>
+                            <% } %>
+                            >
                     </div>
 
                     <!-- Contraseña -->
@@ -37,6 +41,9 @@
                                 class="btn btn-outline-secondary">Mostrar</button>
                         </div>
                     </div>
+                    <% if (typeof error !== 'undefined' && error) { %>
+                        <div class="error-message fs-6 my-2" style="color: red;"><%= error %></div>
+                    <% } %>
 
                     <!-- Botones -->
                     <div class="d-grid gap-2 mb-3">

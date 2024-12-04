@@ -11,6 +11,7 @@ const usersRouter = require('./routes/users');
 const eventsRouter = require('./routes/events');
 const accessibilityRouter = require('./routes/accessibility');
 const session = require('express-session')
+const favicon = require('serve-favicon');
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
@@ -26,6 +27,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true  }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
+app.use(favicon(path.join(__dirname,'public','img','favicon.ico')));
 
 app.use(session({
     secret: new RandExp(/([a-zA-Z0-9]{16}){1-3}/).gen(), // Cambia esto por algo único y seguro
