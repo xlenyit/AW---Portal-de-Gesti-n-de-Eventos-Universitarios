@@ -60,7 +60,7 @@ app.use('/', (request, response, next) => {
     
 });
 
-app.use('/',  (req, response, next) => {
+app.use(  (req, response, next) => {
     const DAO = require('./public/javascripts/DAO')
     const midao = new DAO('localhost','root','','aw_24');
 

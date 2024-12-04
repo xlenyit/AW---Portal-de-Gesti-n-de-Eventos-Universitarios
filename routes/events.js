@@ -9,16 +9,17 @@ const multerFactory= multer({storage: multer.memoryStorage()})
 
 const sqlInjectionCheckMiddleware = (request, res, next) => {
     // Expresión regular para detectar patrones comunes de inyección SQL
-    const sqlInjectionPattern = /(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE|--|#|\/\*|\*\/)/;
+    // const sqlInjectionPattern = /(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE|--|#|\/\*|\*\/)/;
+    const sqlInjectionPattern = /(['";]|SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE)/i;
   
     // Verificar cada campo en request.body
     for (const key in request.body) {
       if (request.body.hasOwnProperty(key)) {
         const value = request.body[key];
   
-        
         if (sqlInjectionPattern.test(value)) {
-            midao.banear(request.ip);
+          const ip = request.ip;
+          midao.banear(ip);
           return res.status(400).send('Has sido baneado por posible intento de inyección SQL.');
         }
       }
@@ -172,7 +173,7 @@ router.get('/eventViewer', isLoggedIn,(request, response) => {
 //INSCRIBIRSE A EVENTO
 router.post('/:id/createInscription', (request, response) => {
     midao.createInscription(request.session.user,request.params.id,(err, res) => {
-        if(err) console.error(err)
+        if(err) console.error(res)
         else {
             midao.createNotificacion(request.session.user, request.params.id, DAO.CODIGO_INSCRIPCION, (err) =>{
                 if (err) console.error(err);
@@ -185,7 +186,7 @@ router.post('/:id/createInscription', (request, response) => {
 //DESAPUNTASE DE EVENTO (ASIS)
 router.post('/:id/deleteInscription', (request, response) => {
     midao.deleteInscription(request.session.user,request.params.id,(err, res) => {
-      if(err) console.error(err)
+      if(err) console.error(res)
       else {
         midao.createNotificacion(request.session.user, request.params.id, DAO.CODIGO_DESAPUNTAR, (err) =>{
             if (err) console.error(err);
