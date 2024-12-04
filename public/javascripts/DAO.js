@@ -494,6 +494,22 @@ class DAO {
             }
         });
     }
+
+    getEmails(callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null);
+            else {
+                let stringQuery = "SELECT correo FROM usuarios";
+                connection.query(stringQuery, (err, res) => {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else {
+                        callback(null, res); 
+                    }
+                });
+            }
+        });
+    };
  //Elimina el evento
     //deleteInscription(idUsuario, idEvento, callback) {
     //    this.pool.getConnection((err, connection) => {

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+    <%- include('partes/head') %>
+
+    <body class="bg-light">
+        <%- include('partes/header') %>
+        <div id="passwordDiv" class="container d-flex align-items-center justify-content-center my-5">
+            <div id="mainDiv" class="card shadow-lg p-4">
+                <h1 class="text-center mb-4">Cambio de Contraseña</h1>
+                <form id="changePasswordForm">
+                    <!-- Correo (inicialmente visible) -->
+                    <div class="mb-3" id="emailDiv">
+                        <label for="email" class="form-label fw-bold">Correo</label>
+                        <input 
+                            type="text" 
+                            name="email" 
+                            id="email" 
+                            class="form-control" 
+                            placeholder="example@ucm.es" 
+                            required>
+                    </div>
+
+                    <!-- Código y Contraseña (inicialmente ocultos) -->
+                    <div id="extraFields" style="display: none;">
+                        <!-- Código -->
+                        <div class="mb-3">
+                            <label for="code" class="form-label fw-bold">Código enviado al correo:</label>
+                            <input 
+                                type="text" 
+                                name="code" 
+                                id="code" 
+                                class="form-control" 
+                                placeholder="123-456" 
+                                required>
+                        </div>
+
+                        <!-- Contraseña -->
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-bold">Contraseña</label>
+                            <div class="input-group">
+                                <input 
+                                    type="password" 
+                                    name="contrasena" 
+                                    id="password" 
+                                    class="form-control" 
+                                    placeholder="Contraseña" 
+                                    required>
+                                <button 
+                                    type="button" 
+                                    id="togglePassword" 
+                                    class="btn btn-outline-secondary">Mostrar</button>
+                            </div>
+                        </div>
+
+                        <!-- Repetir Contraseña -->
+                        <div class="mb-3">
+                            <label for="password2" class="form-label fw-bold">Repita la nueva contraseña</label>
+                            <div class="input-group">
+                                <input 
+                                    type="password" 
+                                    name="contrasena2" 
+                                    id="password2" 
+                                    class="form-control" 
+                                    placeholder="Contraseña" 
+                                    required>
+                                <button 
+                                    type="button" 
+                                    id="togglePassword" 
+                                    class="btn btn-outline-secondary">Mostrar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botón de Confirmar -->
+                    <div class="w-100">
+                        <button type="button" id="nextStep" class="btn btn-primary w-100">Siguiente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="position-absolute bottom-0 w-100">
+            <%- include('partes/footer') %>
+        </div>
+
+        <script src="/javascripts/showPassword.js"></script>
+        <script src="/javascripts/changePassword.js"></script> <!-- Archivo JS separado -->
+    </body>
+</html>

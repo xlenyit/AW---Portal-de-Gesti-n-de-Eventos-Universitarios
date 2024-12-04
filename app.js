@@ -31,6 +31,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
 app.use(favicon(path.join(__dirname,'public','img','favicon.ico')));
 
+
 app.use(session({
     secret: new RandExp(/([a-zA-Z0-9]{16}){1-3}/).gen(), // Cambia esto por algo único y seguro
     resave: false,

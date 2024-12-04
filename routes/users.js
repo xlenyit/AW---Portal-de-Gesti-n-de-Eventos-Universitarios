@@ -5,6 +5,7 @@ var router = express.Router();
 const DAO = require('../public/javascripts/DAO')
 const midao = new DAO('localhost','root','','aw_24');
 const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
 
 const sqlInjectionCheckMiddleware = (request, res, next) => {
   // Expresión regular para detectar patrones comunes de inyección SQL
@@ -27,6 +28,14 @@ const sqlInjectionCheckMiddleware = (request, res, next) => {
   
   next();
 };
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail', 
+  auth: {
+      user: 'bot.aw.eventos36@gmail.com',  
+      pass: 'Contrasena_2024'   
+  }
+});
 
 
 const passLocals = (req, res, next) => {
@@ -60,6 +69,57 @@ router.get('/register', alreadyLoggedIn ,(request, response) => {
     else response.render('register', {facultades:resultado});
   })
 });
+
+/* GET users listing. */
+router.get('/cambiarContrasena', function(request, response, next) {
+  response.render('cambiarContrasena');
+});
+
+// Ruta para verificar el correo
+router.post('/verifyEmail', (req, res) => {
+  const email = req.body.email;
+
+  midao.getEmails((err, emails) => {
+    if (err) {
+      return res.status(500).send({ message: 'Error al acceder a los correos.' });
+    }
+
+    // Buscar el correo en la base de datos
+    for (let i = 0; i < emails.length; i++) {
+      if (email == emails[i].correo) {
+        // Generar el código de verificación
+        let clave = '' + Math.floor(Math.random() * 900 - 1 + 100) + '-' + Math.floor(Math.random() * 900 - 1 + 100);
+
+        // Configurar Nodemailer
+        const mailOptions = {
+          from: 'bot.aw.eventos36@gmail.com',
+          to: email,
+          subject: 'Código de verificación para cambiar la contraseña',
+          text: `Tu código de verificación es: ${clave}`
+        };
+
+        // Enviar el correo
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.log(error)
+            return res.status(500).json({ message: 'Error al enviar el correo.' });
+          }
+
+          // Solo enviar la respuesta una vez
+          return res.status(200).json({ message: 'Revise su bandeja de entrada' });
+        });
+
+        // Si encontramos el correo, retornamos inmediatamente
+        return;
+      }
+    }
+
+    // Si no se encontró el correo en la base de datos
+    return res.status(400).json({ message: 'Correo no válido' });
+  });
+});
+
+
 
 
 // Maneja el registro
