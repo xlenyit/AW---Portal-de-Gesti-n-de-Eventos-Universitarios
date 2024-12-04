@@ -8,16 +8,16 @@
     <div class="container-fluid my-5">
         <div class="row">
             <!-- Panel lateral -->
-            <div class="col-md-3 p-3 rounded shadow-sm" >
+            <div class="col-sm-2 p-3 rounded shadow-sm" >
                 <!-- Slider de precio -->
-                <div id="priceSliderContainer" class="mb-4">
+                <div id="priceSliderContainer" class="mb-4 d-none">
                     <h5 class="text-center  mb-3">Filtrar por precio</h5>
                     <label for="priceSlider" class="form-label ">Precio: <span id="priceValue">0</span></label>
                     <input class="form-range" type="range" min="0" max="<%= precio_maximo %>" id="priceSlider" oninput="document.getElementById('priceValue').innerText=this.value">
                 </div>
             
                 <!-- Filtro por organizadores -->
-                <div id="organizatorContainer" class="mb-4">
+                <div id="organizatorContainer" class="mb-4 d-none">
                     <h5 class=" mb-3">Organizadores</h5>
                     <% organizators.forEach(res => { %>
                         <div class="form-check">
@@ -28,7 +28,7 @@
                 </div>
             
                 <!-- Filtro por categorías -->
-                <div id="categoriesContainer" class="mb-4">
+                <div id="categoriesContainer" class="mb-4 d-none">
                     <h5 class=" mb-3 ">Categorías</h5>
                     <% categories.forEach(category => { %>
                         <div class="form-check">

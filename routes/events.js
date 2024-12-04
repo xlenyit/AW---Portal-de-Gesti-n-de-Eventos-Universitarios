@@ -111,7 +111,6 @@ router.get('/event/:id',isLoggedIn, multerFactory.single('imagen'),(request, res
                     config.ocupacion = resultado.ocupacion;
                     let imageUrl = null
                     if(resultado.foto) {
-                        console.log("tiene foto")
                         const imageBase64 = resultado.foto.toString('base64');
                         imageUrl = 'data:image/jpeg;base64,' + imageBase64;
                         config.image_path = imageUrl;
@@ -268,14 +267,15 @@ router.post('/:id/createInscriptionWaitingList', (request, response) => {
 })
 
 //CREAR EVENTO
-router.post('/createEvent', sqlInjectionCheckMiddleware, userIsOrganizer,multerFactory.single('imagen'), (request, response) => {
+router.post('/createEvent', sqlInjectionCheckMiddleware, userIsOrganizer,multerFactory.single('imagenEvento'), (request, response) => {
     const {titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_categoria} = request.body;
     const foto = request.file ? request.file.buffer : null; 
+    
     midao.createEvent(titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, request.session.user, id_categoria, foto,(err, res) => {
-      if(err) console.error(err)
-      else {
-            response.status(200).redirect("/events/eventViewer")
-      }
+        if(err)     response.render('errors', {err_name: '404', err_message: err})
+        else {
+                response.status(200).redirect("/events/eventViewer")
+        }
     })
 })
 router.get('/createEvent',userIsOrganizer,(request, response) => {
@@ -334,8 +334,8 @@ router.get('/:id/edit', (request, response) => {
             evento[0].fecha=evento[0].fecha.toISOString().split('T')[0]
             if (err) return response.status(500).send('Error al obtener las categorías');
             let imageUrl = null
-            if(evento.foto) {
-                const imageBase64 = evento.foto.toString('base64');
+            if(evento[0].foto) {
+                const imageBase64 = evento[0].foto.toString('base64');
                 imageUrl = 'data:image/jpeg;base64,' + imageBase64;
             }
             response.status(200).render('editEvent', {evento: evento[0], categorias,imageUrl});

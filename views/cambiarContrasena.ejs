@@ -21,9 +21,9 @@
                     </div>
 
                     <!-- Código y Contraseña (inicialmente ocultos) -->
-                    <div id="extraFields" style="display: none;">
+                    <div id="extraFields" class="d-none mb-5">
                         <!-- Código -->
-                        <div class="mb-3">
+                        <!-- <div class="mb-3">
                             <label for="code" class="form-label fw-bold">Código enviado al correo:</label>
                             <input 
                                 type="text" 
@@ -32,7 +32,7 @@
                                 class="form-control" 
                                 placeholder="123-456" 
                                 required>
-                        </div>
+                        </div> -->
 
                         <!-- Contraseña -->
                         <div class="mb-3">
@@ -53,7 +53,7 @@
                         </div>
 
                         <!-- Repetir Contraseña -->
-                        <div class="mb-3">
+                        <div id="divpassword2"class="mb-3">
                             <label for="password2" class="form-label fw-bold">Repita la nueva contraseña</label>
                             <div class="input-group">
                                 <input 
@@ -65,9 +65,12 @@
                                     required>
                                 <button 
                                     type="button" 
-                                    id="togglePassword" 
+                                    id="toggleConfirmPassword" 
                                     class="btn btn-outline-secondary">Mostrar</button>
                             </div>
+                        </div>
+                        <div class="w-100">
+                            <button type="button" id="saveChanges" class="btn btn-primary w-100" disabled>Guardar cambios</button>
                         </div>
                     </div>
 

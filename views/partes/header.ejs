@@ -38,9 +38,9 @@
                             <img src="/img/text-size.png" alt="Accesibilidad" width="20">
                         </button>
                         <ul class="dropdown-menu custom-dropdown">
-                            <li><button class="dropdown-item text-dark small" onclick="changeFontSize(1)">Pequeño</button></li>
-                            <li><button class="dropdown-item text-dark medium" onclick="changeFontSize(2)">Mediano</button></li>
-                            <li><button class="dropdown-item text-dark large" onclick="changeFontSize(3)">Grande</button></li>
+                            <li><button class="changeFontSize dropdown-item text-dark small" data-size="12" onclick="changeFontSize(9)">Pequeño</button></li>
+                            <li><button class="changeFontSize dropdown-item text-dark medium" data-size="16"onclick="changeFontSize(13)">Mediano</button></li>
+                            <li><button class="changeFontSize dropdown-item text-dark large" data-size="20" onclick="changeFontSize(19)">Grande</button></li>
                         </ul>
                     </div>
                 </div>
@@ -49,3 +49,4 @@
         </div>
     </nav>
 </header>
+<script src="/javascripts/accesibilitySettings.js"></script>

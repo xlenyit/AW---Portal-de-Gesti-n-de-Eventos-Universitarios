@@ -5,7 +5,7 @@
         <%-include('partes/header') %>
             <div class="container mt-5">
                 <h1 class="mb-4">Crear un Nuevo Evento</h1>
-                <form action="/events/createEvent" method="POST">
+                <form action="/events/createEvent" method="POST" enctype="multipart/form-data">
                     <!-- Título -->
                     <div class="mb-3">
                         <label for="titulo" class="form-label">Título</label>
@@ -15,7 +15,7 @@
                     <!-- Descripción -->
                     <div class="mb-3">
                         <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required></textarea>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="4" maxlength="500" required></textarea>
                     </div>
 
                     <!-- Precio -->
@@ -61,6 +61,13 @@
                                 </option>
                                 <% }) %>
                         </select>
+                    </div>
+                    <!-- Imagen del Evento -->
+                    <div class="mb-4 ">
+                        <label for="imagenEvento" class="form-label">Imagen del Evento</label>
+                        <div class=" row justify-content-evenly"> 
+                            <input type="file" class="col h-25 form-control" id="imagenEvento" name="imagenEvento" accept="image/*">
+                        </div>
                     </div>
 
                     <!-- Botón de enviar -->

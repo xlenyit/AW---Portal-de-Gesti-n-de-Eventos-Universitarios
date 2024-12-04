@@ -75,7 +75,7 @@
             <label for="imagenEvento" class="form-label">Imagen del Evento</label>
             <div class=" row justify-content-evenly"> 
                 <div class="col mb-3 w-25">
-                    <% let imagenSrc = imageUrl ? imageUrl : '/img/placeholderEvento.jpg'; %> 
+                    <% let imagenSrc = (imageUrl ? imageUrl : '/img/placeholderEvento.jpg'); %> 
                     <img src="<%= imagenSrc %>" alt="Imagen del evento" class="img-fluid img-thumbnail w-50"> 
                 </div>
                 <input type="file" class="col h-25 form-control" id="imagenEvento" name="imagenEvento" accept="image/*">

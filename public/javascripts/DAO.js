@@ -195,7 +195,7 @@ class DAO {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery = `SELECT * FROM  inscripciones WHERE id_usuario = ? AND id_evento = ?` //Al registrar un usuario tendran la conf de accesibilidad 1 por defecto
+                let stringQuery = `SELECT * FROM  inscripciones WHERE id_usuario = ? AND id_evento = ?` 
                 connection.query(stringQuery, [idUsuario, idEvento], (err, resultado)=>{
                     connection.release();
                     if (err) callback(err, null);
@@ -205,7 +205,19 @@ class DAO {
             }
         })
     }
-
+    deleteInscriptionWaitingList(idUsuario, idEvento, callback) {
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null);
+            else {
+                let stringQuery = "UPDATE inscripciones SET esta_lista_espera=0, activo=0 WHERE id_usuario = ? && id_evento = ?";
+                connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else callback(null, res.affectedRows);
+                });
+            }
+        });
+    }
     //CRUD facultades
     //read all facultades
     getFacultades(callback) {
@@ -418,11 +430,11 @@ class DAO {
         })
     }
 
-    //updateWaitingList(idUsuario, idEvento, callback) {
+    // updateWaitingList(idUsuario, idEvento, callback) {
     //    this.usuarioEnListaDeEspera(idUsuario, idEvento, (err, esta_lista_espera) =>{
     //        if (err) return callback(err, 'Error getting the user data');
     //        if (esta_lista_espera) return callback(err, 'The user is not inscribed just in waiting list');
-//
+
     //        this.getFirstInWaitingList(idEvento, (err, result) => {
     //            if (err) callback(err, result);
     //            else{
@@ -445,16 +457,16 @@ class DAO {
     //            }
     //        });
     //    });
-//
-    //}
 
-    updateWaitingList(idEvento, callback) { //ELENA
+    // }
+
+    updateWaitingList(idEvento,idUsuario, callback) { //ELENA
         this.pool.getConnection((err, connection) => {
             if (err) {
                 callback(err, null);
             } else {
-                let selectQuery = "SELECT id_usuario FROM inscripciones WHERE id_evento = ? AND esta_lista_espera = 0 AND activo=1 ORDER BY fecha_inscripcion DESC LIMIT 1";
-                connection.query(selectQuery, [idEvento], (err, res) => {
+                let selectQuery = "SELECT id_usuario FROM inscripciones WHERE id_evento = ? AND esta_lista_espera = 0 AND id_usuario != ? AND activo=1 ORDER BY fecha_inscripcion DESC LIMIT 1";
+                connection.query(selectQuery, [idEvento, idUsuario], (err, res) => {
                     if (err) {
                         connection.release(); // Release connection if an error occurs
                         callback(err, null);
@@ -487,7 +499,6 @@ class DAO {
                     connection.release();
                     if (err) callback(err, null);
                     else {
-                        console.log(res, "que gfalla")
                         callback(null, res.affectedRows); 
                     }
                 });
@@ -511,24 +522,24 @@ class DAO {
         });
     };
  //Elimina el evento
-    //deleteInscription(idUsuario, idEvento, callback) {
-    //    this.pool.getConnection((err, connection) => {
-    //        if (err) callback(err, null);
-    //        else {
-    //            let stringQuery = "UPDATE inscripciones SET activo=0 WHERE id_usuario = ? && id_evento = ?";
-    //            connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
-    //                connection.release();
-    //                if (err) callback(err, null);
-    //                else {
-    //                    this.updateWaitingList(idUsuario, idEvento, (err, errMsg) => { // Para actualizar la lista de espera
-    //                        if (err) callback(err, errMsg); 
-    //                        else callback(null, res.affectedRows); 
-    //                    });
-    //                }
-    //            });
-    //        }
-    //    });
-    //}
+    deleteInscription(idUsuario, idEvento, callback) {
+       this.pool.getConnection((err, connection) => {
+           if (err) callback(err, null);
+           else {
+               let stringQuery = "UPDATE inscripciones SET activo=0 WHERE id_usuario = ? && id_evento = ?";
+               connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
+                   connection.release();
+                   if (err) callback(err, null);
+                   else {
+                       this.updateWaitingList(idUsuario, idEvento, (err, errMsg) => { // Para actualizar la lista de espera
+                           if (err) callback(err, errMsg); 
+                           else callback(null, res.affectedRows); 
+                       });
+                   }
+               });
+           }
+       });
+    }
 
     //getFirstInWaitingList(idEvento, callback) {
     //    this.pool.getConnection((err, connection) => {
@@ -549,24 +560,24 @@ class DAO {
 
     
 
-    deleteInscription(idUsuario, idEvento, callback) { //ELENA
-        this.pool.getConnection((err, connection) => {
-            if (err) callback(err, null);
-            else {
-                let stringQuery = "UPDATE inscripciones SET esta_lista_espera=0, activo=0 WHERE id_usuario = ? && id_evento = ?";
-                connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
-                    connection.release();
-                    if (err) callback(err, null);
-                    else {
-                        this.updateWaitingList(idEvento, (err) => {
-                            if (err) callback(err, null); // Pass the error if `updateWaitingList` fails
-                            else callback(null, res.affectedRows); // Otherwise, return the number of affected rows
-                        });
-                    }
-                });
-            }
-        });
-    }
+    // deleteInscription(idUsuario, idEvento, callback) { //ELENA
+    //     this.pool.getConnection((err, connection) => {
+    //         if (err) callback(err, null);
+    //         else {
+    //             let stringQuery = "UPDATE inscripciones SET esta_lista_espera=0, activo=0 WHERE id_usuario = ? && id_evento = ?";
+    //             connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
+    //                 connection.release();
+    //                 if (err) callback(err, null);
+    //                 else {
+    //                     this.updateWaitingList(idEvento, (err) => {
+    //                         if (err) callback(err, null); // Pass the error if `updateWaitingList` fails
+    //                         else callback(null, res.affectedRows); // Otherwise, return the number of affected rows
+    //                     });
+    //                 }
+    //             });
+    //         }
+    //     });
+    // }
 
     //deleteInscriptionWaitingList(idUsuario, idEvento, callback) {
     //    this.pool.getConnection((err, connection) => {
@@ -761,10 +772,6 @@ class DAO {
                     mensaje = `Se ha eliminado su inscripcion al evento ${titulo} con exito`;
                     this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
                     this.getUserById(idUser, (err, data) => {
-                        console.log()
-                        console.log()
-                        console.log()
-                        console.log(data)
                         if (err) callback(err);
                         let username = data.nombre;
                         mensaje = `El usuario ${username} se ha desapuntado del evento`;
@@ -848,7 +855,24 @@ class DAO {
                 callback('Error registering notification');
         }
     }
-
+    updatePassword(email, hashedPassword, callback) {
+        this.pool.getConnection((err, connection) => {
+            if (err) {
+                callback(err, null);
+            } else {
+                const query = 'UPDATE usuarios SET contrasena = ? WHERE correo = ?';
+    
+                connection.query(query, [hashedPassword, email], function(err, result) {
+                    connection.release();
+                    if (err) {
+                        callback(err, null);
+                    } else {
+                        callback(null, result);
+                    }
+                });
+            }
+        });
+    }
     createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)

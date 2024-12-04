@@ -133,7 +133,8 @@ router.post('/register', sqlInjectionCheckMiddleware, checkValidity, async (requ
   user.contrasenaConf = hashedPassword;
   // Llama al método para registrar al usuario
   midao.registerUser(user, (err, id) => {
-    if (err) return response.status(400).send(err);
+    // if (err) return response.status(400).send(err);
+    if (err) response.render('errors', {err_name: '420', err_message: 'Error al registrar el nuevo usuario'})
     // Conseguir el ID del usuario recién registrado
     // midao.getIdFromEmail(user.email, (err, id) => { //no hace falta 
     //   if (err) return response.status(400).send('Error al obtener ID');
@@ -141,8 +142,6 @@ router.post('/register', sqlInjectionCheckMiddleware, checkValidity, async (requ
       // Establece la sesión para el usuario recién registrado
       request.session.user = id;
       
-      console.log('Registrando usuario:', user);
-      console.log('ID del usuario registrado:', id);
       // Redirige a  home si el registro fue exitoso
       return response.redirect('/');
     });
@@ -161,8 +160,8 @@ router.post('/login', sqlInjectionCheckMiddleware,async function (request, respo
 
   // Conseguir la contraseña e ID relacionada con el email
   midao.getIdAndPasswordFromEmail(email, (err, data) => {
-    if (err || !data) return response.render('login', { error: 'Email incorrecto', correo: email });
-
+    if (err ) return response.render('login', { error: 'Email incorrecto', correo: email });
+    else if(!data) return response.render('login', { error: 'El email no está registrado', correo: email });
 
     bcrypt.compare(contrasena, data.contrasena, (err, isMatch) => {
       if (err)  throw(err);
@@ -268,7 +267,34 @@ function areValidValues(correo, telefono){
   if (!regexTelephone.test(telefono)) return 204;
   return 200;
 }
+router.post('/changePassword', sqlInjectionCheckMiddleware, (request, response) => {
+  const { newPassword, email } = request.body; // Recibe la nueva contraseña
 
+  
+  if (!newPassword || newPassword.length < 6) {
+      return response.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres.' });
+  }
+
+  // Cifrar la nueva contraseña con bcrypt
+  bcrypt.hash(newPassword, 10, (err, hashedPassword) => {
+      if (err) {
+          console.error('Error al cifrar la contraseña', err);
+          return response.status(500).json({ message: 'Error al cifrar la contraseña' });
+      }
+
+      console.log(newPassword,hashedPassword )
+      const userId = request.session.user; 
+      midao.updatePassword(email, hashedPassword, (err, result) => {
+          if (err) {
+              console.error('Error al actualizar la contraseña', err);
+              return response.status(500).json({ message: 'Error al actualizar la contraseña' });
+          }
+
+          // Respuesta exitosa
+          return response.status(200).json({ message: 'Contraseña actualizada correctamente.' });
+      });
+  });
+});
 router.get('/getFacultades', (req, res) => {
   midao.getFacultades((err, facultades) => {
       if (err) {
