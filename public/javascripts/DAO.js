@@ -469,25 +469,26 @@ class DAO {
         });
     }
  //Elimina el evento
- deleteInscription(idUsuario, idEvento, callback) {
-    this.pool.getConnection((err, connection) => {
-        if (err) callback(err, null);
-        else {
-            let stringQuery = "UPDATE inscripciones SET activo=0 WHERE id_usuario = ? && id_evento = ?";
-            connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
-                connection.release();
-                if (err) callback(err, null);
-                else {
-                    this.updateWaitingList(idEvento, (err, errMsg) => { // Para actualizar la lista de espera
-                        if (err) callback(err, errMsg); 
-                        else callback(null, res.affectedRows); 
-                    });
-                }
-            });
-        }
-    });
+    deleteInscription(idUsuario, idEvento, callback) {
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null);
+            else {
+                let stringQuery = "UPDATE inscripciones SET activo=0 WHERE id_usuario = ? && id_evento = ?";
+                connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else {
+                        this.updateWaitingList(idEvento, (err, errMsg) => { // Para actualizar la lista de espera
+                            if (err) callback(err, errMsg); 
+                            else callback(null, res.affectedRows); 
+                        });
+                    }
+                });
+            }
+        });
+    }
 
-    getFirstInWaitingList(idEvento, callback){
+    getFirstInWaitingList(idEvento, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) {
                 callback(err, null);
@@ -503,7 +504,9 @@ class DAO {
             }
         });
     }
-}
+
+    
+
     // deleteInscription(idUsuario, idEvento, callback) { //ELENA
     //     this.pool.getConnection((err, connection) => {
     //         if (err) callback(err, null);
