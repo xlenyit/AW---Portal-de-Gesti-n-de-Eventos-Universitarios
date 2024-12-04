@@ -60,6 +60,11 @@
                                 <p class="text-center text-muted">No hay eventos disponibles.</p>
                             <% } %>
                         </div>
+                        <% if (isLogged && user.es_organizador == 1) {%>
+                            <div class="d-grid py-2 my-2">
+                                <a href="/events/createEvent" class="btn btn-secondary">Crear nuevo evento</a>
+                            </div>
+                        <% }%>
                     </div>
                 </div>
             </div>

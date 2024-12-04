@@ -88,7 +88,8 @@ CREATE TABLE `eventos` (
   `ubicacion` varchar(200) NOT NULL,
   `capacidad_maxima` int(11) NOT NULL,
   `id_organizador` int(11) NOT NULL,
-  `id_categoria` int(11) NOT NULL
+  `id_categoria` int(11) NOT NULL,
+  `foto` VARCHAR(45)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

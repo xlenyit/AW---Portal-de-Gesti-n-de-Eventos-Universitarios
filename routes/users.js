@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 const sqlInjectionCheckMiddleware = (request, res, next) => {
   // Expresión regular para detectar patrones comunes de inyección SQL
   // const sqlInjectionPattern = /(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE|--|#|\/\*|\*\/)/;
-  const sqlInjectionPattern = /(['";]|SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE)/i;
+  const sqlInjectionPattern = /^(['";])(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE)/i;
 
   // Verificar cada campo en request.body
   for (const key in request.body) {

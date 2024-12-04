@@ -10,7 +10,7 @@ const multerFactory= multer({storage: multer.memoryStorage()})
 const sqlInjectionCheckMiddleware = (request, res, next) => {
     // Expresión regular para detectar patrones comunes de inyección SQL
     // const sqlInjectionPattern = /(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE|--|#|\/\*|\*\/)/;
-    const sqlInjectionPattern = /(['";]|SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE)/i;
+    const sqlInjectionPattern = /^(['";])(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER|FROM|WHERE)/i;
   
     // Verificar cada campo en request.body
     for (const key in request.body) {
@@ -55,12 +55,13 @@ router.get('/event/:id',isLoggedIn, multerFactory.single('imagen'),(request, res
     response.status(200)
     var config = {};
     let id = request.params.id;
+    let counter = 0;
 
     // Habría que cambiarlo para que funcionase en lugar de con isLogged, pasando un user.
     // Si user === null -> !isLogged
     // Si no, tomar valores desde user.hasNotification, user.esta_inscrito...
     config.isLogged = (request.session.user ==null ? false: true);
-    config.usuario= { esta_inscrito: true, esta_lista_espera: true};
+    config.usuario= { esta_inscrito: false, esta_lista_espera: false};
     config.organizadorDeEste=false;
     config.usuarioOrg=false;
     config.image_path= null,
@@ -80,14 +81,18 @@ router.get('/event/:id',isLoggedIn, multerFactory.single('imagen'),(request, res
                             }
                         });
                     } 
+                    counter++;
+                    checkAndRender();
                 })
             }else{ //No es organizador, por tanto es asistente, comprobar si esta inscrito ya o no para darle las opciones de asistente
                 midao.checkIfUserIsEnrolledInEvent(request.session.user, id, (err, inscrito) =>{
                     if(err) console.error('Error: ', null)
                     else{
-                        config.usuario.esta_inscrito = inscrito[0] ? true:false;
-                        if(config.usuario.esta_inscrito)  config.usuario.esta_lista_espera = inscrito[0].esta_lista_espera;
+                        config.usuario.esta_inscrito = inscrito[0] != null;
+                        if(config.usuario.esta_inscrito)  config.usuario.esta_lista_espera = inscrito[0].esta_lista_espera == 1;
                     } 
+                    counter++;
+                    checkAndRender();
                 })
 
             }
@@ -113,11 +118,14 @@ router.get('/event/:id',isLoggedIn, multerFactory.single('imagen'),(request, res
                     }
         
                 };
+                counter++;
                 checkAndRender();
             });
             
             const checkAndRender = () =>{
-                response.render('event', config);
+                if (counter === 2)
+                    response.render('event', config);
+                
             };
         } 
     })

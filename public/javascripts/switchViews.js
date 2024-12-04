@@ -9,7 +9,7 @@ function openRegister(){
 }
 
 function showEvents(){
-    window.location.href= "/events/eventViewer";
+    window.location.href= "/";
 }
 
 function renderUsers(eventId){

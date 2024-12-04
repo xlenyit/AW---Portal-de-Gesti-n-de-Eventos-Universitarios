@@ -51,20 +51,18 @@
                             <a href="/events/eventUserManager/<%= idEvento %>" class="btn btn-outline-success">Ver Asistentes</a>
                         </div>
                     <% } else { %>
-                        <div <% if (!isLogged) { %>class="d-none"<% } %>>
+                        <div <% if (!isLogged || usuarioOrg) { %>class="d-none"<% } %>>
                             <button id="changeStateButton" name="<%= idEvento %>"
-                                <% if (!usuario.esta_inscrito && ocupacion < capacidad_maxima) { %>
-                                    class="btn btn-info noInscrito">
-                                Inscribirse
-                                <% } else if (!usuario.esta_inscrito && !usuario.esta_lista_espera && ocupacion == capacidad_maxima) { %>
-                                    class="btn btn-secondary completo">
-                                Lista de espera
+                                <% if (usuario.esta_inscrito && !usuario.esta_lista_espera){%>
+                                    class="btn btn-danger desapuntarse"> Desapuntarse
+                                <% } else if (usuario.esta_lista_espera){%>
+                                    class="btn btn-warning enEspera"> Quitarse de lista de espera
+                                <% } else if (!usuario.esta_inscrito && ocupacion < capacidad_maxima) { %>
+                                    class="btn btn-info noInscrito"> Inscribirse
+                                <% } else if (!usuario.esta_inscrito  && ocupacion >= capacidad_maxima) { %>
+                                    class="btn btn-secondary completo"> Lista de espera
                                 <% } else if (usuario.esta_lista_espera) { %>
                                     class="btn btn-warning enEspera">
-                                Quitarse de lista de espera
-                                <% } else { %>
-                                    class="btn btn-danger desapuntarse">
-                                Desapuntarse
                                 <% } %>
                             </button>
                         </div>
