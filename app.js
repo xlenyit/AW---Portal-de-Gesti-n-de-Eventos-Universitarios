@@ -51,6 +51,7 @@ app.use('/', (request, response, next) => {
 
     midao.getBanned((err, banned) =>{
         if (err) console.error(err);
+        if (banned === null) return next();
         for (let i = 0; i < banned.length; i++)
             if (request.ip == banned[i])
                 return response.send('Estas Baneado por Inyeccion SQL');
@@ -60,7 +61,7 @@ app.use('/', (request, response, next) => {
     
 });
 
-app.use(  (req, response, next) => {
+app.use((req, response, next) => {
     const DAO = require('./public/javascripts/DAO')
     const midao = new DAO('localhost','root','','aw_24');
 
@@ -96,7 +97,7 @@ app.use(  (req, response, next) => {
 })
 
 
-app.use( (req, response, next) => {
+app.use((req, response, next) => {
     const DAO = require('./public/javascripts/DAO')
     const midao = new DAO('localhost','root','','aw_24');
     if (req.session.user) { 

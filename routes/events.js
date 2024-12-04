@@ -181,7 +181,10 @@ router.get('/eventViewer', isLoggedIn,(request, response) => {
 //INSCRIBIRSE A EVENTO
 router.post('/:id/createInscription', (request, response) => {
     midao.createInscription(request.session.user,request.params.id,(err, res) => {
-        if(err) console.error(res)
+        if(err) {
+            console.error(res)
+            response.redirect('/')
+        }
         else {
             midao.createNotificacion(request.session.user, request.params.id, DAO.CODIGO_INSCRIPCION, (err) =>{
                 if (err) console.error(err);
@@ -194,7 +197,10 @@ router.post('/:id/createInscription', (request, response) => {
 //DESAPUNTASE DE EVENTO (ASIS)
 router.post('/:id/deleteInscription', (request, response) => {
     midao.deleteInscription(request.session.user,request.params.id,(err, res) => {
-      if(err) console.error(res)
+      if(err) {
+        console.error(res)
+        response.redirect('/')
+      }
       else {
         midao.createNotificacion(request.session.user, request.params.id, DAO.CODIGO_DESAPUNTAR, (err) =>{
             if (err) console.error(err);
@@ -346,7 +352,10 @@ router.post('/:id/edit', sqlInjectionCheckMiddleware, multerFactory.single('imag
             console.error('Error al modificar el evento:', err);
             return response.status(500).send('Error al modificar el evento');
         }
-        else response.status(200).redirect('/events/event/'+request.params.id);
+        else{
+            midao.createNotificacion(request.session.user, request.params.id, DAO.MODIFICAR_EVENTO);
+            response.status(200).redirect('/events/event/'+request.params.id);
+        } 
     });
 });
 

@@ -9,6 +9,8 @@ class DAO {
     static CODIGO_CANCELACION = 5;
     static CODIGO_ELIMINAR = 6;
     static CODIGO_SALIR_LISTA_ESPERA = 7;//Pasa de estar en espera a ser asistente oficial
+    static CODIGO_AVANZAR_ESPERA = 8;
+    static MODIFICAR_EVENTO = 9;
 
     constructor(host, user, password, database) {
         this.pool = sql.createPool({
@@ -183,6 +185,21 @@ class DAO {
                     connection.release();
                     if (err) callback(err, null);
                     else callback(null, resultado.insertId);
+
+                })
+            }
+        })
+    }
+    
+    usuarioEnListaDeEspera(idUsuario,idEvento,  callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null)
+            else {
+                let stringQuery = `SELECT * FROM  inscripciones WHERE id_usuario = ? AND id_evento = ?` //Al registrar un usuario tendran la conf de accesibilidad 1 por defecto
+                connection.query(stringQuery, [idUsuario, idEvento], (err, resultado)=>{
+                    connection.release();
+                    if (err) callback(err, null);
+                    else callback(null, resultado[0].esta_lista_espera === 1);
 
                 })
             }
@@ -401,55 +418,64 @@ class DAO {
         })
     }
 
-    updateWaitingList(idEvento, callback) {
-        this.getFirstInWaitingList(idEvento, (err, result) => {
-            if (err) callback(err, result);
+    //updateWaitingList(idUsuario, idEvento, callback) {
+    //    this.usuarioEnListaDeEspera(idUsuario, idEvento, (err, esta_lista_espera) =>{
+    //        if (err) return callback(err, 'Error getting the user data');
+    //        if (esta_lista_espera) return callback(err, 'The user is not inscribed just in waiting list');
+//
+    //        this.getFirstInWaitingList(idEvento, (err, result) => {
+    //            if (err) callback(err, result);
+    //            else{
+    //                this.pool.getConnection((err, connection) => {
+    //                    if (err) {
+    //                        callback(err, 'DB Error');
+    //                    } else {
+    //                        let updateQuery = "UPDATE inscripciones SET esta_lista_espera = 0 WHERE id_usuario = ? AND id_evento = ?";
+    //                        connection.query(updateQuery, [result, idEvento], (err) => {
+    //                            connection.release();
+    //                            if (err) {
+    //                                callback(err, "Error Updating BD");
+    //                            } else {
+    //                                this.createNotificacion(result, idEvento, DAO.CODIGO_AVANZAR_ESPERA);
+    //                                callback(null);
+    //                            }
+    //                        });
+    //                    }
+    //                });
+    //            }
+    //        });
+    //    });
+//
+    //}
 
-            this.pool.getConnection((err, connection) => {
-                if (err) {
-                    callback(err, 'DB Error');
-                } else {
-                    let updateQuery = "UPDATE inscripciones SET esta_lista_espera = 0 WHERE id_usuario = ? AND id_evento = ?";
-                    connection.query(updateQuery, [result, idEvento], (err) => {
-                        connection.release();
-                        if (err) {
-                            callback(err, "Error Updating BD");
-                        } else {
-                            callback(null);
-                        }
-                    });
-                }
-            });
+    updateWaitingList(idEvento, callback) { //ELENA
+        this.pool.getConnection((err, connection) => {
+            if (err) {
+                callback(err, null);
+            } else {
+                let selectQuery = "SELECT id_usuario FROM inscripciones WHERE id_evento = ? AND esta_lista_espera = 0 AND activo=1 ORDER BY fecha_inscripcion DESC LIMIT 1";
+                connection.query(selectQuery, [idEvento], (err, res) => {
+                    if (err) {
+                        connection.release(); // Release connection if an error occurs
+                        callback(err, null);
+                    } else if (!res.length || res[0] === null) {
+                        connection.release(); // Release connection if no results found
+                        callback(null, null);
+                    } else {
+                        let updateQuery = "UPDATE inscripciones SET esta_lista_espera = 1 WHERE id_usuario = ? AND id_evento = ?";
+                        connection.query(updateQuery, [res[0].id_usuario, idEvento], (err) => {
+                            connection.release(); // Release connection after the UPDATE query
+                            if (err) {
+                                callback(err, null);
+                            } else {
+                                callback(null, updateRes.affectedRows);
+                            }
+                        });
+                    }
+                });
+            }
         });
     }
-    // updateWaitingList(idEvento,idUsuario, callback) { //ELENA
-    //     this.pool.getConnection((err, connection) => {
-    //         if (err) {
-    //             callback(err, null);
-    //         } else {
-    //             let selectQuery = "SELECT id_usuario FROM inscripciones WHERE id_evento = ? AND esta_lista_espera = 0 AND id_usuario != ? AND activo=1 ORDER BY fecha_inscripcion DESC LIMIT 1";
-    //             connection.query(selectQuery, [idEvento, idUsuario], (err, res) => {
-    //                 if (err) {
-    //                     connection.release(); // Release connection if an error occurs
-    //                     callback(err);
-    //                 } else if (!res.length || res[0] === null) {
-    //                     connection.release(); // Release connection if no results found
-    //                     callback(null);
-    //                 } else {
-    //                     let updateQuery = "UPDATE inscripciones SET esta_lista_espera = 1 WHERE id_usuario = ? AND id_evento = ?";
-    //                     connection.query(updateQuery, [res[0].id_usuario, idEvento], (err) => {
-    //                         connection.release(); // Release connection after the UPDATE query
-    //                         if (err) {
-    //                             callback(err);
-    //                         } else {
-    //                             callback(null);
-    //                         }
-    //                     });
-    //                 }
-    //             });
-    //         }
-    //     });
-    // }
     
     //Elimina el evento
     removeFromWaitingList(idUsuario, idEvento,callback) {
@@ -469,64 +495,45 @@ class DAO {
         });
     }
  //Elimina el evento
-    deleteInscription(idUsuario, idEvento, callback) {
-        this.pool.getConnection((err, connection) => {
-            if (err) callback(err, null);
-            else {
-                let stringQuery = "UPDATE inscripciones SET activo=0 WHERE id_usuario = ? && id_evento = ?";
-                connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
-                    connection.release();
-                    if (err) callback(err, null);
-                    else {
-                        this.updateWaitingList(idEvento, (err, errMsg) => { // Para actualizar la lista de espera
-                            if (err) callback(err, errMsg); 
-                            else callback(null, res.affectedRows); 
-                        });
-                    }
-                });
-            }
-        });
-    }
+    //deleteInscription(idUsuario, idEvento, callback) {
+    //    this.pool.getConnection((err, connection) => {
+    //        if (err) callback(err, null);
+    //        else {
+    //            let stringQuery = "UPDATE inscripciones SET activo=0 WHERE id_usuario = ? && id_evento = ?";
+    //            connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
+    //                connection.release();
+    //                if (err) callback(err, null);
+    //                else {
+    //                    this.updateWaitingList(idUsuario, idEvento, (err, errMsg) => { // Para actualizar la lista de espera
+    //                        if (err) callback(err, errMsg); 
+    //                        else callback(null, res.affectedRows); 
+    //                    });
+    //                }
+    //            });
+    //        }
+    //    });
+    //}
 
-    getFirstInWaitingList(idEvento, callback) {
-        this.pool.getConnection((err, connection) => {
-            if (err) {
-                callback(err, null);
-            } else {
-                let selectQuery = "SELECT id_usuario FROM inscripciones WHERE id_evento = ? AND esta_lista_espera = 1 ORDER BY fecha_inscripcion DESC LIMIT 1";
-                connection.query(selectQuery, [idEvento], (err, res) => {
-                    connection.release(); 
-                    if (err || !res.length || res[0] === null) 
-                        callback(err, "There is no one in waiting list");
-                    else 
-                        callback(null, res[0].id_usuario);
-                });
-            }
-        });
-    }
+    //getFirstInWaitingList(idEvento, callback) {
+    //    this.pool.getConnection((err, connection) => {
+    //        if (err) {
+    //            callback(err, null);
+    //        } else {
+    //            let selectQuery = "SELECT id_usuario FROM inscripciones WHERE id_evento = ? AND esta_lista_espera = 1 ORDER BY fecha_inscripcion DESC LIMIT 1";
+    //            connection.query(selectQuery, [idEvento], (err, res) => {
+    //                connection.release(); 
+    //                if (err || !res.length || res[0] === null) 
+    //                    callback(true, "There is no one in waiting list");
+    //                else 
+    //                    callback(null, res[0].id_usuario);
+    //            });
+    //        }
+    //    });
+    //}
 
     
 
-    // deleteInscription(idUsuario, idEvento, callback) { //ELENA
-    //     this.pool.getConnection((err, connection) => {
-    //         if (err) callback(err, null);
-    //         else {
-    //             let stringQuery = "UPDATE inscripciones SET esta_lista_espera=0, activo=0 WHERE id_usuario = ? && id_evento = ?";
-    //             connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
-    //                 connection.release();
-    //                 if (err) callback(err, null);
-    //                 else {
-    //                     this.updateWaitingList(idEvento, (err) => {
-    //                         if (err) callback(err, null); // Pass the error if `updateWaitingList` fails
-    //                         else callback(null, res.affectedRows); // Otherwise, return the number of affected rows
-    //                     });
-    //                 }
-    //             });
-    //         }
-    //     });
-    // }
-
-    deleteInscriptionWaitingList(idUsuario, idEvento, callback) {
+    deleteInscription(idUsuario, idEvento, callback) { //ELENA
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null);
             else {
@@ -534,11 +541,30 @@ class DAO {
                 connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
                     connection.release();
                     if (err) callback(err, null);
-                    else callback(null, res.affectedRows);
+                    else {
+                        this.updateWaitingList(idEvento, (err) => {
+                            if (err) callback(err, null); // Pass the error if `updateWaitingList` fails
+                            else callback(null, res.affectedRows); // Otherwise, return the number of affected rows
+                        });
+                    }
                 });
             }
         });
     }
+
+    //deleteInscriptionWaitingList(idUsuario, idEvento, callback) {
+    //    this.pool.getConnection((err, connection) => {
+    //        if (err) callback(err, null);
+    //        else {
+    //            let stringQuery = "UPDATE inscripciones SET esta_lista_espera=0, activo=0 WHERE id_usuario = ? && id_evento = ?";
+    //            connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
+    //                connection.release();
+    //                if (err) callback(err, null);
+    //                else callback(null, res.affectedRows);
+    //            });
+    //        }
+    //    });
+    //}
     
 
     //CRUD EVENTOS
@@ -635,7 +661,7 @@ class DAO {
     }
     
 
-    async createNotificacion(idUser, idEvento, tipo, callback) {
+    createNotificacion(idUser, idEvento, tipo, callback) {
         let titulo = "", mensaje = "";
 
         switch (tipo) {
@@ -645,64 +671,89 @@ class DAO {
                     if (err) callback(err);
                     titulo = eventData.titulo;
                     mensaje = `Su inscripcion al evento ${titulo} se ha realizado con exito`;
-                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
                     this.getUserById(idUser, (err, data) => {
                         if (err) callback(err);
                         let username = data.nombre;
                         mensaje = `El usuario ${username} se ha inscrito al evento`;
                         idUser = eventData.id_organizador;
-                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
                     });
                     callback(null);
                 })
                 break;
+
             case DAO.CODIGO_EN_ESPERA:
                 this.getEvento(idEvento, (err, data) => {
                     let eventData = data[0]
                     if (err) callback(err);
                     titulo = eventData.titulo;
                     mensaje = `Su inscripcion a la lista de espera del evento ${titulo} se ha realizado con exito`;
-                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
                     this.getUserById(idUser, (err, data) => {
                         if (err) callback(err);
                         let username = data.nombre;
                         mensaje = `El usuario ${username} se ha añadido a la lista de espera del evento ${titulo}`;
                         idUser = eventData.id_organizador;
-                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
                     });
                     callback(null);
                 })
                 break;
+                
             case DAO.CODIGO_QUITAR_DE_ESPERA:
-            this.getEvento(idEvento, (err, data) => {
-                let eventData = data[0]
-                if (err) callback(err);
-                titulo = eventData.titulo;
-                mensaje = `Se ha eliminado de la lista de espera del evento ${titulo} con exito`;
-                this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
-                this.getUserById(idUser, (err, data) => {
+                this.getEvento(idEvento, (err, data) => {
+                    let eventData = data[0]
                     if (err) callback(err);
-                    let username = data.nombre;
-                    mensaje = `El usuario ${username} se ha quitado de la lista de espera del evento ${titulo}`;
-                    idUser = eventData.id_organizador;
-                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
-                });
-                callback(null);
-            })
-            break;
+                    titulo = eventData.titulo;
+                    mensaje = `Se ha eliminado de la lista de espera del evento ${titulo} con exito`;
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
+                    this.getUserById(idUser, (err, data) => {
+                        if (err) callback(err);
+                        let username = data.nombre;
+                        mensaje = `El usuario ${username} se ha quitado de la lista de espera del evento ${titulo}`;
+                        idUser = eventData.id_organizador;
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
+                    });
+                    callback(null);
+                })
+                break;
+
+            case DAO.CODIGO_AVANZAR_ESPERA:
+                if (!idUser) return false;
+                this.getEvento(idEvento, (err, data) => {
+                    let eventData = data[0]
+                    if (err) callback(err);
+                    titulo = eventData.titulo;
+                    mensaje = `Se ha transferido de la lista de espera del evento ${titulo} a estar inscrito`;
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
+                    this.getUserById(idUser, (err, data) => {
+                        if (err) callback(err);
+                        let username = data.nombre;
+                        mensaje = `El usuario ${username} se ha movido de la lista de espera del evento a estar inscrito${titulo}`;
+                        idUser = eventData.id_organizador;
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
+                    });
+                })
+                break;
+
             case DAO.CODIGO_DESAPUNTAR:
                 this.getEvento(idEvento, (err, data) => {
                     let eventData = data[0]
                     if (err) callback(err);
                     titulo = eventData.titulo;
                     mensaje = `Se ha eliminado su inscripcion al evento ${titulo} con exito`;
-                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
                     this.getUserById(idUser, (err, data) => {
+                        console.log()
+                        console.log()
+                        console.log()
+                        console.log(data)
                         if (err) callback(err);
                         let username = data.nombre;
                         mensaje = `El usuario ${username} se ha desapuntado del evento`;
                         idUser = eventData.id_organizador;
-                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
                     });
                     callback(null);
                 })
@@ -714,10 +765,10 @@ class DAO {
                     if (err) callback(err);
                     titulo = eventData.titulo;
                     mensaje = `Se ha cancelado el evento ${titulo} :(. Lamentamos las molestias.`;
-                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
                     mensaje = `Se ha cancelado el evento ${titulo} con éxito`;
                     idUser = eventData.id_organizador;
-                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
                     callback(null);
                 })
                 break;
@@ -728,13 +779,13 @@ class DAO {
                     if (err) callback(err);
                     titulo = eventData.titulo;
                     mensaje = `El organizador del evento ${titulo} ha retirado su inscripción. Lamentamos las molestias`;
-                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
                     this.getUserById(idUser, (err, data) => {
                         if (err) callback(err);
                         let username = data.nombre;
                         mensaje = `Se ha retirado al usuario: ${username} del evento ${titulo} con éxito.`;
                         idUser = eventData.id_organizador;
-                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
                     });
                     callback(null);
                 })
@@ -746,15 +797,34 @@ class DAO {
                     if (err) callback(err);
                     titulo = eventData.titulo;
                     mensaje = `¡Enhorabuena! Has salido de la lista de espera para el evento: ${titulo}. ¡Bienvenido a la plantilla oficial ;)!`;
-                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
                     this.getUserById(idUser, (err, data) => {
                         if (err) callback(err);
                         let username = data.nombre;
                         mensaje = `El usuario ${username} a avanzado de la lista de espera a usuario inscrito`;
                         idUser = eventData.id_organizador;
-                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                        this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
                     });
                     callback(null);
+                })
+                break;
+
+            case DAO.MODIFICAR_EVENTO:
+                this.getEvento(idEvento, (err, data) => {
+                    let eventData = data[0]
+                    if (err) callback(err);
+                    titulo = eventData.titulo;
+                    mensaje = `Se ha modificado su evento ${titulo} con éxito`;
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { return err ? err : null});
+
+                    this.getUsuariosInEvent(idEvento, (err, users) =>{
+                        if (err) callback(err)
+                        mensaje = `Han habido modificaciones en el evento ${titulo} en el cual estás inscrito`;
+                        for (let i = 0; i < users.length; i++){
+                            this.createRowOnDatabaseNotification(users[i].id_usuario, idEvento, titulo, mensaje, (err) => { if(err) callback(err)});
+                        }
+                        return null;
+                    })
                 })
                 break;
 
