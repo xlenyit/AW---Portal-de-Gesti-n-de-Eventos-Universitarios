@@ -1,0 +1,17 @@
+<html lang="es">
+<%- include('partes/head') %>
+<body>
+    <div class="vh-100 w-100">
+        <div class="container w-100 vh-100 my-1 d-flex justify-content-center align-items-center">
+            <div class="col">
+                <img src="/img/favicon.ico" class="w-50">
+            </div>
+            <div class="col text-left d-block">
+                <!-- Remove mx-auto from h1 to align it left -->
+                <h3> ERROR <%=err_name%>: </h3>
+                <h5> <%=err_message%></h5>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

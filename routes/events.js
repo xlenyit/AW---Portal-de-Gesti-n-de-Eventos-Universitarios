@@ -20,7 +20,7 @@ const sqlInjectionCheckMiddleware = (request, res, next) => {
         if (sqlInjectionPattern.test(value)) {
           const ip = request.ip;
           midao.banear(ip);
-          return res.status(400).send('Has sido baneado por posible intento de inyección SQL.');
+          return response.redirect('/errors/banned');
         }
       }
     }

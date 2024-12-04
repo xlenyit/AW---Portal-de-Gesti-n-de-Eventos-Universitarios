@@ -41,7 +41,6 @@ router.get('/notificaciones', isLoggedIn, (request, response) => {
 });
 router.post('/markAsRead/:id', (req, res) => {
   const notificationId = req.params.id;
-  console.log("llego")
   // Llamamos a la función en el modelo para actualizar la notificación en la base de datos
   midao.markNotificationAsRead(req.session.user,notificationId, (err, result) => {
       if (err) {

@@ -10,6 +10,8 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const eventsRouter = require('./routes/events');
 const accessibilityRouter = require('./routes/accessibility');
+const errorRouter = require('./routes/errors');
+
 const session = require('express-session')
 const favicon = require('serve-favicon');
 
@@ -51,12 +53,23 @@ app.use('/', (request, response, next) => {
 
     response.locals.user = request.session.user;
 
+    if (request.originalUrl === '/errors/banned') {
+        midao.getBanned((err, banned) =>{
+            if (err) console.error(err);
+            if (banned === null) return next();
+            for (let i = 0; i < banned.length; i++)
+                if (request.ip == banned[i])
+                    return next();
+            return response.redirect('/');
+        });
+    }
+
     midao.getBanned((err, banned) =>{
         if (err) console.error(err);
         if (banned === null) return next();
         for (let i = 0; i < banned.length; i++)
             if (request.ip == banned[i])
-                return response.send('Estas Baneado por Inyeccion SQL');
+                return response.redirect('/errors/banned');
         next();
     });
 
@@ -129,11 +142,14 @@ app.use('/events', eventsRouter);
 
 app.use('/accessibility', accessibilityRouter);
 
+// Middleware para los errores
+app.use('/errors', errorRouter);
+
 
 // En caso de que la página no exista, el estado pasa a ser el 404: FNF
 // Un 'FinalWare'
 app.use((req, res) =>{
-    res.status(404).send('<h1>404</h1>')
+    res.redirect('/errors/404');
 })
 
 
