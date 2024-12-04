@@ -1,98 +1,140 @@
 <!DOCTYPE html>
 <html lang="es">
-  <%-include('partes/head') %>
-  <body>
-    <%-include('partes/header') %>
-    <div class="container">
-      <div class="d-flex align-items-center">
-        <div class="  mx-auto   ">
-          <h1>Registro</h1>
-          <form id="regUserForm" method="post" action="/users/register">
+<%- include('partes/head') %>
+<body class="bg-light">
+    <%- include('partes/header') %>
+    <div id="registerDiv" class="container d-flex align-items-center justify-content-center my-4 p-3">
+        <div id="mainDiv" class="card shadow-lg p-4">
+            <h1 class="text-center mb-4">Registro</h1>
+            <form id="regUserForm" method="post" action="/users/register">
+                <!-- Nombre -->
+                <div class="mb-3">
+                    <label for="name" class="form-label fw-bold">Nombre Completo</label>
+                    <input 
+                        type="text" 
+                        name="nombre" 
+                        id="name" 
+                        class="form-control" 
+                        placeholder="Nombre" 
+                        required 
+                        oninvalid="this.setCustomValidity('Ingrese su Nombre')"
+                        oninput="this.setCustomValidity('')">
+                </div>
 
-            <!--NOMBRE-->
-            <div class="row">
-              <div class="col" id="nameContainer">
-                <h4 class="my-3">Nombre</h4>
-                <input  class="w-100 form-control" id="name" type="text" name="nombre" placeholder="Nombre" required oninvalid="this.setCustomValidity('Ingrese su Nombre')"
-                oninput="this.setCustomValidity('')">
-              </div>
-            </div>
+                <!-- Correo y Teléfono -->
+                <div class="mb-3">
+                    <label for="email" class="form-label fw-bold">Correo</label>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        id="email" 
+                        class="form-control" 
+                        placeholder="example@ucm.es" 
+                        pattern="[a-zA-Z0-9]+@[a-zA-Z0-9]+\.(?:com|es|net|io)" 
+                        required 
+                        oninvalid="this.setCustomValidity('Ingrese su correo con formato correcto')"
+                        oninput="this.setCustomValidity('')">
+                </div>
+                <div class="mb-3">
+                    <label for="telefono" class="form-label fw-bold">Teléfono</label>
+                    <input 
+                        type="tel" 
+                        name="telefono" 
+                        id="telefono" 
+                        class="form-control" 
+                        placeholder="Teléfono (Opcional)" 
+                        pattern="[0-9]{9}">
+                </div>
 
-            <!--CORREO Y TELEFONO-->
-            <div class="row">
-              <div class="col" id="emailContainer">
-                <h4 class="my-3">Correo</h4>
-                <input id="email" class="w-100 form-control" type="email" name="email" placeholder="example@ucm.es" required 
-                 pattern = "[a-zA-Z0-9]+@[a-zA-Z0-9]+\.(?:com|es|net|io)" oninvalid="this.setCustomValidity('Ingrese su correo con formato correcto')"
-                oninput="this.setCustomValidity('')">
-              </div>
-              <div class="col" id="telContainer">
-                <h4 class="my-3">Teléfono</h4>
-                <input id="telefono" class=" w-100 form-control" name="telefono"  type="tel"
-                pattern="[0-9]{9}">
-              </div>
-            </div>
+                <!-- Contraseña y Confirmar Contraseña -->
+                <div class="mb-3">
+                    <label for="password" class="form-label fw-bold">Contraseña</label>
+                    <div class="input-group">
+                        <input 
+                            type="password" 
+                            name="contrasena" 
+                            id="password" 
+                            class="form-control" 
+                            placeholder="Contraseña" 
+                            pattern="[a-zA-Z0-9]{6,20}" 
+                            required 
+                            oninvalid="this.setCustomValidity('La contraseña debe tener entre 6 y 20 caracteres alfanuméricos')"
+                            oninput="this.setCustomValidity('')">
+                        <button 
+                            type="button" 
+                            id="togglePassword" 
+                            class="btn btn-outline-secondary">Mostrar</button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label fw-bold">Confirmar Contraseña</label>
+                    <div class="input-group">
+                        <input 
+                            type="password" 
+                            name="contrasenaConf" 
+                            id="confirmPassword" 
+                            class="form-control" 
+                            placeholder="Confirmar Contraseña" 
+                            pattern="[a-zA-Z0-9]{6,20}" 
+                            required>
+                        <button 
+                            type="button" 
+                            id="toggleConfirmPassword" 
+                            class="btn btn-outline-secondary">Mostrar</button>
+                    </div>
+                </div>
 
-            <!--CONTRASEÑA Y CONFIRMAR-->
-            <div class="row">
-              <div class="col" id="passContainer">
-                <h4 class="my-3">Contraseña</h4>
-                  <div class="input-group" >
-                    <input class="w-75 form-control" type="password" name="contrasena" id="password" placeholder="Contraseña" 
-                    pattern="[a-zA-Z0-9]{6,20}"
-                    oninvalid="this.setCustomValidity('Su contraseña ha de contener entre 6 y 20 caracteres alfanumericos')"
-                    oninput="this.setCustomValidity('')"
-                    required>
-                    <button type="button" class="passButton w-25" id="togglePassword">Mostrar</button>
-                  </div>  
-              </div>
-              <div id="confirmContainer" class="col">
-                <h4 class="my-3">Confirmación</h4>
-                  <div class="input-group" >
-                    <input class="w-75 form-control" type="password" name="contrasenaConf" id="confirmPassword" placeholder="Contraseña" 
-                    pattern="[a-zA-Z0-9]{6,20}"
-                    required>
-                    <button type="button" class="passButton w-25" id="toggleConfirmPassword">Mostrar</button>
-                  </div> 
-              </div>
-            </div>
-              
-            <!--FACULTAD-->
-            <div class="row">
-              <div class="col">
-                  <h4 class="my-3">Facultad</h4>
-                  <select id="facultad" name="facultad" class="w-100" required>
-                      <option hidden selected>Selecciona una opción</option>
-                      <% facultades.forEach(ele => { %>
-                          <option value="<%=ele.id%>#<%=ele.nombre%>"><%=ele.nombre%></option>
-                      <% }) %>
-                  </select>
-              </div>
-          </div>          
+                <!-- Facultad -->
+                <div class="mb-3">
+                    <label for="facultad" class="form-label fw-bold">Facultad</label>
+                    <select id="facultad" name="facultad" class="form-select" required>
+                        <option hidden selected>Selecciona una opción</option>
+                        <% facultades.forEach(ele => { %>
+                            <option value="<%= ele.id %>#<%= ele.nombre %>"><%= ele.nombre %></option>
+                        <% }) %>
+                    </select>
+                </div>
 
-            <!-- ROL -->
-            <div class="row">
-              <h4 class="my-3 w-100"> Rol</h4>
-              <div class="col d-flex flex-column justify-content-center text-center">
-                  <label for="buttonAsistente">Asistente </label>
-                  <input type="radio" name="userType" value="asistente" checked>
-              </div>
-              <div class="col d-flex flex-column justify-content-center text-center ">
-                  <label for="buttonOrganizador">Organizador </label>
-                  <input type="radio" name="userType" value="organizador">
-              </div>
-            </div>
+                <!-- Rol -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Rol</label>
+                    <div class="d-flex justify-content-around">
+                        <div>
+                            <label for="asistente" class="form-check-label">Asistente</label>
+                            <input 
+                                type="radio" 
+                                name="userType" 
+                                value="asistente" 
+                                id="asistente" 
+                                checked>
+                        </div>
+                        <div>
+                            <label for="organizador" class="form-check-label">Organizador</label>
+                            <input 
+                                type="radio" 
+                                name="userType" 
+                                value="organizador" 
+                                id="organizador">
+                        </div>
+                    </div>
+                </div>
 
-            <!--BOTON-->
-            <div class="row d-flex my-4">
-              <button id="register" class=" w-50  btn btn-primary  mx-auto " disabled type="submit">Registrarme</button>            </div>
-          </form>
+                <!-- Botón de Registro -->
+                <div class="d-grid gap-2 mb-3">
+                    <button id="register" class="btn btn-primary" type="submit" disabled>Registrarme</button>
+                </div>
 
-          </form>
+                <!-- Enlace al Login -->
+                <div class="text-center">
+                    <a href="/users/login" class="text-decoration-none text-secondary">
+                        ¿Ya tienes cuenta? <span class="fw-bold text-primary">Inicia sesión aquí</span>
+                    </a>
+                </div>
+            </form>
         </div>
-      </div>
     </div>
+    <%- include('partes/footer') %>
     <script src="/javascripts/validateRegister.js"></script>
     <script src="/javascripts/showPassword.js"></script>
-  </body>
+</body>
 </html>

@@ -1,114 +1,99 @@
 <!DOCTYPE html>
-<html lang = "es">
-    <%-include('partes/head') %>
-    <%-include('partes/header') %>
-    <script src="/javascripts/switchViews.js"></script>
-    <body>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-          <div class="container-fluid">
-            <a class="navbar-brand" href="#">Gestión de Eventos</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-              <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                  <a class="nav-link" href="/users/logout">Cerrar Sesión</a>
-                </li>
-              </ul>
+<html lang="es">
+<%- include('partes/head') %>
+<%- include('partes/header') %>
+<script src="/javascripts/switchViews.js"></script>
+<body>
+    <!-- Botón Cerrar Sesión -->
+    <div class="text-end m-3">
+        <a class="btn btn-danger btn-sm" href="/users/logout">Cerrar Sesión</a>
+    </div>
+
+    <!-- Contenedor principal -->
+    <div class="container mt-3 mb-5">
+        <!-- Título del Perfil -->
+        <h1 class="text-center  mb-4">Perfil de Usuario</h1>
+        <div class="row g-4">
+            <!-- Panel de Información Personal -->
+            <div id="userInfo" class="col-md-6">
+                <div class="card border-0 shadow-lg sombrasPerfil" >
+                    <div class="card-body">
+                        <h3 class="card-title text-center text-primary">Información Personal</h3>
+                        <form>
+                            <div class="mb-3">
+                                <label for="nombre" class="form-label fw-bold">Nombre Completo:</label>
+                                <p class="text-dark"><%= usuario.nombre %></p>
+                            </div>
+                            <div class="mb-3">
+                                <label for="correo" class="form-label fw-bold">Correo Electrónico:</label>
+                                <p class="text-dark"><%= usuario.correo %></p>
+                            </div>
+                            <div class="mb-3">
+                                <label for="telefono" class="form-label fw-bold">Teléfono de Contacto:</label>
+                                <p class="text-dark"><%= usuario.telefono %></p>
+                            </div>
+                            <div class="mb-3">
+                                <label for="facultad" class="form-label fw-bold">Facultad:</label>
+                                <p class="text-dark"><%= usuario.nombreFacultad %></p>
+                            </div>
+                            <div class="mb-3">
+                                <label for="rol" class="form-label fw-bold">Rol:</label>
+                                <p class="text-dark"><%= usuario.es_organizador == 1 ? 'Organizador' : 'Asistente' %></p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button id="editProfile" class="btn btn-outline-primary">Editar</button>
+                                <button id="saveProfile" type="submit" class="btn btn-primary d-none">Guardar Cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-          </div>
-        </nav>
-      
-        <div class="container my-5">
-          <h1 class="text-center">Perfil de Usuario</h1>
-          <div class="row">
-            <!-- Panel de Información del Usuario -->
-            <div id ="userInfo" class="col-md-6">
-              <h3>Información Personal</h3>
-              <form >
-                <div class="mb-3">
-                  <label for="nombre" class="form-label">Nombre Completo:</label>
-                  <p><%= usuario.nombre %></p>
-                  <!-- <input type="text" class="form-control" id="nombre" name="nombre" placeholder="<%= usuario.nombre %>" required> -->
-                </div>
-                <div class="mb-3">
-                  <label for="correo" class="form-label">Correo Electrónico:</label>
-                  <p><%= usuario.correo %></p>
-                </div>
-                <div class="mb-3">
-                  <label for="telefono" class="form-label">Teléfono de Contacto:</label>
-                  <p><%= usuario.telefono %></p>
-                </div>
-                <div class="mb-3">
-                  <label for="facultad" class="form-label">Facultad:</label>
-                  <p id="<%= usuario.idFacultad %>"><%= usuario.nombreFacultad %></p>
-                </div>
-                <div class="mb-3">
-                  <label for="rol" class="form-label">Rol:</label>
-                  <p><%= usuario.es_organizador == 1 ? 'Organizador' : 'Asistente' %></p>
-                </div>
-                <button id="editProfile" class="btn btn-primary">Editar</button>
-                <button id="saveProfile" type="submit" class="btn btn-primary d-none">Guardar Cambios</button>
-              </form>
-            </div>
-      
+
             <!-- Historial de Eventos -->
             <div id="divEventos" class="col-md-6">
-              <% if (usuario.es_organizador == 1){ %>
-
-                <h3>Eventos Creados</h3>
-                <div class="scrollable-panel h-100 bg-info" style="max-height: 300px; overflow-y: auto;">
-                  <% if (eventos && eventos.length > 0) { %>
-                      <ul class="list-group">
-                          <% eventos.forEach(evento => { %>
-                            <a id="clickEventPanel" href="<%= '/events/eventUserManager/' + evento.id %>">
-                              <li class="list-group-item m-2 rounded">
-                                <strong><%= evento.titulo %></strong> <br>
-                                Fecha: <%= evento.fecha %> <br>
-                                Ubicación: <%= evento.ubicacion %>
-                              </li>
-                            </a>
-                          <% }) %>
-                      </ul>
-                  <% } else { %>
-                      <p>No has creado ningún evento.</p>
-                  <% } %>
+                <div class="card border-0 shadow-lg  sombrasPerfil" >
+                    <div class="card-body">
+                        <h3 class="card-title text-center text-primary">
+                            <% if (usuario.es_organizador == 1) { %>
+                                Eventos Creados
+                            <% } else { %>
+                                Historial de Eventos Inscritos
+                            <% } %>
+                        </h3>
+                        <div class="scrollable-panel p-3" style="max-height: 300px; overflow-y: auto;">
+                            <% if (eventos && eventos.length > 0) { %>
+                                <ul class="list-group">
+                                    <% eventos.forEach(evento => { %>
+                                        <li class="list-group-item mb-2 shadow-sm rounded" style="background-color: #ffffff;">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong class="text-primary"><%= evento.titulo %></strong><br>
+                                                    <span class="text-muted">Fecha: <%= evento.fecha %></span><br>
+                                                    <span class="text-muted">Ubicación: <%= evento.ubicacion %></span>
+                                                    <% if (evento.esta_lista_espera === 1) { %>
+                                                        <p class="text-danger mb-0">Estás en la lista de espera</p>
+                                                    <% } %>
+                                                </div>
+                                                <% if (usuario.es_organizador == 0) { %>
+                                                    <button id="changeStateButton" class="btn btn-outline-danger btn-sm desapuntarse" name="<%= evento.id %>">Desapuntarse</button>
+                                                <% } else { %>
+                                                    <a href="<%= '/events/eventUserManager/' + evento.id %>" class="btn btn-outline-primary btn-sm">Ver Evento</a>
+                                                <% } %>
+                                            </div>
+                                        </li>
+                                    <% }) %>
+                                </ul>
+                            <% } else { %>
+                                <p class="text-center text-muted">No hay eventos disponibles.</p>
+                            <% } %>
+                        </div>
+                    </div>
                 </div>
-
-              <%}else{ %>
-
-                <h3>Historial de Eventos Inscritos</h3>
-                  <div class="scrollable-panel h-100 bg-info" style="max-height: 300px; overflow-y: auto;">
-                    <% if (eventos && eventos.length > 0) { %>
-                        <ul class="list-group ">
-                            <% eventos.forEach(evento => { %>
-                                <li class="list-group-item  m-2 rounded d-flex justify-content-between ">
-                                  <div class="">
-
-                                    <strong><%= evento.titulo %></strong> <br>
-                                    Fecha: <%= evento.fecha %> <br>
-                                    Ubicación: <%= evento.ubicacion %>
-                                    <p class="<%= evento.esta_lista_espera === 0 ? 'd-none' : 'text-danger' %>">Estás en la lista de espera</p>
-                                  </div>
-                                  <div class="align-content-center">
-                                    <button id="changeStateButton" class="desapuntarse" name = "<%=evento.id%>">Desapuntarse</button>
-                                  </div>
-                                </li>
-                            <% }) %>
-                        </ul>
-                    <% } else { %>
-                        <p>No estás inscrito en ningún evento.</p>
-                    <% } %>
-                  </div>
-
-              <%}%>
             </div>
-          </div>
         </div>
-      
-        
-      </body>
-      <script src="/javascripts/editProfile.js"></script>
-      <script src="/javascripts/withdrawFromEvent.js"></script>
-      </html>
+    </div>
+    <%- include('partes/footer') %>
+    <script src="/javascripts/editProfile.js"></script>
+    <script src="/javascripts/withdrawFromEvent.js"></script>
+</body>
+</html>

@@ -1,50 +1,52 @@
 <header>
-    <nav class="navbar navbar-expand-lg  shadow-sm p-3 mb-5 rounded">
-        <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg shadow-sm p-3 mb-3 rounded ">
+        <div class="container-fluid me-3">
             <!-- Logo o Enlace Home -->
-            <a class="navbar-brand" href="/">
-                <img src="/img/logo.png" alt="Logo" class="d-inline-block align-text-center" height="40">
-                Portal de Eventos
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/img/logo.png" alt="Logo" class="d-inline-block align-text-center me-2" height="40">
+                <span>Portal de Eventos</span>
             </a>
 
             <!-- Links de navegación -->
-            <div class="navbar-nav ms-auto text-white">
-                <a class="nav-link " href="/">Home</a>
-                <a class="nav-link" href="/events/eventViewer">Eventos</a>
+            <div class="navbar-nav ms-auto text-dark">
+                <!-- <a class="nav-link" href="/">Home</a> -->
+                <!-- <a class="nav-link" href="/events/eventViewer">Eventos</a> -->
             </div>
 
-            <%if (user) {%>
-            <div class="dropdown">
-                <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <img src="/img/text-size.png" class="w-25">
-                </button>
-                <ul class="dropdown-menu">
-                  <li><button class="dropdown-item text-dark small" onclick="changeFontSize(1)">Pequeño</a></li>
-                  <li><button class="dropdown-item text-dark medium" onclick="changeFontSize(2)">Mediano</a></li>
-                  <li><button class="dropdown-item text-dark large" onclick="changeFontSize(3)">Grande</a></li>
-                  <li><a class="dropdown-item text-dark medium" href="#">Más opciones de accesibilidad ></a></li>
-                </ul>
-              </div>
-            <%}%>
-            <!-- Perfil y notificaciones -->
+            <% if (user) { %>
             <div class="d-flex align-items-center ms-3">
-                <div class="position-relative">
-                    
+                <!-- Notificaciones -->
+                <div class="me-4 d-flex flex-column align-items-center">
                     <% if (typeof hasNotification !== 'undefined') { %>
                         <% let iconPath = hasNotification ? "/img/hasNotification.png" : "/img/noNotification.png"; %>
-                        <a href="/notificaciones" class="d-flex align-items-center">
-                            <img src="<%= iconPath %>" alt="<%= hasNotification ? 'Tienes notificaciones' : 'No tienes notificaciones' %>" class="rounded-circle notifier">
+                        <a href="/notificaciones" class="text-decoration-none">
+                            <img src="<%= iconPath %>" alt="<%= hasNotification ? 'Tienes notificaciones' : 'No tienes notificaciones' %>" 
+                                class="rounded-circle notifier" width="40" height="40">
                         </a>
                     <% } else { %>
-                        <img src="/img/noNotification.png" alt="Estado desconocido de notificaciones" class="rounded-circle notifier">
+                        <img src="/img/noNotification.png" alt="Estado desconocido de notificaciones" class="rounded-circle notifier" width="40" height="40">
                     <% } %>
                 </div>
 
-                <!-- Icono de perfil -->
-                <a href="/users/profile" class="ms-3">
-                    <img src="/img/placeholderEvento.jpg" alt="Perfil de usuario" class="rounded-circle profileIcon" width="40" height="40">
-                </a>
+                <!-- Perfil y Accesibilidad -->
+                <div class="d-flex flex-column align-items-center">
+                    <a href="/users/profile" class="mb-2">
+                        <img src="/img/placeholderEvento.jpg" alt="Perfil de usuario" class="rounded-circle profileIcon" width="40" height="40">
+                    </a>
+                    <div class="dropstart">
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="/img/text-size.png" alt="Accesibilidad" width="20">
+                        </button>
+                        <ul class="dropdown-menu custom-dropdown">
+                            <li><button class="dropdown-item text-dark small" onclick="changeFontSize(1)">Pequeño</button></li>
+                            <li><button class="dropdown-item text-dark medium" onclick="changeFontSize(2)">Mediano</button></li>
+                            <li><button class="dropdown-item text-dark large" onclick="changeFontSize(3)">Grande</button></li>
+                            <li><a class="dropdown-item text-dark medium" href="#">Más opciones de accesibilidad ></a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
+            <% } %>
         </div>
     </nav>
 </header>

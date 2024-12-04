@@ -3,9 +3,12 @@ const sql = require('mysql')
 
 class DAO {
     static CODIGO_INSCRIPCION = 1;
-    static CODIGO_DESAPUNTAR = 2;
-    static CODIGO_CANCELACION = 3;
-    static CODIGO_ELIMINAR = 4;
+    static CODIGO_EN_ESPERA = 2;
+    static CODIGO_QUITAR_DE_ESPERA = 3;//(ASIS)
+    static CODIGO_DESAPUNTAR = 4;
+    static CODIGO_CANCELACION = 5;
+    static CODIGO_ELIMINAR = 6;
+    static CODIGO_SALIR_LISTA_ESPERA = 7;//Pasa de estar en espera a ser asistente oficial
 
     constructor(host, user, password, database) {
         this.pool = sql.createPool({
@@ -224,7 +227,8 @@ class DAO {
                         capacidad_maxima: ele.capacidad_maxima,
                         id_organizador: ele.id_organizador,
                         ocupacion: ele.total,
-                        id_categoria: ele.id_categoria
+                        id_categoria: ele.id_categoria,
+                        foto:ele.foto
                     })));
                 })
             }
@@ -374,7 +378,7 @@ class DAO {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery = "INSERT INTO inscripciones (id_usuario, id_evento, esta_lista_espera, fecha_inscripcion, activo) VALUES (?, ?, 0, SYSDATE(), 1) ON DUPLICATE KEY UPDATE activo = 1, fecha_inscripcion = SYSDATE();"
+                let stringQuery = "INSERT INTO inscripciones (id_usuario, id_evento, esta_lista_espera, fecha_inscripcion, activo) VALUES (?, ?, 0, SYSDATE(), 1) ON DUPLICATE KEY UPDATE activo = 1, esta_lista_espera=0,fecha_inscripcion = SYSDATE();"
                 connection.query(stringQuery, [idUsuario, idEvento], function (err, res) {
                     connection.release();
                     if (err) callback(err, null)
@@ -397,13 +401,13 @@ class DAO {
         })
     }
 
-    updateWaitingList(idEvento, callback) {
+    updateWaitingList(idEvento,idUsuario, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) {
                 callback(err, null);
             } else {
-                let selectQuery = "SELECT id_usuario FROM inscripciones WHERE id_evento = ? AND esta_lista_espera = 0 ORDER BY fecha_inscripcion DESC LIMIT 1";
-                connection.query(selectQuery, [idEvento], (err, res) => {
+                let selectQuery = "SELECT id_usuario FROM inscripciones WHERE id_evento = ? AND esta_lista_espera = 0 AND id_usuario != ? AND activo=1 ORDER BY fecha_inscripcion DESC LIMIT 1";
+                connection.query(selectQuery, [idEvento, idUsuario], (err, res) => {
                     if (err) {
                         connection.release(); // Release connection if an error occurs
                         callback(err);
@@ -425,22 +429,51 @@ class DAO {
             }
         });
     }
-    
+    removeFromWaitingList(idUsuario, idEvento,callback) {
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null);
+            else {
+                let stringQuery = "UPDATE inscripciones SET activo=1, esta_lista_espera = 0, fecha_inscripcion=SYSDATE() WHERE id_usuario = ? && id_evento = ?";
+                connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else {
+                        console.log(res, "que gfalla")
+                        callback(null, res.affectedRows); 
+                    }
+                });
+            }
+        });
+    }
 
     deleteInscription(idUsuario, idEvento, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null);
             else {
-                let stringQuery = "UPDATE inscripciones SET activo=0 WHERE id_usuario = ? && id_evento = ?";
+                let stringQuery = "UPDATE inscripciones SET esta_lista_espera=0, activo=0 WHERE id_usuario = ? && id_evento = ?";
                 connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
                     connection.release();
                     if (err) callback(err, null);
                     else {
-                        this.updateWaitingList(idEvento, (err) => {
+                        this.updateWaitingList(idEvento,idUsuario, (err) => {
                             if (err) callback(err, null); // Pass the error if `updateWaitingList` fails
                             else callback(null, res.affectedRows); // Otherwise, return the number of affected rows
                         });
                     }
+                });
+            }
+        });
+    }
+
+    deleteInscriptionWaitingList(idUsuario, idEvento, callback) {
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null);
+            else {
+                let stringQuery = "UPDATE inscripciones SET esta_lista_espera=0, activo=0 WHERE id_usuario = ? && id_evento = ?";
+                connection.query(stringQuery, [idUsuario, idEvento], (err, res) => {
+                    connection.release();
+                    if (err) callback(err, null);
+                    else callback(null, res.affectedRows);
                 });
             }
         });
@@ -525,12 +558,12 @@ class DAO {
 
     //update
     
-    modifyEvent(id,titulo,descripcion,precio,fecha,hora,ubicacion,capacidad_maxima,id_categoria, callback) {
+    modifyEvent(id,titulo,descripcion,precio,fecha,hora,ubicacion,capacidad_maxima,id_categoria,foto, callback) {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null);
             else {
-                let stringQuery = `UPDATE eventos SET titulo = ?, descripcion = ?, precio = ?, fecha = ?, hora = ?, ubicacion = ?, capacidad_maxima = ?, id_categoria = ? WHERE id = ?`;
-                connection.query(stringQuery, [titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_categoria, id], (err, res) => {
+                let stringQuery = `UPDATE eventos SET titulo = ?, descripcion = ?, precio = ?, fecha = ?, hora = ?, ubicacion = ?, capacidad_maxima = ?, id_categoria = ?, foto=? WHERE id = ?`;
+                connection.query(stringQuery, [titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_categoria,foto, id], (err, res) => {
                         connection.release(); 
                         if (err) callback(err, null);
                         else callback(null, 'Evento actualizado correctamente');
@@ -572,13 +605,30 @@ class DAO {
                     this.getUserById(idUser, (err, data) => {
                         if (err) callback(err);
                         let username = data.nombre;
-                        mensaje = `El usuario ${username} se ha inscrito al evento`;
+                        mensaje = `El usuario ${username} se ha añadido a la lista de espera del evento ${titulo}`;
                         idUser = eventData.id_organizador;
                         this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
                     });
                     callback(null);
                 })
                 break;
+            case DAO.CODIGO_QUITAR_DE_ESPERA:
+            this.getEvento(idEvento, (err, data) => {
+                let eventData = data[0]
+                if (err) callback(err);
+                titulo = eventData.titulo;
+                mensaje = `Se ha eliminado de la lista de espera del evento ${titulo} con exito`;
+                this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                this.getUserById(idUser, (err, data) => {
+                    if (err) callback(err);
+                    let username = data.nombre;
+                    mensaje = `El usuario ${username} se ha quitado de la lista de espera del evento ${titulo}`;
+                    idUser = eventData.id_organizador;
+                    this.createRowOnDatabaseNotification(idUser, idEvento, titulo, mensaje, (err) => { callback(err) });
+                });
+                callback(null);
+            })
+            break;
             case DAO.CODIGO_DESAPUNTAR:
                 this.getEvento(idEvento, (err, data) => {
                     let eventData = data[0]
@@ -728,7 +778,7 @@ class DAO {
         this.pool.getConnection((err, connection) => {
             if (err) callback(err, null)
             else {
-                let stringQuery = `SELECT * FROM notificaciones WHERE id_usuario = ?`;
+                let stringQuery = `SELECT * FROM notificaciones WHERE id_usuario = ? order by fechaRecibida DESC`;
                 connection.query(stringQuery, [idUsuario], function (err, res) {
                     connection.release();
                     if (err) callback(err, null)
@@ -812,6 +862,20 @@ class DAO {
         });
     }
 
+    getWaitingList(eventId,callback){
+        this.pool.getConnection((err, connection) => {
+            if (err) callback(err, null);
+            else {
+                let stringQuery = `SELECT * FROM inscripciones WHERE id_evento=? AND esta_lista_espera=1 AND activo =1 ORDER BY fecha_inscripcion ASC `;
+                connection.query(stringQuery, [eventId], function (err, result) {
+                    connection.release();
+                    if (err) callback(err, null)
+                    else callback(null, result);
+    
+                });
+            }
+        });
+    }
 }
 
 module.exports = DAO

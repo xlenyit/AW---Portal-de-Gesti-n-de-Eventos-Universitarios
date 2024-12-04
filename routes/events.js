@@ -50,7 +50,7 @@ const isLoggedIn = (req, res, next) => { //Middleware que asegura de que solo lo
   };
 
 // EVENTO
-router.get('/event/:id',isLoggedIn,(request, response) => {
+router.get('/event/:id',isLoggedIn, multerFactory.single('imagen'),(request, response) => {
     response.status(200)
     var config = {};
     let id = request.params.id;
@@ -59,12 +59,11 @@ router.get('/event/:id',isLoggedIn,(request, response) => {
     // Si user === null -> !isLogged
     // Si no, tomar valores desde user.hasNotification, user.esta_inscrito...
     config.isLogged = (request.session.user ==null ? false: true);
-    config.hasNotification = request.hasNotification;
     config.usuario= { esta_inscrito: true, esta_lista_espera: true};
     config.organizadorDeEste=false;
     config.usuarioOrg=false;
-    config.image_path= '/img/placeholderEvento.jpg',
-    config.image_alt= 'Imagen'
+    config.image_path= null,
+    config.image_alt= 'Imagen del evento'
 
     midao.getUserById(request.session.user, function(err, res){
         if(err) console.error('Error: No se ha encontrado el usuario ', null)
@@ -104,6 +103,13 @@ router.get('/event/:id',isLoggedIn,(request, response) => {
                     config.capacidad_maxima= resultado.capacidad_maxima;
                     config.descripcion = resultado.descripcion;
                     config.ocupacion = resultado.ocupacion;
+                    let imageUrl = null
+                    if(resultado.foto) {
+                        console.log("tiene foto")
+                        const imageBase64 = resultado.foto.toString('base64');
+                        imageUrl = 'data:image/jpeg;base64,' + imageBase64;
+                        config.image_path = imageUrl;
+                    }
         
                 };
                 checkAndRender();
@@ -176,7 +182,7 @@ router.post('/:id/createInscription', (request, response) => {
     })
 })
 
-//DESAPUNTASE DE EVENTO
+//DESAPUNTASE DE EVENTO (ASIS)
 router.post('/:id/deleteInscription', (request, response) => {
     midao.deleteInscription(request.session.user,request.params.id,(err, res) => {
       if(err) console.error(err)
@@ -189,19 +195,51 @@ router.post('/:id/deleteInscription', (request, response) => {
     })
 })
 
-// BORRAR USUARIO DE EVENTO (ORG)
-router.post('/:eventId/deleteInscription/:userId', (request, response) => {
-    midao.deleteInscription(request.params.userId,request.params.eventId,(err, res) => {
+//QUITARSE DE LISTA DE ESPERA DE EVENTO (ASIS)
+router.post('/:id/deleteInscriptionWaitingList', (request, response) => {
+    midao.deleteInscriptionWaitingList(request.session.user,request.params.id,(err, res) => {
       if(err) console.error(err)
       else {
-        midao.createNotificacion(request.params.userId, request.params.eventId, DAO.CODIGO_ELIMINAR, (err) =>{
+        midao.createNotificacion(request.session.user, request.params.id, DAO.CODIGO_QUITAR_DE_ESPERA, (err) =>{
             if (err) console.error(err);
         })
         response.json(res)
       }
     })
 })
-//SER AÑADIDO A LISTA DE ESPERA == INSCRIBIRSE A EVENTO COMPLETO
+
+// BORRAR USUARIO DE EVENTO (ORG)
+router.post('/:eventId/deleteInscription/:userId', (request, response) => {
+    midao.deleteInscription(request.params.userId,request.params.eventId,(err, res) => {
+      if(err) console.error(err)
+      else {
+        midao.getWaitingList(request.params.eventId, (err, waitingList) => {
+            if(err) console.error(err)
+            else{
+                if (waitingList && waitingList.length > 0) {
+                    midao.removeFromWaitingList(waitingList[0].id_usuario,request.params.eventId, (err, result => {
+                        if(err) console.error(err)
+                        else{
+                            midao.createNotificacion(request.params.userId, request.params.eventId, DAO.CODIGO_SALIR_LISTA_ESPERA, (err) =>{
+                                if (err) console.error(err);
+                            })
+                            response.json(res)
+                        }
+                    }))
+                }
+                else{
+                    midao.createNotificacion(request.params.userId, request.params.eventId, DAO.CODIGO_ELIMINAR, (err) =>{
+                        if (err) console.error(err);
+                    })
+                    response.json(res)
+                }
+                
+            }
+        })
+      }
+    })
+})
+//INSCRIBIRSE A EVENTO COMPLETO == AÑADIRSE A LISTA ESPERA (ASIS)
 router.post('/:id/createInscriptionWaitingList', (request, response) => {
     midao.createInscriptionWaitingList(request.session.user,request.params.id,(err, res) => {
         if(err) console.error(err)
@@ -268,6 +306,7 @@ router.get('/eventUserManager/:id', (request, response) =>{
     // }
 })
 
+//EDITAR EVENTO
 router.get('/:id/edit', (request, response) => {
     let eventId = request.params.id;
 
@@ -277,19 +316,23 @@ router.get('/:id/edit', (request, response) => {
         }
 
         midao.getCategories((err, categorias) => {
-            console.log("cate",evento[0].fecha.toISOString().split('T')[0])
             evento[0].fecha=evento[0].fecha.toISOString().split('T')[0]
             if (err) return response.status(500).send('Error al obtener las categorías');
-            response.status(200).render('editEvent', {evento: evento[0], categorias});
+            let imageUrl = null
+            if(evento.foto) {
+                const imageBase64 = evento.foto.toString('base64');
+                imageUrl = 'data:image/jpeg;base64,' + imageBase64;
+            }
+            response.status(200).render('editEvent', {evento: evento[0], categorias,imageUrl});
         });
     });
 });
 
-router.post('/:id/edit', sqlInjectionCheckMiddleware, (request, response) => {
+router.post('/:id/edit', sqlInjectionCheckMiddleware, multerFactory.single('imagenEvento'),(request, response) => {
     const {  titulo, descripcion, precio, fecha, hora, ubicacion, capacidad_maxima, id_categoria } = request.body;
-
-console.log("a ver",request.params.id,titulo,descripcion,precio,fecha,hora,ubicacion,capacidad_maxima,id_categoria)
-    midao.modifyEvent(request.params.id,titulo,descripcion,precio,fecha,hora,ubicacion,capacidad_maxima,id_categoria,(err, result) => {
+    const foto = request.file ? request.file.buffer : null; 
+    
+    midao.modifyEvent(request.params.id,titulo,descripcion,precio,fecha,hora,ubicacion,capacidad_maxima,id_categoria,foto,(err, result) => {
         if (err) {
             console.error('Error al modificar el evento:', err);
             return response.status(500).send('Error al modificar el evento');

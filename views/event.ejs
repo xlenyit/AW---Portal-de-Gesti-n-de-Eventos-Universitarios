@@ -3,67 +3,87 @@
 <%- include('partes/head') %>
 <body>
 <%-include('partes/header') %>
-<div class="container ">
-    <div class="d-flex mh-0 ph-0">
-        <div id="mainDiv" class=" ">
-            <h1><%= nombre %></h1>
-            <div class="container vw-100 m-0 p-0">
-                <div class="row">
-                    <div class="col" id="eventImageContainer">
-                        <img src="<%= image_path %>" alt="<%= image_alt %>" class="w-75">
-                    </div>
-                    <div class="col" id="eventSpecificationsContainer">
-                        <p>Fecha: <%= fecha.toLocaleDateString("es-ES") %></p>
-                        <p>Hora: <%= hora %></p>
-                        <p>Ubicación: <%= ubicacion %></p>
-                        <p>Precio: <%= precio %></p>
-                        <p>Capacidad: <%= capacidad_maxima %></p>
-                    </div>
-                </div>
-                <div class="container vw-100 m-0 p-0 mt-4">
+<div class="container my-5">
+    <div class="d-flex flex-column">
+        <!-- Título del evento -->
+        <div id="mainDiv" class="text-center mb-4">
+            <h1 class="display-4 text-primary"><%= nombre %></h1>
+        </div>
 
-                    <div class="row" id="joinContainer">
-                        <div id="ocupacionContainer" class="col">
-                                    <span>Ocupación: <%=  (ocupacion> capacidad_maxima)?capacidad_maxima:ocupacion  %> / <%= capacidad_maxima %> -
-                                        <%= (ocupacion*100/capacidad_maxima).toFixed(0) %> %</span>
+        <!-- Detalles principales -->
+        <div class="container">
+            <div class="row g-4">
+                <!-- Imagen del evento -->
+                <div class="col-md-6 text-center">
+                    <img src="<%= image_path === null ? '/img/placeholderEvento.jpg' : image_path %>" alt="<%= image_alt %>" class="w-100 rounded shadow">
+                </div>
+                <!-- Especificaciones del evento -->
+                <div class="col-md-6 bg-light p-4 rounded shadow align-content-center">
+                    <h4 class="text-secondary">Detalles del evento</h4>
+                    <ul class="list-unstyled">
+                        <li><strong>Fecha:</strong> <%= fecha.toLocaleDateString("es-ES") %></li>
+                        <li><strong>Hora:</strong> <%= hora %></li>
+                        <li><strong>Ubicación:</strong> <%= ubicacion %></li>
+                        <li><strong>Precio:</strong> <%= precio %></li>
+                        <li><strong>Capacidad:</strong> <%= capacidad_maxima %></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="container my-4">
+            <div class="row align-items-center">
+                <!-- Ocupación -->
+                <div class="col-md-4 text-center">
+                    <span class="badge bg-info p-3">
+                        Ocupación: <%= (ocupacion > capacidad_maxima) ? capacidad_maxima : ocupacion %> /
+                        <%= capacidad_maxima %> -
+                        <%= (ocupacion * 100 / capacidad_maxima).toFixed(0) %> %
+                    </span>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="col-md-8 text-center">
+                    <% if (usuarioOrg && organizadorDeEste) { %>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="/events/<%= idEvento %>/edit" class="btn btn-outline-primary">Editar Evento</a>
+                            <a href="/events/eventUserManager/<%= idEvento %>" class="btn btn-outline-success">Ver Asistentes</a>
                         </div>
-                        <% if (usuarioOrg && organizadorDeEste) { %>
-                            <div id="botonEditarEventoContainer" class="col d-flex justify-content-center ">
-                                <a href="/events/<%= idEvento %>/edit"><button id="editEventButton" class=" bg-primary text-white">
-                                    Editar Evento
-                                </button></a>
-                                <a href="/events/eventUserManager/<%= idEvento %>"><button  class=" bg-primary text-white">
-                                    Ver Asistentes
-                                </button></a>
-                            </div>
-                        
-                        <% }else{  %>
-                        <div id="botonIncribirseContainer" class="col d-flex justify-content-center <% if (!isLogged) { %>d-none<% } %>">
+                    <% } else { %>
+                        <div <% if (!isLogged) { %>class="d-none"<% } %>>
                             <button id="changeStateButton" name="<%= idEvento %>"
-                                <% if (!usuario.esta_inscrito && ocupacion < capacidad_maxima){ %>
-                                    class="w-50 bg-info noInscrito <% if (usuarioOrg) { %>d-none<% } %>" >
+                                <% if (!usuario.esta_inscrito && ocupacion < capacidad_maxima) { %>
+                                    class="btn btn-info noInscrito">
                                 Inscribirse
-                                <% } else if (!usuario.esta_inscrito && ocupacion == capacidad_maxima) { %>
-                                    class="w-50 bg-secondary completo <% if (usuarioOrg) { %>d-none<% } %>">Añadirse a lista de espera
+                                <% } else if (!usuario.esta_inscrito && !usuario.esta_lista_espera && ocupacion == capacidad_maxima) { %>
+                                    class="btn btn-secondary completo">
+                                Lista de espera
                                 <% } else if (usuario.esta_lista_espera) { %>
-                                    class="w-50 bg-warning enEspera <% if (usuarioOrg) { %>d-none<% } %>">Quitarse de lista de espera
-                                <% } else{ %>
-                                    class="w-50 bg-danger text-white desapuntarse <% if (usuarioOrg) { %>d-none<% } %>">Desapuntarse
-                                <% }; %>
+                                    class="btn btn-warning enEspera">
+                                Quitarse de lista de espera
+                                <% } else { %>
+                                    class="btn btn-danger desapuntarse">
+                                Desapuntarse
+                                <% } %>
                             </button>
                         </div>
-                        <% } %>
-                    </div>
+                    <% } %>
                 </div>
             </div>
-            <div id="descripcion" class="mt-3 p-2 border-solid border">
-                <%= descripcion %>
-            </div>
+        </div>
+
+        <!-- Descripción del evento -->
+        <div id="descripcion" class="bg-white border rounded shadow p-4 mt-3">
+            <h5 class="text-secondary">Descripción</h5>
+            <p class="text-muted"><%= descripcion %></p>
         </div>
     </div>
 </div>
+<%-include('partes/footer') %>
 </body>
-<script src="/javascripts/enrollInEvent.js"></script>
+<script src="/javascripts/enrollInEvent.js"></script> 
 <script src="/javascripts/withdrawFromEvent.js"></script>
+<script src="/javascripts/withdrawFromWaitingList.js"></script>
 <script src="/javascripts/beAddedToWaitingList.js"></script>
 </html>

@@ -1,85 +1,86 @@
 <!DOCTYPE html>
 <html lang="es">
 <link rel="stylesheet" type="text/css" href='/stylesheets/eventViewer.css'>
-<%-include('partes/head') %>
-<body>
-<%-include('partes/header') %>
-<div class="container m-0 p-0 w-100">
-    <div class="row">
-        <div class="col-2 range">
-            <div id="priceSliderContainer" class="text-center border">
-                <label for="priceSlider" class="w-100">Precio:</label>
-                <input class="slider" type="range" min="0" max="<%=precio_maximo%>" id="priceSlider">
-            </div>
-            <div id="organizatorContainer" class="container w-100 border">
-                <span>Organizadores: </span>
-                <% organizators.forEach(res => {%>
-                    <div id="<%=res.nombre%>Container" class="w-100 row mx-2">
-                        <div class="col-1">
-                            <input type="checkbox" id="<%=res.nombre%>Input">
-                        </div>
-                        <div class="col-10">
-                            <label for="<%=res.nombre%>Input"><%=res.nombre%></label>
-                        </div>
-                    </div>
-                <%});%>
-            </div>
-            <div id="categoriesContainer" class="container w-100 border">
-                <span>Categorias: </span>
-                <% categories.forEach(category => {%>
-                <div id="<%=category.nombre%>Container" class="w-100 row mx-2">
-                    <div class="col-1">
-                        <input type="checkbox" id="<%=category.nombre%>Input">
-                    </div>
-                    <div class="col-10">
-                        <label for="<%=category.nombre%>Input"><%=category.nombre%></label>
-                    </div>
+<%- include('partes/head') %>
+<body class="bg-light">
+    <%- include('partes/header') %>
+
+    <div class="container-fluid my-5">
+        <div class="row">
+            <!-- Panel lateral -->
+            <div class="col-md-3 p-3 rounded shadow-sm" >
+                <!-- Slider de precio -->
+                <div id="priceSliderContainer" class="mb-4">
+                    <h5 class="text-center  mb-3">Filtrar por precio</h5>
+                    <label for="priceSlider" class="form-label ">Precio: <span id="priceValue">0</span></label>
+                    <input class="form-range" type="range" min="0" max="<%= precio_maximo %>" id="priceSlider" oninput="document.getElementById('priceValue').innerText=this.value">
                 </div>
-                <%});%>
-            </div>
-            <% if (es_organizador) {%>
-            <div class="d-flex justify-content-center">
-                <a href="/events/createEvent"><button id = "crearEventoBtn" class=" btn btn-primary m-2" > Crear nuevo evento</button></a>
-            </div>
-            <%}%>
-        </div>
-        <div class="col w-100 text-center justify-content-center align-items-center">
-            <div class="container w-100 p-0 m-0">
-                <% let counter = 0; %>
-                <% let size = 0; %>
-                <%if (eventos.length >= 3) size = 3%>
-                <% eventos.forEach((event, index) => { %>
-                    <% if (counter === 0) { %>
-                    <div class="row">
-                        <% } %>
-
-                        <div class="col-4">
-                            <div class="card mb-2">
-                                <img class="card-img-top" src="/img/placeholderEvento.jpg">
-                                <h5 class="card-title"><%= event.titulo %></h5>
-                                <p class="card-text"><%=event.descripcion%></p>
-                                <div class="card-subtitle text-body-secondary d-flex justify-content-between">
-                                    <span class="px-4"><%= event.fecha.toLocaleDateString("es-ES") %></span>
-                                    <span class="px-4"><%=  (event.ocupacion> event.capacidad_maxima)?event.capacidad_maxima:event.ocupacion  %>/<%= event.capacidad_maxima %></span>
-                                </div>
-                                <div class="align-items-center">
-                                    <a href="<%= '/events/event/' + event.id %>" class="btn btn-info w-75 m-2">Ver más</a>
-                                </div>
-
-                            </div>
-
+            
+                <!-- Filtro por organizadores -->
+                <div id="organizatorContainer" class="mb-4">
+                    <h5 class=" mb-3">Organizadores</h5>
+                    <% organizators.forEach(res => { %>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input " id="<%= res.nombre %>Input">
+                            <label for="<%= res.nombre %>Input" class="form-check-label "><%= res.nombre %></label>
                         </div>
-
-                        <% counter++; %>
-                        <% if (counter === 3 || index === eventos.length - 1) { %>
+                    <% }); %>
+                </div>
+            
+                <!-- Filtro por categorías -->
+                <div id="categoriesContainer" class="mb-4">
+                    <h5 class=" mb-3 ">Categorías</h5>
+                    <% categories.forEach(category => { %>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="<%= category.nombre %>Input">
+                            <label for="<%= category.nombre %>Input" class="form-check-label"><%= category.nombre %></label>
+                        </div>
+                    <% }); %>
+                </div>
+            
+                <!-- Botón de crear evento -->
+                <% if (es_organizador) { %>
+                    <div class="d-grid">
+                        <a href="/events/createEvent" class="btn btn-secondary">Crear nuevo evento</a>
                     </div>
-                    <% counter = 0; %>
-                    <% } %>
-                <% }); %>
+                <% } %>
+            </div>
+            
+
+            <!-- Tarjetas de eventos -->
+            <div class="col-md-9">
+                <h3 class="text-center text-primary mb-4">Eventos disponibles</h3>
+                <div class="row g-3">
+                    <% eventos.forEach(event => { %>
+                        <div class="col-md-4">
+                            <div class="card h-100 shadow-sm">
+                                <img src="<%= event.foto === null ? '/img/placeholderEvento.jpg' : event.foto %>" class="img-fluid rounded-start w-100" alt="<%= event.titulo %>">
+                                <div class="card-body">
+                                    <h5 class="card-title"><%= event.titulo %></h5>
+                                    <p class="card-text text-muted"><%= event.descripcion %></p>
+                                </div>
+                                <div class="card-footer d-flex justify-content-between align-items-center">
+                                    <small class="text-muted"><i class="bi bi-calendar"></i> <%= event.fecha.toLocaleDateString("es-ES") %></small>
+                                    <small class="text-muted"><i class="bi bi-people"></i> <%= event.ocupacion > event.capacidad_maxima ? event.capacidad_maxima : event.ocupacion %>/<%= event.capacidad_maxima %></small>
+                                </div>
+                                <div class="text-center p-3">
+                                    <a href="<%= '/events/event/' + event.id %>" class="btn btn-info w-75">Ver más</a>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
             </div>
         </div>
     </div>
 
-</div>
+    <script>
+        // Opcional: Configurar slider para mostrar valor seleccionado
+        const slider = document.getElementById("priceSlider");
+        slider.addEventListener("input", function () {
+            document.getElementById("priceValue").textContent = this.value;
+        });
+    </script>
+    <%- include('partes/footer') %>
 </body>
 </html>

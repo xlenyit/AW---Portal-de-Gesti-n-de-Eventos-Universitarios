@@ -1,35 +1,56 @@
 <!DOCTYPE html>
 <html lang="es">
-    <%-include('partes/head') %>
+    <%- include('partes/head') %>
 
-    <body>
-        <%-include('partes/header') %>
-        <div class="container ">
-            <div class="d-flex align-items-center justify-content-center">
-                <div id="mainDiv" class=" ">
-                    <h1>Inicio de sesión</h1>
-                    <form method="post" action="/users/login">
-                        <h4 class="my-3">Correo</h4>
-                        <div id="emailContainer">
-                            <input class="w-100 form-control" type="text" name="email" id="email" placeholder="example@ucm.es">
+    <body class="bg-light">
+        <%- include('partes/header') %>
+        <div id="loginDiv" class="container d-flex align-items-center justify-content-center my-4">
+            <div id="mainDiv" class="card shadow-lg p-4" >
+                <h1 class="text-center mb-4 ">Inicio de Sesión</h1>
+                <form method="post" action="/users/login">
+                    <!-- Correo -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-bold">Correo</label>
+                        <input 
+                            type="text" 
+                            name="email" 
+                            id="email" 
+                            class="form-control" 
+                            placeholder="example@ucm.es" 
+                            required>
+                    </div>
+
+                    <!-- Contraseña -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label fw-bold">Contraseña</label>
+                        <div class="input-group">
+                            <input 
+                                type="password" 
+                                name="contrasena" 
+                                id="password" 
+                                class="form-control" 
+                                placeholder="Contraseña" 
+                                required>
+                            <button 
+                                type="button" 
+                                id="togglePassword" 
+                                class="btn btn-outline-secondary">Mostrar</button>
                         </div>
-                        <h4 class="my-3">Contraseña</h4>
-                        <div id="passContainer" class="input-group">
-                            <input class="w-75 form-control" type="password" name="contrasena" id="password" placeholder="Contraseña">
-                            <button type="button" class="passButton w-25" id="togglePassword">Mostrar</button>
-                        </div>
-                        <div class="row my-4 d-flex align-items-center justify-content-center ">
-                            <div class="col-8">
-                                <input id="login" class="btn btn-primary w-100" type="submit" value="Iniciar sesión">
-                            </div>
-                            <div class="col-4">
-                                <a class="btn btn-sm bg-secondary w-100 text-wrap" type="submit" href="/users/register">¿No tienes cuenta?</a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-grid gap-2 mb-3">
+                        <button id="login" type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                    </div>
+                    <div class="text-center">
+                        <a href="/users/register" class="text-decoration-none text-secondary">
+                            ¿No tienes cuenta? <span class="fw-bold text-primary">Regístrate aquí</span>
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
+        <%- include('partes/footer') %>
     </body>
     <script src="/javascripts/showPassword.js"></script>
 </html>

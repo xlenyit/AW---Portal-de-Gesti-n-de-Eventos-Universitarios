@@ -6,9 +6,9 @@
     <body class="d-flex flex-column min-vh-100 bg-light">
         <%- include('partes/header') %>
 
-        <div class="container">
+        <div class="container my-5">
             <!-- Row principal -->
-            <div class="row ">
+            <div class="row  ">
                 <!-- Columna de bienvenida -->
                 <div class="col-md-4 d-flex align-items-center">
                     <div class="card shadow-lg p-4 w-100">
@@ -39,11 +39,11 @@
                         <div class="card-body z-index-0 scrollable">
                             <% if (isLogged && events.length > 0) { %>
                                 <% events.forEach(event => { %>
-                                    <div class="card mb-3">
+                                    <a href="/events/event/<%=event.id%>" class="text-decoration-none"><div class="card mb-3">
                                         <div class="row g-0">
                                             <div class="col-md-4">
                                                 <img src="<%= event.foto === null ? '/img/placeholderEvento.jpg' : event.foto %>" 
-                                                     class="img-fluid rounded-start" 
+                                                     class="img-fluid rounded-start w-100" 
                                                      alt="<%= event.titulo %>">
                                             </div>
                                             <div class="col-md-8">
@@ -54,7 +54,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div></a>
                                 <% }) %>
                             <% } else { %>
                                 <p class="text-center text-muted">No hay eventos disponibles.</p>

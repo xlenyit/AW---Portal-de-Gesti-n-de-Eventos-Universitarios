@@ -4,86 +4,92 @@
 <body>
 <%- include('partes/header') %>
 
-<div class="container mt-5">
-    <h1 class="text-center mb-4">Editar Evento</h1>
-    <form action="/events/<%= evento.id %>/edit" method="POST" class="needs-validation" novalidate>
+<div class="container my-5">
+    <h1 class="text-center mb-4 text-primary">Editar Evento</h1>
+
+    <form action="/events/<%= evento.id %>/edit" method="POST" enctype="multipart/form-data" class="needs-validation shadow p-4 rounded bg-light" novalidate>
         <!-- Título -->
         <div class="mb-3">
             <label for="titulo" class="form-label">Título</label>
-            <input type="text" class="form-control" id="titulo" name="titulo" value="<%= evento.titulo %>">
-            <div class="invalid-feedback">
-                Por favor, ingresa un título válido.
-            </div>
+            <input type="text" class="form-control" id="titulo" name="titulo" value="<%= evento.titulo %>" required>
+            <div class="invalid-feedback">Por favor, ingresa un título válido.</div>
         </div>
+
         <!-- Descripción -->
         <div class="mb-3">
             <label for="descripcion" class="form-label">Descripción</label>
-            <textarea class="form-control" id="descripcion" name="descripcion" rows="5"><%= evento.descripcion %></textarea>
-            <div class="invalid-feedback">
-                Por favor, ingresa una descripción válida.
-            </div>
+            <textarea class="form-control" id="descripcion" name="descripcion" rows="5" required><%= evento.descripcion %></textarea>
+            <div class="invalid-feedback">Por favor, ingresa una descripción válida.</div>
         </div>
+
         <!-- Precio -->
         <div class="mb-3">
             <label for="precio" class="form-label">Precio</label>
-            <input type="number" class="form-control" id="precio" name="precio" value="<%= evento.precio %>" min="0" >
-            <div class="invalid-feedback">
-                Por favor, ingresa un precio válido.
-            </div>
+            <input type="number" class="form-control" id="precio" name="precio" value="<%= evento.precio %>" min="0" required>
+            <div class="invalid-feedback">Por favor, ingresa un precio válido.</div>
         </div>
+
         <!-- Fecha -->
         <div class="mb-3">
             <label for="fecha" class="form-label">Fecha</label>
-            <input type="date" class="form-control" id="fecha" name="fecha" value="<%= evento.fecha %>" >
-            <div class="invalid-feedback">
-                Por favor, selecciona una fecha válida.
-            </div>
+            <input type="date" class="form-control" id="fecha" name="fecha" value="<%= evento.fecha %>" required>
+            <div class="invalid-feedback">Por favor, selecciona una fecha válida.</div>
         </div>
+
         <!-- Hora -->
         <div class="mb-3">
             <label for="hora" class="form-label">Hora</label>
-            <input type="time" class="form-control" id="hora" name="hora" value="<%= evento.hora %>" >
-            <div class="invalid-feedback">
-                Por favor, selecciona una hora válida.
-            </div>
+            <input type="time" class="form-control" id="hora" name="hora" value="<%= evento.hora %>" required>
+            <div class="invalid-feedback">Por favor, selecciona una hora válida.</div>
         </div>
+
         <!-- Ubicación -->
         <div class="mb-3">
             <label for="ubicacion" class="form-label">Ubicación</label>
-            <input type="text" class="form-control" id="ubicacion" name="ubicacion" value="<%= evento.ubicacion %>" >
-            <div class="invalid-feedback">
-                Por favor, ingresa una ubicación válida.
-            </div>
+            <input type="text" class="form-control" id="ubicacion" name="ubicacion" value="<%= evento.ubicacion %>" required>
+            <div class="invalid-feedback">Por favor, ingresa una ubicación válida.</div>
         </div>
+
         <!-- Capacidad Máxima -->
         <div class="mb-3">
             <label for="capacidad_maxima" class="form-label">Capacidad Máxima</label>
-            <input type="number" class="form-control" id="capacidad_maxima" name="capacidad_maxima" value="<%= evento.capacidad_maxima %>" min="1" >
-            <div class="invalid-feedback">
-                Por favor, ingresa una capacidad máxima válida.
-            </div>
+            <input type="number" class="form-control" id="capacidad_maxima" name="capacidad_maxima" value="<%= evento.capacidad_maxima %>" min="1" required>
+            <div class="invalid-feedback">Por favor, ingresa una capacidad máxima válida.</div>
         </div>
+
         <!-- Categoría -->
         <div class="mb-3">
             <label for="id_categoria" class="form-label">Categoría</label>
-            <select class="form-select" id="id_categoria" name="id_categoria" >
+            <select class="form-select" id="id_categoria" name="id_categoria" required>
                 <% categorias.forEach((categoria) => { %>
                     <option value="<%= categoria.id %>" <%= evento.id_categoria === categoria.id ? 'selected' : '' %>>
                         <%= categoria.nombre %>
                     </option>
                 <% }) %>
             </select>
-            <div class="invalid-feedback">
-                Por favor, selecciona una categoría válida.
+            <div class="invalid-feedback">Por favor, selecciona una categoría válida.</div>
+        </div>
+
+        <!-- Imagen del Evento -->
+        <div class="mb-4 ">
+            <label for="imagenEvento" class="form-label">Imagen del Evento</label>
+            <div class=" row justify-content-evenly"> 
+                <div class="col mb-3 w-25">
+                    <% let imagenSrc = imageUrl ? imageUrl : '/img/placeholderEvento.jpg'; %> 
+                    <img src="<%= imagenSrc %>" alt="Imagen del evento" class="img-fluid img-thumbnail w-50"> 
+                </div>
+                <input type="file" class="col h-25 form-control" id="imagenEvento" name="imagenEvento" accept="image/*">
             </div>
         </div>
+
+
         <!-- Botón de enviar -->
         <div class="d-grid">
             <button type="submit" class="btn btn-primary">Guardar Cambios</button>
         </div>
     </form>
 </div>
-
+<%- include('partes/footer') %>
 <!-- <script>
     // Validación del formulario con Bootstrap
     (function () {
@@ -100,5 +106,38 @@
         });
     })();
 </script> -->
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const errorMessage = document.getElementById('error');
+  
+    // Tamaño máximo del archivo en bytes (5 MB por ejemplo)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;  // 5 MB
+  
+    fileInput.addEventListener('change', function(event) {
+      const file = event.target.files[0];
+  
+      if (file) {
+        // Validar el tamaño del archivo
+        if (file.size > MAX_FILE_SIZE) {
+          errorMessage.textContent = 'El archivo es demasiado grande. El tamaño máximo es 5 MB.';
+          errorMessage.style.display = 'block';
+          fileInput.value = '';  // Limpiar el input si el archivo es demasiado grande
+        } else {
+          errorMessage.style.display = 'none';
+        }
+      }
+    });
+  
+    // También se puede validar al enviar el formulario
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+      const file = fileInput.files[0];
+      if (file && file.size > MAX_FILE_SIZE) {
+        event.preventDefault();  // Evitar el envío del formulario si el archivo es demasiado grande
+        errorMessage.textContent = 'El archivo es demasiado grande. El tamaño máximo es 5 MB.';
+        errorMessage.style.display = 'block';
+      }
+    });
+  </script>
 </body>
 </html>
